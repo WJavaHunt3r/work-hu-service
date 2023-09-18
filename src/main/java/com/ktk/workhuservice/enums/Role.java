@@ -1,0 +1,9 @@
+package com.ktk.workhuservice.enums;
+
+public enum Role {
+    ADMIN, USER, TEAM_LEADER;
+
+    public static boolean hasRestrictions(Role role) {
+        return USER.equals(role) || TEAM_LEADER.equals(role);
+    }
+}
