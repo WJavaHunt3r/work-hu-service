@@ -30,18 +30,16 @@ public class Transaction extends BaseEntity<Transaction, Long> {
     private String description;
 
     @NotNull
-    @ManyToOne
-    @JoinColumn(name = "USERS")
-    private User user;
+    @Column(name = "USER_ID")
+    private Long userId;
 
     @Column(name = "POINTS")
     @NotNull
     private double points;
 
     @NotNull
-    @ManyToOne
-    @JoinColumn(name = "CREATE_USERS")
-    private User createUser;
+    @Column(name = "CREATE_USER_ID")
+    private Long createUserId;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     @Column(name = "CREATE_DATE_TIME")

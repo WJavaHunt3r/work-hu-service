@@ -13,11 +13,11 @@ public abstract class BaseEntity<T, I extends Serializable> implements Serializa
     @Id
     protected I id;
 
-    protected I getId() {
+    public I getId() {
         return id;
     }
 
-    protected void setId(I id) {
+    public void setId(I id) {
         this.id = id;
     }
 }

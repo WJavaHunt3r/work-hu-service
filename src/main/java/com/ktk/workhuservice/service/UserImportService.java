@@ -87,6 +87,8 @@ public class UserImportService {
                     teamService.save(t);
                 });
             }
+
+            teamService.recalculateAllTeamPoints();
         } catch (Exception e) {
             e.printStackTrace();
         }

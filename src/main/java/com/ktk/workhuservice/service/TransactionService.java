@@ -17,12 +17,12 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Iterable<Transaction> getAllByUser(User u) {
-        return transactionRepository.findAllByUser(u);
+    public Iterable<Transaction> getAllByUser(Long id) {
+        return transactionRepository.findAllByUserId(id);
     }
 
     public Iterable<Transaction> getAllByUserAndSeason(User u, Season s) {
-        return transactionRepository.findAllByUserAndSeason(u, s);
+        return transactionRepository.findAllByUserIdAndSeason(u.getId(), s);
     }
 
     public void save(Transaction t) {

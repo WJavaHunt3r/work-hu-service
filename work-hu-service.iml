@@ -131,5 +131,6 @@
     <orderEntry type="library" name="Maven: org.springframework.plugin:spring-plugin-core:2.0.0.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.atteo:evo-inflector:1.2.2" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.12.6" level="project" />
+    <orderEntry type="library" name="Maven: org.modelmapper:modelmapper:3.1.0" level="project" />
   </component>
 </module>

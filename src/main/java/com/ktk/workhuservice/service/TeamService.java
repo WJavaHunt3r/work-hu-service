@@ -46,6 +46,7 @@ public class TeamService {
         for (User u : userService.findAllByTeam(t)){
             userService.calculateUserPoints(u);
             points += u.getPoints();
+            userService.save(u);
         }
         t.setPoints(points/userService.countAllByTeam(t));
         teamRepository.save(t);

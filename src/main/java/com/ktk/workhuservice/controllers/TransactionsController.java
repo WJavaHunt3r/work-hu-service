@@ -1,8 +1,6 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Season;
 import com.ktk.workhuservice.data.Transaction;
-import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.service.SeasonService;
 import com.ktk.workhuservice.service.TransactionService;
 import com.ktk.workhuservice.service.UserService;
@@ -10,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -27,34 +24,30 @@ public class TransactionsController {
 
     @PostMapping("/transaction")
     public ResponseEntity<?> addTransaction(@Valid @RequestBody Transaction transaction) {
-        Optional<User> user = userService.findByMyShareId(transaction.getUser().getMyShareID());
-        Optional<User> createUser = userService.findByMyShareId(transaction.getCreateUser().getMyShareID());
-        Optional<Season> season = seasonService.findBySeasonNumber(transaction.getSeason().getSeasonNumber());
-        if (user.isPresent()) {
-            transaction.setUser(user.get());
-        } else {
-            return ResponseEntity.status(400).body("User not found");
-        }
-        if (createUser.isPresent()) {
-            transaction.setCreateUser(createUser.get());
-        } else {
-            return ResponseEntity.status(400).body("CreateUser not found");
-        }
-        if (season.isPresent()) {
-            transaction.setSeason(season.get());
-        } else {
-            return ResponseEntity.status(400).body("Season not found");
-        }
+//        Optional<User> user = userService.findByMyShareId(transaction.getUser().getMyShareID());
+//        Optional<User> createUser = userService.findByMyShareId(transaction.getCreateUser().getMyShareID());
+//        Optional<Season> season = seasonService.findBySeasonNumber(transaction.getSeason().getSeasonNumber());
+//        if (user.isPresent()) {
+//            transaction.setUser(user.get());
+//        } else {
+//            return ResponseEntity.status(400).body("User not found");
+//        }
+//        if (createUser.isPresent()) {
+//            transaction.setCreateUser(createUser.get());
+//        } else {
+//            return ResponseEntity.status(400).body("CreateUser not found");
+//        }
+//        if (season.isPresent()) {
+//            transaction.setSeason(season.get());
+//        } else {
+//            return ResponseEntity.status(400).body("Season not found");
+//        }
         transactionService.save(transaction);
         return ResponseEntity.status(200).build();
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<?> getTransactionsByUserMyShareId(@RequestParam Long myShareId){
-        Optional<User> user = userService.findByMyShareId(myShareId);
-        if(user.isEmpty()){
-            return ResponseEntity.status(404).body("No user found with this MyshareId");
-        }
-        return ResponseEntity.ok(transactionService.getAllByUser(user.get()));
+    public ResponseEntity<?> getTransactionsByUserId(@RequestParam Long userId){
+        return ResponseEntity.ok(transactionService.getAllByUser(userId));
     }
 }

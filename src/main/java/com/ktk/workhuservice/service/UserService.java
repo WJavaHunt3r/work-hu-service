@@ -6,6 +6,7 @@ import com.ktk.workhuservice.data.Transaction;
 import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.enums.Role;
+import com.ktk.workhuservice.enums.TransactionType;
 import com.ktk.workhuservice.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -33,8 +34,8 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public void save(User u) {
-        userRepository.save(u);
+    public User save(User u) {
+        return userRepository.save(u);
     }
 
     public Iterable<User> getAll() {
@@ -53,12 +54,20 @@ public class UserService {
         return userRepository.findAllByTeam(t);
     }
 
-    public Optional<User> findByMyShareId(Long id){
-        return userRepository.findByMyShareID(id);
+    public Optional<User> findByMyShareId(Long id) {
+        Optional<User> user = userRepository.findByMyShareID(id);
+        user.ifPresent(this::calculateUserPoints);
+        return user;
+    }
+
+    public Optional<User> findById(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        user.ifPresent(this::calculateUserPoints);
+        return user;
     }
 
     public int countAllByTeam(Team t) {
-        return userRepository.countAllByTeam(t);
+        return userRepository.countAllByTeamAndGoalGreaterThan(t, 0);
     }
 
     public void calculateUserPoints(User u) {
@@ -66,9 +75,9 @@ public class UserService {
         if (currentSeason.isPresent()) {
             double points = 0;
             Iterable<Transaction> transactions = transactionService.getAllByUserAndSeason(u, currentSeason.get());
-            StreamSupport.stream(transactions.spliterator(), false).forEach(this::addTransaction);
+            StreamSupport.stream(transactions.spliterator(), false).forEach(t -> addTransaction(t, u));
 
-            if (((double) u.getCurrentMyShareCredit() / u.getGoal()) * 100 > currentSeason.get().getMyShareGoal()) {
+            if (u.getGoal() > 0 && ((double) u.getCurrentMyShareCredit() / u.getGoal()) * 100 > currentSeason.get().getMyShareGoal()) {
                 points += 50;
             }
 
@@ -76,24 +85,21 @@ public class UserService {
                 points += 12;
             }
 
-
-            points += StreamSupport.stream(transactions.spliterator(), false).map(Transaction::getPoints).count();
+            points += StreamSupport.stream(transactions.spliterator(), false).mapToDouble(Transaction::getPoints).sum();
 
             u.setPoints(points);
-            save(u);
         }
     }
 
-    public void addTransaction(Transaction t){
-        User u = t.getUser();
-        if (t.getAccount().equals(Account.MYSHARE)) {
-            u.setCurrentMyShareCredit(u.getBaseMyShareCredit() + t.getValue());
-        } else {
-            u.setBaseSamvirkCredit(u.getBaseSamvirkCredit() + t.getValue());
-        }
+    public void addTransaction(Transaction t, User u) {
+            if (t.getAccount().equals(Account.MYSHARE)) {
+                u.setCurrentMyShareCredit(u.getCurrentMyShareCredit() + (t.getTransactionType().equals(TransactionType.CASH) ? t.getValue() : t.getValue() * 2000));
+            } else {
+                u.setBaseSamvirkCredit(u.getBaseSamvirkCredit() + t.getValue());
+            }
     }
 
-    private void addExtraPoints(User u){
+    private void addExtraPoints(User u) {
 
     }
 }
