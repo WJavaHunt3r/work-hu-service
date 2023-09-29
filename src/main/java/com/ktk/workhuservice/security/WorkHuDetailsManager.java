@@ -52,6 +52,6 @@ public class WorkHuDetailsManager implements UserDetailsManager, UserDetailsPass
             builder.password(u.getPassword());
             builder.roles(u.getRole().name());
             return builder.build();
-        }).orElseThrow(() -> new UsernameNotFoundException("User with does not exist with the given username: " + username));
+        }).orElseThrow(() -> new UsernameNotFoundException("User does not exist with the given username: " + username));
     }
 }

@@ -7,7 +7,6 @@ import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.enums.TeamColor;
 import com.ktk.workhuservice.security.SecurityUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -59,6 +58,8 @@ public class UserImportService {
         } catch (Exception e) {
 
         }
+
+        if(count > 0) return;
 
         try (FileInputStream fis = new FileInputStream(USER_DATA_URL);
              InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.ISO_8859_1);
@@ -127,7 +128,7 @@ public class UserImportService {
         user.setLastname(data[1]);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         user.setBirthDate(LocalDate.parse(data[6], formatter));
-        user.setRole(StringUtils.isEmpty(data[7]) ? Role.USER : Role.valueOf(data[7]));
+        user.setRole(data[7].isEmpty() ? Role.USER : Role.valueOf(data[7]));
         String username = createUserName(data[1] + data[2]);
         user.setUsername(username);
         user.setPassword(SecurityUtils.encryptSecret(username));

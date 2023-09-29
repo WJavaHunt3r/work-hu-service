@@ -28,6 +28,13 @@ public class UserController {
         this.teamService = teamService;
     }
 
+    @GetMapping("/user")
+    public ResponseEntity<?> getUser(@RequestParam String username) {
+        Optional<User> user = userService.findByUsername(username);
+        return user.isPresent() ?
+                ResponseEntity.status(200).body(entityToDto(user.get())) : ResponseEntity.status(404).body("User not found");
+    }
+
     @GetMapping("/users")
     public ResponseEntity<?> getUsers() {
         return ResponseEntity.status(200).body(StreamSupport.stream(userService.getAll().spliterator(), false).map((Function<User, Object>) this::entityToDto));
@@ -43,10 +50,10 @@ public class UserController {
         }
     }
 
-    @GetMapping("/user")
-    public ResponseEntity<?> getTransactions(@RequestParam Long myShareId) {
-        return ResponseEntity.status(200).body(userService.findByMyShareId(myShareId).map(this::entityToDto));
-    }
+//    @GetMapping("/user")
+//    public ResponseEntity<?> getTransactions(@RequestParam Long myShareId) {
+//        return ResponseEntity.status(200).body(userService.findByMyShareId(myShareId).map(this::entityToDto));
+//    }
 
     private UserDto entityToDto(User u) {
         UserDto dto = new UserDto();

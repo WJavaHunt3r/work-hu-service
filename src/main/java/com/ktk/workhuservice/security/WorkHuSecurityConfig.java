@@ -3,17 +3,19 @@ package com.ktk.workhuservice.security;
 import com.ktk.workhuservice.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableWebSecurity
 @Configuration
-public class WorkHuSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WorkHuSecurityConfig {
 
     private final UserService userService;
 
@@ -26,9 +28,14 @@ public class WorkHuSecurityConfig extends WebSecurityConfigurerAdapter {
         return new WorkHuDetailsManager(userService);
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService()).passwordEncoder(new PasswordEncoder() {
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    public static PasswordEncoder passwordEncoder() {
+        return new PasswordEncoder() {
             @Override
             public String encode(CharSequence rawPassword) {
                 return SecurityUtils.encryptSecret((String) rawPassword);
@@ -36,31 +43,32 @@ public class WorkHuSecurityConfig extends WebSecurityConfigurerAdapter {
 
             @Override
             public boolean matches(CharSequence rawPassword, String encodedPassword) {
-                return SecurityUtils.encryptSecret((String) rawPassword).equals(encodedPassword);
+                return (rawPassword).equals(encodedPassword);
             }
-        });
+        };
     }
 
-    @Override
-    public void configure(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .cors()
-                .and()
-                .csrf()
-                .disable()
-
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .csrf().disable()
+                .cors().and()
                 .authorizeRequests()
                 .antMatchers(
-                        "/api"
+                        "/api/**"
                 )
-                .permitAll();
+                .permitAll().and().build();
 
     }
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(
+    @Bean
+    public WebMvcConfigurer webMvcConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**").allowedHeaders("*").allowedMethods("GET", "POST", "DELETE", "PUT", "OPTIONS");
+            }
+        };
 
-        );
     }
 }
