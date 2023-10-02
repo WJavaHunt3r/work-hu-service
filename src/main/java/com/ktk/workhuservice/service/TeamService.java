@@ -18,6 +18,7 @@ public class TeamService {
     }
 
     public Iterable<Team> getAll() {
+        recalculateAllTeamPoints();
         return teamRepository.findAll();
     }
 
@@ -44,15 +45,14 @@ public class TeamService {
     public void recalculatePoints(Team t){
         double points = 0;
         for (User u : userService.findAllByTeam(t)){
-            userService.calculateUserPoints(u);
             points += u.getPoints();
-            userService.save(u);
         }
         t.setPoints(points/userService.countAllByTeam(t));
         teamRepository.save(t);
     }
 
     public void recalculateAllTeamPoints(){
-        getAll().iterator().forEachRemaining(this::recalculatePoints);
+        userService.calculateUserPointsForAllUsers();
+        teamRepository.findAll().iterator().forEachRemaining(this::recalculatePoints);
     }
 }

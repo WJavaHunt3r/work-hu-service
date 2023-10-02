@@ -4,7 +4,7 @@ import com.ktk.workhuservice.data.Season;
 import com.ktk.workhuservice.repositories.SeasonRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -28,11 +28,11 @@ public class SeasonService {
         return seasonRepository.count();
     }
 
-    public Optional<Season> findBySeasonNumber(Integer seasonNumber) {
-        return seasonRepository.findBySeasonNumber(seasonNumber);
+    public Optional<Season> findBySeasonYear(Integer year) {
+        return seasonRepository.findBySeasonYear(year);
     }
 
     public Optional<Season> findCurrentSeason() {
-        return seasonRepository.findCurrentSeason(LocalDateTime.now());
+        return seasonRepository.findCurrentSeason(LocalDate.now());
     }
 }

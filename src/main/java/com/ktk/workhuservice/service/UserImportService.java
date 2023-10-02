@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.service;
 
-import com.ktk.workhuservice.data.Season;
+import com.ktk.workhuservice.data.Round;
 import com.ktk.workhuservice.data.Team;
 import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.enums.Role;
@@ -26,12 +26,12 @@ public class UserImportService {
 
     private UserService userService;
     private TeamService teamService;
-    private SeasonService seasonService;
+    private RoundService roundService;
 
-    public UserImportService(UserService userService, TeamService teamService, SeasonService seasonService) {
+    public UserImportService(UserService userService, TeamService teamService, RoundService roundService) {
         this.userService = userService;
         this.teamService = teamService;
-        this.seasonService = seasonService;
+        this.roundService = roundService;
     }
 
     static {
@@ -59,7 +59,7 @@ public class UserImportService {
 
         }
 
-        if(count > 0) return;
+        if (count > 0) return;
 
         try (FileInputStream fis = new FileInputStream(USER_DATA_URL);
              InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.ISO_8859_1);
@@ -78,8 +78,8 @@ public class UserImportService {
                 }
             }
 
-            if (seasonService.countAll() == 0) {
-                createSeason1();
+            if (roundService.countAll() == 0) {
+                createRound1();
             }
 
             for (User u : userService.findAllByRole(Role.TEAM_LEADER)) {
@@ -95,15 +95,15 @@ public class UserImportService {
         }
     }
 
-    private void createSeason1() {
-        Season season1 = new Season();
-        season1.setMyShareGoal(70);
-        season1.setSamvirkGoal(12000);
-        season1.setSeasonNumber(1);
-        season1.setStartDateTime(LocalDateTime.parse("2023-09-15 00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-        season1.setEndDateTime(LocalDateTime.parse("2023-10-06 23:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+    private void createRound1() {
+        Round round1 = new Round();
+        round1.setMyShareGoal(70);
+        round1.setSamvirkGoal(12000);
+        round1.setRoundNumber(1);
+        round1.setStartDateTime(LocalDateTime.parse("2023-09-15 00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+        round1.setEndDateTime(LocalDateTime.parse("2023-10-06 23:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
 
-        seasonService.save(season1);
+        roundService.save(round1);
     }
 
     private void copyUser(User user, User newUser) {
@@ -112,7 +112,6 @@ public class UserImportService {
         user.setLastname(newUser.getLastname());
         user.setCurrentMyShareCredit(newUser.getCurrentMyShareCredit());
         user.setBaseMyShareCredit(newUser.getBaseMyShareCredit());
-        user.setBaseSamvirkCredit(newUser.getBaseSamvirkCredit());
         user.setBirthDate(newUser.getBirthDate());
         user.setRole(newUser.getRole());
         user.setGoal(newUser.getGoal());

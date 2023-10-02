@@ -61,7 +61,8 @@ public class User extends BaseEntity<User, Long> {
     private long myShareID;
 
     @Column(name = "GOAL")
-    private Integer goal;
+    @NotNull
+    private Integer goal = 0;
 
     @Column(name = "BASE_MYSHARE_CREDIT")
     private Integer baseMyShareCredit;
@@ -69,13 +70,20 @@ public class User extends BaseEntity<User, Long> {
     @Column(name = "CURRENT_MYSHARE_CREDIT")
     private Integer currentMyShareCredit;
 
-    @Column(name = "POINTS")
+    @Column(name = "SAMVIRK_PAYMENTS")
+    private Integer samvirkPayments = 0;
+
+    @Column(name = "POINTS", columnDefinition = "float8 default 0")
     private double points;
 
-    @Column(name = "BASE_SAMVIRK_CREDIT")
-    private Integer baseSamvirkCredit;
+    @Column(name = "CHANGED_PASSWORD")
+    private boolean changedPassword;
 
     public String getFullName() {
         return lastname + " " + firstname;
+    }
+
+    public void addPoints(double points) {
+        this.points += points;
     }
 }

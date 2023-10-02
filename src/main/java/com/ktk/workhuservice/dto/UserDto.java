@@ -34,4 +34,6 @@ public class UserDto {
 
     private double points;
 
+    private boolean changedPassword;
+
 }

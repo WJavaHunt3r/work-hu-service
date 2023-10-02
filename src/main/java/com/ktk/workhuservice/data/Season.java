@@ -9,7 +9,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -18,23 +18,15 @@ import java.time.LocalDateTime;
 @FieldNameConstants
 public class Season extends BaseEntity<Season, Long>{
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "START_DATE")
-    private LocalDateTime startDateTime;
+    private LocalDate startDate;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "END_DATE")
-    private LocalDateTime endDateTime;
+    private LocalDate endDate;
 
-    @Column(name = "MYSHARE_GOAL")
+    @Column(name = "SEASON_YEAR")
     @NotNull
-    private Integer myShareGoal;
-
-    @Column(name = "SAMVIRK_GOAL")
-    @NotNull
-    private Integer samvirkGoal;
-
-    @Column(name = "SEASON_NUMBER")
-    @NotNull
-    private Integer seasonNumber;
+    private Integer seasonYear;
 }

@@ -1,12 +1,11 @@
 package com.ktk.workhuservice.service;
 
-import com.ktk.workhuservice.data.Season;
 import com.ktk.workhuservice.data.Transaction;
 import com.ktk.workhuservice.data.User;
-import com.ktk.workhuservice.enums.Account;
-import com.ktk.workhuservice.enums.TransactionType;
 import com.ktk.workhuservice.repositories.TransactionRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class TransactionService {
@@ -17,29 +16,27 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Iterable<Transaction> getAllByUser(Long id) {
-        return transactionRepository.findAllByUserId(id);
+    public Transaction save(Transaction t){
+        return transactionRepository.save(t);
     }
 
-    public Iterable<Transaction> getAllByUserAndSeason(User u, Season s) {
-        return transactionRepository.findAllByUserIdAndSeason(u.getId(), s);
+    public Optional<Transaction> findById(Long id){
+        return transactionRepository.findById(id);
     }
 
-    public void save(Transaction t) {
-        if(t.getAccount().equals(Account.MYSHARE)){
-            if(t.getTransactionType().equals(TransactionType.CASH)){
-                t.setPoints((double)t.getValue()/1000);
-            } else if(t.getTransactionType().equals(TransactionType.HOURS)){
-                t.setPoints(t.getValue() * 4);
-            }
-        } else if(t.getAccount().equals(Account.SAMVIRK)){
-            t.setPoints((double)t.getValue()/1000);
-        }
-        transactionRepository.save(t);
+    public Iterable<Transaction> findAll(){
+        return transactionRepository.findAll();
     }
 
-    public void saveAll(Iterable<Transaction> transactions) {
-        transactions.iterator().forEachRemaining(this::save);
+    public Iterable<Transaction> findAllByCreateUser(User createUser){
+        return transactionRepository.findAllByCreateUser(createUser);
     }
 
+    public boolean existsById(Long id){
+        return transactionRepository.existsById(id);
+    }
+
+    public void deleteById(Long id){
+        transactionRepository.deleteById(id);
+    }
 }
