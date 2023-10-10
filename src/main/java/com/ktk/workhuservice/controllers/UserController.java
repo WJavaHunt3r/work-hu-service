@@ -2,7 +2,6 @@ package com.ktk.workhuservice.controllers;
 
 import com.ktk.workhuservice.data.Team;
 import com.ktk.workhuservice.data.User;
-import com.ktk.workhuservice.enums.TeamColor;
 import com.ktk.workhuservice.service.TeamService;
 import com.ktk.workhuservice.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +30,11 @@ public class UserController {
     @GetMapping("/user")
     public ResponseEntity<?> getUser(@Nullable @RequestParam("username") String username, @Nullable @RequestParam("userId") Long userId) {
         Optional<User> user = userService.findByUsername(username);
-        return user.isPresent() ?
-                ResponseEntity.status(200).body(userService.entityToDto(user.get())) : ResponseEntity.status(404).body("User not found");
+        if (user.isPresent()) {
+            userService.calculateUserPoints(user.get());
+            return ResponseEntity.status(200).body(userService.entityToDto(user.get()));
+        }
+        else return ResponseEntity.status(404).body("User not found");
     }
 
     @GetMapping("/users")
@@ -48,16 +50,6 @@ public class UserController {
             return ResponseEntity.status(200).body(StreamSupport.stream(userService.getAllYouth().spliterator(), false).map((Function<User, Object>) userService::entityToDto));
         }
         return ResponseEntity.status(200).body(StreamSupport.stream(userService.getAll().spliterator(), false).map((Function<User, Object>) userService::entityToDto));
-    }
-
-    @GetMapping("/usersByTeam")
-    public ResponseEntity<?> getAllTeamMembersByColor(@RequestParam TeamColor color) {
-        Optional<Team> team = teamService.findByColor(color);
-        if (team.isPresent()) {
-            return ResponseEntity.status(200).body(StreamSupport.stream(userService.findAllByTeam(team.get()).spliterator(), false).map((Function<User, Object>) userService::entityToDto));
-        } else {
-            return ResponseEntity.status(404).body("Team Color not found");
-        }
     }
 
 //    @GetMapping("/user")

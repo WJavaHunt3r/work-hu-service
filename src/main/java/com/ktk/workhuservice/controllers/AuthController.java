@@ -3,6 +3,9 @@ package com.ktk.workhuservice.controllers;
 import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.dto.ChangePasswordDto;
 import com.ktk.workhuservice.dto.LoginDto;
+import com.ktk.workhuservice.dto.ResetPasswordDto;
+import com.ktk.workhuservice.enums.Role;
+import com.ktk.workhuservice.security.SecurityUtils;
 import com.ktk.workhuservice.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,7 +39,7 @@ public class AuthController {
     }
 
     @PostMapping("/changePassword")
-    public ResponseEntity<?> ChangePassword(@RequestBody ChangePasswordDto dto) {
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordDto dto) {
 
         Optional<User> user = userService.findByUsername(dto.getUsername());
         if (user.isEmpty()) {
@@ -58,4 +61,29 @@ public class AuthController {
 
         return ResponseEntity.status(200).body("Password change successful");
     }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordDto dto) {
+
+        Optional<User> user = userService.findById(dto.getUserId());
+        if (user.isEmpty()) {
+            return ResponseEntity.status(400).body("No user with id: " + dto.getUserId());
+        }
+
+        Optional<User> changer = userService.findById(dto.getChangerId());
+        if (changer.isEmpty()) {
+            return ResponseEntity.status(400).body("No user with id: " + dto.getChangerId());
+        }
+        if( changer.get().getRole() != Role.ADMIN){
+            return ResponseEntity.status(400).body("User is not admin");
+        }
+
+        user.get().setPassword(SecurityUtils.encryptSecret(user.get().getUsername()));
+        user.get().setChangedPassword(false);
+
+        userService.save(user.get());
+
+        return ResponseEntity.status(200).body("Password reset successful");
+    }
+
 }

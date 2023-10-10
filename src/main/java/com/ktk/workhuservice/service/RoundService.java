@@ -16,8 +16,8 @@ public class RoundService {
         this.roundRepository = roundRepository;
     }
 
-    public void save(Round s) {
-        roundRepository.save(s);
+    public Round save(Round s) {
+        return roundRepository.save(s);
     }
 
     public Iterable<Round> getAll() {

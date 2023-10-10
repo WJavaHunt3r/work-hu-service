@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 @Service
 public class TransactionItemService {
@@ -43,26 +44,36 @@ public class TransactionItemService {
 
     public void save(TransactionItem t) {
         if (t.getPoints() != 0.0 || t.getHours() != 0.0 || t.getCredit() != 0) {
+            Optional<Round> transactionRound = roundService.findRoundByDate(t.getTransactionDate().atStartOfDay());
+            t.setRound(transactionRound.isEmpty() ? roundService.findRoundByDate(LocalDateTime.now()).get() : transactionRound.get());
             if (t.getAccount().equals(Account.MYSHARE)) {
                 if (t.getTransactionType().equals(TransactionType.CREDIT) && t.getCredit() != 0) {
                     var creditPoints = (double) t.getCredit() / 1000;
                     t.setPoints(creditPoints);
                 } else if (t.getTransactionType().equals(TransactionType.HOURS) && t.getHours() != 0) {
-                    t.setPoints(t.getHours() * 4);
-                    t.setCredit(t.getHours() * 2000);
+                    t.setPoints(t.getHours() * 4.0);
+                    t.setCredit((int) (t.getHours() * 2000));
                 }
 
             } else if (t.getAccount().equals(Account.SAMVIRK)) {
                 var creditPoints = (double) t.getCredit() / 1000;
-                t.setPoints(creditPoints);
+                double samvirkpoints = StreamSupport.stream(transactionItemRepository.findAllByUserIdAndRoundAndAccount(t.getUser().getId(), t.getRound(), Account.SAMVIRK).spliterator(), false)
+                        .mapToDouble(TransactionItem::getPoints).sum();
+                if (creditPoints + samvirkpoints > 45) {
+                    t.setPoints(45 - samvirkpoints < 0 ? 0 : 45 - samvirkpoints);
+                } else {
+                    t.setPoints(creditPoints);
+                }
+
             } else if (t.getAccount().equals(Account.OTHER)) {
                 t.setHours(0);
                 t.setCredit(0);
             }
 
             t.setCreateDateTime(LocalDateTime.now());
-            Optional<Round> transactionRound = roundService.findRoundByDate(t.getTransactionDate().atStartOfDay());
-            t.setRound(transactionRound.isEmpty() ? roundService.findRoundByDate(LocalDateTime.now()).get() : transactionRound.get());
+            if (t.getTransactionDate() == null) {
+                t.setTransactionDate(t.getCreateDateTime().toLocalDate());
+            }
             transactionItemRepository.save(t);
         }
     }

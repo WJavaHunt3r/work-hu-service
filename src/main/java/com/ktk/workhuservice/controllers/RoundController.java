@@ -1,13 +1,12 @@
 package com.ktk.workhuservice.controllers;
 
+import com.ktk.workhuservice.data.Round;
 import com.ktk.workhuservice.service.RoundService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 
 @RestController
@@ -33,6 +32,24 @@ public class RoundController {
             }
             return ResponseEntity.status(200).body(round.get());
         }
+        return ResponseEntity.status(200).body(roundService.findRoundByDate(LocalDateTime.now()));
+    }
+
+    @PostMapping("/round")
+    public ResponseEntity postRound(@Valid @RequestBody Round round){
+        return ResponseEntity.status(200).body(roundService.save(round));
+    }
+
+    @PutMapping("/round")
+    public ResponseEntity putRound(@Valid @RequestBody Round round, @RequestParam("roundId") Long roundId){
+        if(roundService.findById(roundId).isEmpty() || !round.getId().equals(roundId)){
+            return ResponseEntity.status(400).body("Invalid roundId");
+        }
+        return ResponseEntity.status(200).body(roundService.save(round));
+    }
+
+    @GetMapping("/currentRound")
+    public ResponseEntity getCurrentRound(){
         return ResponseEntity.status(200).body(roundService.findRoundByDate(LocalDateTime.now()));
     }
 }

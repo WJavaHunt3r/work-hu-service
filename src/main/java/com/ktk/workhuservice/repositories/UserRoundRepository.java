@@ -12,4 +12,8 @@ import java.util.Optional;
 public interface UserRoundRepository extends JpaRepository<UserRound, Long> {
 
     Optional<UserRound> findByUserAndRound(User u, Round r);
+
+    Iterable<UserRound> findByUser(User u);
+
+    Iterable<UserRound> findByRound(Round r);
 }

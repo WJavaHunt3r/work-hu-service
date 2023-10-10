@@ -59,8 +59,8 @@ public class TransactionItem extends BaseEntity<TransactionItem, Long> {
     @NotNull
     private Account account;
 
-    @Column(name = "HOURS", columnDefinition = "integer default 0")
-    private Integer hours;
+    @Column(name = "HOURS", columnDefinition = "float8 default 0")
+    private double hours;
 
     @Column(name = "CREDIT", columnDefinition = "integer default 0")
     private Integer credit;

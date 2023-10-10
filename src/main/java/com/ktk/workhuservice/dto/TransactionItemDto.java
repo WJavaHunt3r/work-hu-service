@@ -32,7 +32,7 @@ public class TransactionItemDto {
 
     private Account account;
 
-    private Integer hours;
+    private double hours;
 
     private Integer credit;
 

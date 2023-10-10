@@ -5,6 +5,7 @@ import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.repositories.TransactionRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -17,6 +18,9 @@ public class TransactionService {
     }
 
     public Transaction save(Transaction t){
+        if(t.getCreateDateTime() == null){
+            t.setCreateDateTime(LocalDateTime.now());
+        }
         return transactionRepository.save(t);
     }
 

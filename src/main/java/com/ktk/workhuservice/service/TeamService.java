@@ -12,9 +12,12 @@ import java.util.Optional;
 public class TeamService {
     private TeamRepository teamRepository;
     private UserService userService;
-    public TeamService(TeamRepository teamRepository, UserService userService) {
+    private UserRoundService userRoundService;
+
+    public TeamService(TeamRepository teamRepository, UserService userService, UserRoundService userRoundService) {
         this.teamRepository = teamRepository;
         this.userService = userService;
+        this.userRoundService = userRoundService;
     }
 
     public Iterable<Team> getAll() {
@@ -42,7 +45,7 @@ public class TeamService {
         return teamRepository.findTeamByTeamLeaderMyShareId(id);
     }
 
-    public void recalculatePoints(Team t){
+    private void recalculatePointsForAllRounds(Team t){
         double points = 0;
         for (User u : userService.findAllByTeam(t)){
             points += u.getPoints();
@@ -53,6 +56,6 @@ public class TeamService {
 
     public void recalculateAllTeamPoints(){
         userService.calculateUserPointsForAllUsers();
-        teamRepository.findAll().iterator().forEachRemaining(this::recalculatePoints);
+        teamRepository.findAll().iterator().forEachRemaining(this::recalculatePointsForAllRounds);
     }
 }
