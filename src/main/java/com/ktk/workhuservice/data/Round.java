@@ -37,4 +37,18 @@ public class Round extends BaseEntity<Round, Long> {
     @Column(name = "ROUND_NUMBER")
     @NotNull
     private Integer roundNumber;
+
+    @Column(name = "SAMVIRK_CHURCH_GOAL")
+    @NotNull
+    private Integer samvirkChurchGoal;
+
+    @Column(name = "SAMVIRK_MAX_POINTS", columnDefinition = "float8 default 0")
+    private double samvirkMaxPoints;
+
+    @Column(name = "SAMVIRK_ON_TRACK_POINTS", columnDefinition = "float8 default 0")
+    private double samvirkOnTrackPoints;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @Column(name = "FREEZE_DATE_TIME")
+    private LocalDateTime freezeDateTime;
 }

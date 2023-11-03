@@ -26,4 +26,7 @@ public class TeamRound extends BaseEntity<TeamRound, Long> {
     @Column(name = "TEAM_POINTS", columnDefinition = "float8 default 0")
     private double teamPoints;
 
+    @Column(name = "SAMVIRK_PAYMENTS", columnDefinition = "float8 default 0")
+    private double samvirkPayments;
+
 }

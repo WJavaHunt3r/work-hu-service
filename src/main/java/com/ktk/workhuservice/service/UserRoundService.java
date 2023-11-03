@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -37,6 +38,11 @@ public class UserRoundService {
         return userRoundRepository.save(userRound);
     }
 
+    public Iterable<UserRound> findAll() {
+        userRoundRepository.findAll().forEach(this::calculateCurrentRoundPoints);
+        return userRoundRepository.findAll();
+    }
+
     private UserRound createUserRound(User user, Round round) {
         UserRound newUserRound = new UserRound();
         newUserRound.setRound(round);
@@ -46,17 +52,24 @@ public class UserRoundService {
 
     public Iterable<UserRound> findByUser(User user) {
         user.setCurrentMyShareCredit(user.getBaseMyShareCredit());
-        for(var u : userRoundRepository.findByUser(user)){
+        for (var u : userRoundRepository.findByUser(user)) {
             calculateCurrentRoundPoints(u);
         }
         return userRoundRepository.findByUser(user);
     }
 
     public Iterable<UserRound> findByRound(Round r) {
-        for(var u : userRoundRepository.findByRound(r)){
+        for (var u : userRoundRepository.findByRound(r)) {
             calculateCurrentRoundPoints(u);
         }
         return userRoundRepository.findByRound(r);
+    }
+
+    Iterable<UserRound> findByRoundAndTeam(Round r, Team t) {
+        for (var u : userRoundRepository.findByRoundAndTeam(r, t)) {
+            calculateCurrentRoundPoints(u);
+        }
+        return userRoundRepository.findByRoundAndTeam(r, t);
     }
 
     public void calculateCurrentRoundPoints(UserRound userRound) {
@@ -77,36 +90,53 @@ public class UserRoundService {
 
         if (!userRound.isMyShareOnTrackPoints() && user.getGoal() > 0 && ((double) user.getCurrentMyShareCredit() / user.getGoal()) * 100 > round.getMyShareGoal()) {
             userRound.setMyShareOnTrackPoints(true);
-            myShareOnTrackItems.add(createOnTrackTransactionItem(user, round, "MyShare On Track", 50));
+            myShareOnTrackItems.add(createOnTrackTransactionItem(user, round, "MyShare On Track " + round.getRoundNumber(), 50));
             points += 50;
+        } else if (userRound.isMyShareOnTrackPoints() && user.getGoal() > 0 && ((double) user.getCurrentMyShareCredit() / user.getGoal()) * 100 < round.getMyShareGoal()) {
+            userRound.setMyShareOnTrackPoints(false);
+            myShareOnTrackItems.add(createOnTrackTransactionItem(user, round, "MyShare On Track Round " + round.getRoundNumber() + " revert", -50));
+            points -= 50;
         }
 
+        double maxPoints = round.getSamvirkMaxPoints();
+        double onTrackPoints = round.getSamvirkOnTrackPoints();
         if (userRound.getSamvirkPayments() > round.getSamvirkGoal()) {
-            userRound.addSamvirkPoints(5);
-            if (userRound.getSamvirkPoints() > 50) userRound.setSamvirkPoints(50);
+
             if (!userRound.isSamvirkOnTrackPoints()) {
+                userRound.addSamvirkPoints(onTrackPoints);
+                if (maxPoints != 0 && userRound.getSamvirkPoints() > maxPoints) userRound.setSamvirkPoints(maxPoints);
                 userRound.setSamvirkOnTrackPoints(true);
-                samvirkOnTrackItems.add(createOnTrackTransactionItem(user, round, "Samvirk On Track", 5));
-                points += 5;
+                samvirkOnTrackItems.add(createOnTrackTransactionItem(user, round, "Samvirk On Track Round " + round.getRoundNumber(), onTrackPoints));
+                points += onTrackPoints;
             }
+        }
+        if (userRound.getSamvirkPayments() < round.getSamvirkGoal() && userRound.isSamvirkOnTrackPoints()) {
+            userRound.setSamvirkOnTrackPoints(false);
+            samvirkOnTrackItems.add(createOnTrackTransactionItem(user, round, "Samvirk On Track Round " + round.getRoundNumber() + " revert", onTrackPoints * -1));
+            points -= onTrackPoints;
         }
 
         points += StreamSupport.stream(transactions.spliterator(), false).mapToDouble(TransactionItem::getPoints).sum();
         userRound.setRoundPoints(points);
         save(userRound);
-        if (!myShareOnTrackItems.isEmpty()) saveOnTrackItems(myShareOnTrackItems, "MyShare On Track");
-        if (!samvirkOnTrackItems.isEmpty()) saveOnTrackItems(samvirkOnTrackItems, "Samvirk On Track");
+        if (!myShareOnTrackItems.isEmpty()) saveOnTrackItems(myShareOnTrackItems, "MyShare On Track Round " + round.getRoundNumber());
+        if (!samvirkOnTrackItems.isEmpty()) saveOnTrackItems(samvirkOnTrackItems, "Samvirk On Track Round " + round.getRoundNumber());
     }
 
     private void saveOnTrackItems(List<TransactionItem> transactionItems, String description) {
-        Transaction newTransaction = new Transaction();
-        newTransaction.setName(description);
-        newTransaction.setAccount(Account.OTHER);
-        newTransaction.setCreateDateTime(LocalDateTime.now());
-        newTransaction.setCreateUser(userService.findAllByRole(Role.ADMIN).iterator().next());
-        Transaction savedTransaction = transactionService.save(newTransaction);
+        Optional<Transaction> onTrackTransaction = transactionService.findByName(description);
+        if (onTrackTransaction.isEmpty()) {
+            Transaction newTransaction = new Transaction();
+            newTransaction.setName(description);
+            newTransaction.setAccount(Account.OTHER);
+            newTransaction.setCreateDateTime(LocalDateTime.now());
+            newTransaction.setCreateUser(userService.findAllByRole(Role.ADMIN).iterator().next());
+            Transaction savedTransaction = transactionService.save(newTransaction);
 
-        transactionItems.forEach(t -> t.setTransactionId(savedTransaction.getId()));
+            transactionItems.forEach(t -> t.setTransactionId(savedTransaction.getId()));
+        } else {
+            transactionItems.forEach(t -> t.setTransactionId(onTrackTransaction.get().getId()));
+        }
 
         transactionItemService.saveAll(transactionItems);
     }

@@ -100,6 +100,7 @@ public class UserImportService {
         round1.setMyShareGoal(70);
         round1.setSamvirkGoal(12000);
         round1.setRoundNumber(1);
+        round1.setSamvirkChurchGoal(100000);
         round1.setStartDateTime(LocalDateTime.parse("2023-09-15 00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
         round1.setEndDateTime(LocalDateTime.parse("2023-10-06 23:59", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
 

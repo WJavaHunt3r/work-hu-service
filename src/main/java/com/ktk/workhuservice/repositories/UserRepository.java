@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Iterable<User> findAllByRole(Role role);
 
-    Iterable<User> findAllByTeam(Team t);
+    Iterable<User> findAllByTeamAndGoalGreaterThan(Team t, int goal);
 
     int countAllByTeamAndGoalGreaterThan(Team t, int goal);
 

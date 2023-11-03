@@ -37,7 +37,7 @@ public class TransactionItem extends BaseEntity<TransactionItem, Long> {
     @JoinColumn(name = "USERS")
     private User user;
 
-    @Column(name = "POINTS", columnDefinition = "integer default 0")
+    @Column(name = "POINTS", columnDefinition = "float8 default 0")
     @NotNull
     private double points;
 

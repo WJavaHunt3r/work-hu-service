@@ -67,13 +67,30 @@ public class TransactionItemsController {
 
     }
 
+    @DeleteMapping("/transactionItem")
+    public ResponseEntity<?> deleteTransaction(@RequestParam("transactionItemId") Long transactionItemId, @RequestParam("userId") Long userId) {
+        Optional<User> user = userService.findById(userId);
+        if (user.isEmpty()) {
+            return ResponseEntity.status(400).body("No user with id:" + userId);
+        }
+        if (user.get().getRole().equals(Role.USER)) {
+            return ResponseEntity.status(403).body("Permission denied!");
+        }
+        if(transactionItemService.existsById(transactionItemId)){
+            transactionItemService.deleteById(transactionItemId);
+            return ResponseEntity.status(200).body("Delete successful");
+        }
+        return ResponseEntity.status(403).body("No transaction item found with id:" + transactionItemId);
+
+    }
+
     @GetMapping("/transactionItems")
     public ResponseEntity<?> getTransactionItems(@Nullable @RequestParam("userId") Long userId, @Nullable @RequestParam("transactionId") Long transactionId, @Nullable @RequestParam("roundId") Long roundId) {
         if(userId != null) {
             if(roundId != null){
                 Optional<Round> round = roundService.findById(roundId);
                 if(round.isEmpty()){
-                    return ResponseEntity.status(404).body("Nor round with id:" + roundId);
+                    return ResponseEntity.status(404).body("No round with id:" + roundId);
                 }
                 return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByUserIdAndRound(userId, round.get()).spliterator(), false).map(this::convertToDto));
             }
@@ -83,7 +100,7 @@ public class TransactionItemsController {
             return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByTransactionId(transactionId).spliterator(), false).map(this::convertToDto));
         }
 
-        return ResponseEntity.status(400).body("empty parameters");
+        return ResponseEntity.status(400).body("Empty parameters");
 
     }
 

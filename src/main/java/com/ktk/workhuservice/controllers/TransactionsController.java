@@ -41,7 +41,7 @@ public class TransactionsController {
         if (createUser.get().getRole().equals(Role.USER)) {
             return ResponseEntity.status(403).body("Permission denied:");
         }
-        return ResponseEntity.status(200).body(convertToDto(transactionService.save(convertToEntity(transaction))));
+        return ResponseEntity.status(200).body(convertToDto(transactionService.save(convertToEntity(transaction, createUser.get()))));
     }
 
     @DeleteMapping("/transaction")
@@ -53,7 +53,7 @@ public class TransactionsController {
         if (user.get().getRole().equals(Role.USER)) {
             return ResponseEntity.status(403).body("Permission denied!");
         }
-        if(transactionService.existsById(transactionId)){
+        if (transactionService.existsById(transactionId)) {
             transactionService.deleteById(transactionId);
             transactionItemService.deleteByTransactionId(transactionId);
             return ResponseEntity.status(200).body("Delete successful");
@@ -83,8 +83,10 @@ public class TransactionsController {
         return ResponseEntity.status(200).body(convertToDto(transaction.get()));
     }
 
-    private Transaction convertToEntity(TransactionDto dto) {
-        return modelMapper.map(dto, Transaction.class);
+    private Transaction convertToEntity(TransactionDto dto, User user) {
+        Transaction transaction = modelMapper.map(dto, Transaction.class);
+        transaction.setCreateUser(user);
+        return transaction;
     }
 
     private TransactionDto convertToDto(Transaction transaction) {
@@ -93,7 +95,7 @@ public class TransactionsController {
         return dto;
     }
 
-    private Optional<User> findById(Long id){
+    private Optional<User> findById(Long id) {
         return userService.findById(id);
     }
 }

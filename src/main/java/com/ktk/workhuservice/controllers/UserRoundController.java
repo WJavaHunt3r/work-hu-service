@@ -34,19 +34,22 @@ public class UserRoundController {
     }
 
     @GetMapping("/userRounds")
-    public ResponseEntity getUserRounds(@RequestParam("userId") Long userId, @Nullable @RequestParam("roundId") Long roundId) {
-        var user = userService.findById(userId);
-        if (user.isEmpty()) {
-            return ResponseEntity.status(404).body("No user with given id: " + userId);
-        }
-        if (roundId != null) {
-            Optional<Round> round = roundService.findById(roundId);
-            if (round.isEmpty()) {
+    public ResponseEntity getUserRounds(@Nullable @RequestParam("userId") Long userId, @Nullable @RequestParam("roundId") Long roundId) {
+        if(userId != null) {
+            var user = userService.findById(userId);
+            if (user.isEmpty()) {
                 return ResponseEntity.status(404).body("No user with given id: " + userId);
             }
-            return ResponseEntity.status(200).body(entityToDto(userRoundService.findByUserAndRound(user.get(), round.get())));
+            if (roundId != null) {
+                Optional<Round> round = roundService.findById(roundId);
+                if (round.isEmpty()) {
+                    return ResponseEntity.status(404).body("No user with given id: " + userId);
+                }
+                return ResponseEntity.status(200).body(entityToDto(userRoundService.findByUserAndRound(user.get(), round.get())));
+            }
+            return ResponseEntity.status(200).body(StreamSupport.stream(userRoundService.findByUser(user.get()).spliterator(), false).map(this::entityToDto));
         }
-        return ResponseEntity.status(200).body(StreamSupport.stream(userRoundService.findByUser(user.get()).spliterator(), false).map(this::entityToDto));
+        return ResponseEntity.status(200).body(StreamSupport.stream(userRoundService.findAll().spliterator(), false).map(this::entityToDto));
     }
 
     @GetMapping("/resetUserRounds")

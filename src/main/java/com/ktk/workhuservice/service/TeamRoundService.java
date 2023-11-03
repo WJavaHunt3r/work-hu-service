@@ -1,13 +1,10 @@
 package com.ktk.workhuservice.service;
 
-import com.ktk.workhuservice.data.Round;
-import com.ktk.workhuservice.data.Team;
-import com.ktk.workhuservice.data.TeamRound;
+import com.ktk.workhuservice.data.*;
 import com.ktk.workhuservice.repositories.TeamRoundRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 @Service
 public class TeamRoundService {
@@ -38,14 +35,24 @@ public class TeamRoundService {
                         }
                 )
         );
-        teamRoundRepository.findAll().forEach(tr ->
-                tr.setTeamPoints(calculateTeamRoundPoints(tr.getTeam(), tr.getRound()) / userService.countAllByTeam(tr.getTeam())));
+        calculateTeamRoundPoints();
         return teamRoundRepository.findAll();
     }
 
-    private double calculateTeamRoundPoints(Team team, Round round) {
-        return StreamSupport.stream(userService.findAllByTeam(team).spliterator(), false)
-                .mapToDouble(u -> userRoundService.findByUserAndRound(u, round).getRoundPoints()).sum();
+    private void calculateTeamRoundPoints() {
+        for (TeamRound tr : teamRoundRepository.findAll()) {
+            double teamPoints = 0;
+            double samvirkPayments = 0;
+            for (UserRound ur : userRoundService.findByRoundAndTeam(tr.getRound(), tr.getTeam())) {
+                    samvirkPayments += ur.getSamvirkPayments();
+                    teamPoints+= ur.getRoundPoints();
+
+            }
+            tr.setSamvirkPayments(samvirkPayments);
+            tr.setTeamPoints(teamPoints / userService.countAllByTeam(tr.getTeam()));
+            teamRoundRepository.save(tr);
+        }
+
     }
 
     private TeamRound createTeamRound(Team t, Round r) {
@@ -55,7 +62,7 @@ public class TeamRoundService {
         return teamRound;
     }
 
-    public Optional<TeamRound> findByTeamAndRound(Team team, Round round) {
+    private Optional<TeamRound> findByTeamAndRound(Team team, Round round) {
         return teamRoundRepository.findByTeamAndRound(team, round);
     }
 

@@ -42,13 +42,17 @@ public class TransactionItemService {
         findAllByTransactionId(transactionId).forEach(t -> transactionItemRepository.deleteById(t.getId()));
     }
 
+    public void deleteById(Long transactionItemId) {
+        transactionItemRepository.deleteById(transactionItemId);
+    }
+
     public void save(TransactionItem t) {
         if (t.getPoints() != 0.0 || t.getHours() != 0.0 || t.getCredit() != 0) {
             Optional<Round> transactionRound = roundService.findRoundByDate(t.getTransactionDate().atStartOfDay());
             t.setRound(transactionRound.isEmpty() ? roundService.findRoundByDate(LocalDateTime.now()).get() : transactionRound.get());
             if (t.getAccount().equals(Account.MYSHARE)) {
                 if (t.getTransactionType().equals(TransactionType.CREDIT) && t.getCredit() != 0) {
-                    var creditPoints = (double) t.getCredit() / 1000;
+                    double creditPoints = (double) t.getCredit() / 1000.0;
                     t.setPoints(creditPoints);
                 } else if (t.getTransactionType().equals(TransactionType.HOURS) && t.getHours() != 0) {
                     t.setPoints(t.getHours() * 4.0);
@@ -56,11 +60,13 @@ public class TransactionItemService {
                 }
 
             } else if (t.getAccount().equals(Account.SAMVIRK)) {
-                var creditPoints = (double) t.getCredit() / 1000;
+                double creditPoints = (double) t.getCredit() / 1000.0;
                 double samvirkpoints = StreamSupport.stream(transactionItemRepository.findAllByUserIdAndRoundAndAccount(t.getUser().getId(), t.getRound(), Account.SAMVIRK).spliterator(), false)
                         .mapToDouble(TransactionItem::getPoints).sum();
-                if (creditPoints + samvirkpoints > 45) {
-                    t.setPoints(45 - samvirkpoints < 0 ? 0 : 45 - samvirkpoints);
+                double maxPoints = t.getRound().getSamvirkMaxPoints();
+                double onTrackPoints = t.getRound().getSamvirkOnTrackPoints();
+                if (maxPoints != 0 && creditPoints + samvirkpoints > maxPoints - onTrackPoints) {
+                    t.setPoints(maxPoints - onTrackPoints - samvirkpoints < 0 ? 0 : maxPoints - onTrackPoints - samvirkpoints);
                 } else {
                     t.setPoints(creditPoints);
                 }
@@ -82,4 +88,7 @@ public class TransactionItemService {
         transactions.iterator().forEachRemaining(this::save);
     }
 
+    public boolean existsById(Long transactionItemId) {
+        return transactionItemRepository.existsById(transactionItemId);
+    }
 }

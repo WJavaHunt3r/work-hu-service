@@ -3,11 +3,9 @@ package com.ktk.workhuservice.service;
 import com.ktk.workhuservice.data.Team;
 import com.ktk.workhuservice.data.TransactionItem;
 import com.ktk.workhuservice.data.User;
-import com.ktk.workhuservice.dto.UserDto;
 import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.repositories.UserRepository;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -17,12 +15,11 @@ public class UserService {
 
     private UserRepository userRepository;
     private TransactionItemService transactionItemService;
-    private ModelMapper modelMapper;
 
-    public UserService(UserRepository userRepository, TransactionItemService transactionService, ModelMapper modelMapper) {
+
+    public UserService(UserRepository userRepository, TransactionItemService transactionService) {
         this.userRepository = userRepository;
         this.transactionItemService = transactionService;
-        this.modelMapper = modelMapper;
     }
 
     long count() {
@@ -66,7 +63,7 @@ public class UserService {
     }
 
     public Iterable<User> findAllByTeam(Team t) {
-        return userRepository.findAllByTeam(t);
+        return userRepository.findAllByTeamAndGoalGreaterThan(t, 0);
     }
 
     public Optional<User> findByMyShareId(Long id) {
@@ -102,9 +99,5 @@ public class UserService {
         if (t.getAccount().equals(Account.MYSHARE)) {
             u.setCurrentMyShareCredit(u.getCurrentMyShareCredit() + t.getCredit());
         }
-    }
-
-    public UserDto entityToDto(User u) {
-        return modelMapper.map(u, UserDto.class);
     }
 }

@@ -36,6 +36,10 @@ public class TransactionService {
         return transactionRepository.findAllByCreateUser(createUser);
     }
 
+    public Optional<Transaction> findByName(String name){
+        return transactionRepository.findByName(name);
+    }
+
     public boolean existsById(Long id){
         return transactionRepository.existsById(id);
     }
