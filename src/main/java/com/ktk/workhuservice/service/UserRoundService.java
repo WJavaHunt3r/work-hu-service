@@ -88,7 +88,7 @@ public class UserRoundService {
         Iterable<TransactionItem> transactions = transactionItemService.findAllByUserIdAndRound(user.getId(), round);
         StreamSupport.stream(transactions.spliterator(), false).forEach(t -> addTransaction(t, user, userRound));
 
-        if (!userRound.isMyShareOnTrackPoints() && user.getGoal() > 0 && ((double) user.getCurrentMyShareCredit() / user.getGoal()) * 100 > round.getMyShareGoal()) {
+        if (!userRound.isMyShareOnTrackPoints() && user.getGoal() > 0 && ((double) user.getCurrentMyShareCredit() / user.getGoal()) * 100 >= round.getMyShareGoal()) {
             userRound.setMyShareOnTrackPoints(true);
             myShareOnTrackItems.add(createOnTrackTransactionItem(user, round, "MyShare On Track " + round.getRoundNumber(), 50));
             points += 50;
@@ -100,7 +100,7 @@ public class UserRoundService {
 
         double maxPoints = round.getSamvirkMaxPoints();
         double onTrackPoints = round.getSamvirkOnTrackPoints();
-        if (userRound.getSamvirkPayments() > round.getSamvirkGoal()) {
+        if (userRound.getSamvirkPayments() >= round.getSamvirkGoal()) {
 
             if (!userRound.isSamvirkOnTrackPoints()) {
                 userRound.addSamvirkPoints(onTrackPoints);

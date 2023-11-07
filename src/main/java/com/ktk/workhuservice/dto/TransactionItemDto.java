@@ -22,7 +22,7 @@ public class TransactionItemDto {
 
     private String description;
 
-    private Long userId;
+    private UserDto user;
 
     private Long createUserId;
 

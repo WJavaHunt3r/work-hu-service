@@ -5,6 +5,7 @@ import com.ktk.workhuservice.data.Transaction;
 import com.ktk.workhuservice.data.TransactionItem;
 import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.dto.TransactionItemDto;
+import com.ktk.workhuservice.dto.UserDto;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.service.RoundService;
 import com.ktk.workhuservice.service.TransactionItemService;
@@ -44,9 +45,9 @@ public class TransactionItemsController {
             return ResponseEntity.status(400).body("No transaction found with id: " + transactionItem.getTransactionId());
         }
 
-        Optional<User> user = userService.findById(transactionItem.getUserId());
+        Optional<User> user = userService.findById(transactionItem.getUser().getId());
         if (user.isEmpty()) {
-            return ResponseEntity.status(400).body("No user found with id: " + transactionItem.getUserId());
+            return ResponseEntity.status(400).body("No user found with id: " + transactionItem.getUser().getId());
         }
 
         Optional<User> createUser = userService.findById(transactionItem.getCreateUserId());
@@ -76,7 +77,7 @@ public class TransactionItemsController {
         if (user.get().getRole().equals(Role.USER)) {
             return ResponseEntity.status(403).body("Permission denied!");
         }
-        if(transactionItemService.existsById(transactionItemId)){
+        if (transactionItemService.existsById(transactionItemId)) {
             transactionItemService.deleteById(transactionItemId);
             return ResponseEntity.status(200).body("Delete successful");
         }
@@ -86,17 +87,17 @@ public class TransactionItemsController {
 
     @GetMapping("/transactionItems")
     public ResponseEntity<?> getTransactionItems(@Nullable @RequestParam("userId") Long userId, @Nullable @RequestParam("transactionId") Long transactionId, @Nullable @RequestParam("roundId") Long roundId) {
-        if(userId != null) {
-            if(roundId != null){
+        if (userId != null) {
+            if (roundId != null) {
                 Optional<Round> round = roundService.findById(roundId);
-                if(round.isEmpty()){
+                if (round.isEmpty()) {
                     return ResponseEntity.status(404).body("No round with id:" + roundId);
                 }
                 return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByUserIdAndRound(userId, round.get()).spliterator(), false).map(this::convertToDto));
             }
             return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByUser(userId).spliterator(), false).map(this::convertToDto));
         }
-        if(transactionId != null){
+        if (transactionId != null) {
             return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByTransactionId(transactionId).spliterator(), false).map(this::convertToDto));
         }
 
@@ -113,7 +114,7 @@ public class TransactionItemsController {
 
     private TransactionItemDto convertToDto(TransactionItem transaction) {
         TransactionItemDto dto = modelMapper.map(transaction, TransactionItemDto.class);
-        dto.setUserId(transaction.getUser().getId());
+        dto.setUser(modelMapper.map(transaction.getUser(), UserDto.class));
         dto.setCreateUserId(transaction.getCreateUser().getId());
         return dto;
     }
