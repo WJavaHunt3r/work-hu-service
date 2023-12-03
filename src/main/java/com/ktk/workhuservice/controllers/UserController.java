@@ -88,6 +88,8 @@ public class UserController {
         user.setBirthDate(dto.getBirthDate());
         user.setLastname(dto.getLastname());
         user.setFirstname(dto.getFirstname());
+        user.setBaseMyShareCredit(dto.getBaseMyShareCredit());
+        user.setGoal(dto.getGoal());
         return user;
     }
 

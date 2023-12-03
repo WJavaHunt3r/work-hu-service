@@ -16,7 +16,6 @@ public class UserService {
     private UserRepository userRepository;
     private TransactionItemService transactionItemService;
 
-
     public UserService(UserRepository userRepository, TransactionItemService transactionService) {
         this.userRepository = userRepository;
         this.transactionItemService = transactionService;
@@ -93,7 +92,6 @@ public class UserService {
     private void calculateCurrentMySharePoints(User user) {
         transactionItemService.findAllByUser(user.getId()).forEach(t -> addTransaction(t, user));
     }
-
 
     private void addTransaction(TransactionItem t, User u) {
         if (t.getAccount().equals(Account.MYSHARE)) {
