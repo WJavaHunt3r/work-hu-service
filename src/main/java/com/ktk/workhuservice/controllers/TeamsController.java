@@ -21,7 +21,7 @@ public class TeamsController {
 
     @GetMapping("/teams")
     public ResponseEntity<?> getTeams(@Nullable @RequestParam("roundId") Long roundId ) {
-        return ResponseEntity.status(200).body(teamService.getAll());
+        return ResponseEntity.status(200).body(teamService.findAll());
     }
 
     @GetMapping("/recalculate")

@@ -2,12 +2,14 @@ package com.ktk.workhuservice.service;
 
 import com.ktk.workhuservice.data.Round;
 import com.ktk.workhuservice.data.TransactionItem;
+import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.enums.TransactionType;
 import com.ktk.workhuservice.repositories.TransactionItemRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
@@ -22,12 +24,20 @@ public class TransactionItemService {
         this.roundService = roundService;
     }
 
-    public Iterable<TransactionItem> findAllByUser(Long id) {
-        return transactionItemRepository.findAllByUserId(id);
+    public Optional<TransactionItem> findById(Long id) {
+        return transactionItemRepository.findById(id);
     }
 
-    public Iterable<TransactionItem> findAllByUserIdAndRound(Long id, Round s) {
-        return transactionItemRepository.findAllByUserIdAndRound(id, s);
+    public Iterable<TransactionItem> findAllByUser(User user) {
+        return transactionItemRepository.findAllByUser(user);
+    }
+
+    public List<TransactionItem> findAllByUserAndSeasonYear(User user, Integer seasonYear) {
+        return transactionItemRepository.findAllByUserAndSeasonYear(user, seasonYear);
+    }
+
+    public Iterable<TransactionItem> findAllByUserAndRound(User user, Round s) {
+        return transactionItemRepository.findAllByUserAndRound(user, s);
     }
 
     public Iterable<TransactionItem> findAllByTransactionId(Long id) {
@@ -49,7 +59,11 @@ public class TransactionItemService {
     public void save(TransactionItem t) {
         if (t.getPoints() != 0.0 || t.getHours() != 0.0 || t.getCredit() != 0) {
             Optional<Round> transactionRound = roundService.findRoundByDate(t.getTransactionDate().atStartOfDay());
-            t.setRound(transactionRound.isEmpty() ? roundService.findRoundByDate(LocalDateTime.now()).get() : transactionRound.get());
+            Optional<Round> currentRound = roundService.findRoundByDate(LocalDateTime.now());
+            if (currentRound.isEmpty() && transactionRound.isEmpty()) {
+                return;
+            }
+            t.setRound(transactionRound.isEmpty() ? currentRound.get() : transactionRound.get());
             if (t.getAccount().equals(Account.MYSHARE)) {
                 if (t.getTransactionType().equals(TransactionType.CREDIT) && t.getCredit() != 0) {
                     double creditPoints = (double) t.getCredit() / 1000.0;
@@ -61,7 +75,7 @@ public class TransactionItemService {
 
             } else if (t.getAccount().equals(Account.SAMVIRK)) {
                 double creditPoints = (double) t.getCredit() / 1000.0;
-                double samvirkpoints = StreamSupport.stream(transactionItemRepository.findAllByUserIdAndRoundAndAccount(t.getUser().getId(), t.getRound(), Account.SAMVIRK).spliterator(), false)
+                double samvirkpoints = StreamSupport.stream(transactionItemRepository.findAllByUserAndRoundAndAccount(t.getUser(), t.getRound(), Account.SAMVIRK).spliterator(), false)
                         .mapToDouble(TransactionItem::getPoints).sum();
                 double maxPoints = t.getRound().getSamvirkMaxPoints();
                 double onTrackPoints = t.getRound().getSamvirkOnTrackPoints();

@@ -3,13 +3,14 @@ package com.ktk.workhuservice.service;
 import com.ktk.workhuservice.data.Transaction;
 import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.repositories.TransactionRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
-public class TransactionService {
+public class TransactionService extends BaseService<Transaction, Long> {
 
     private TransactionRepository transactionRepository;
 
@@ -17,34 +18,34 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Transaction save(Transaction t){
-        if(t.getCreateDateTime() == null){
+    @Override
+    public Transaction save(Transaction t) {
+        if (t.getCreateDateTime() == null) {
             t.setCreateDateTime(LocalDateTime.now());
         }
         return transactionRepository.save(t);
     }
 
-    public Optional<Transaction> findById(Long id){
-        return transactionRepository.findById(id);
-    }
-
-    public Iterable<Transaction> findAll(){
-        return transactionRepository.findAll();
-    }
-
-    public Iterable<Transaction> findAllByCreateUser(User createUser){
+    public Iterable<Transaction> findAllByCreateUser(User createUser) {
         return transactionRepository.findAllByCreateUser(createUser);
     }
 
-    public Optional<Transaction> findByName(String name){
+    public Optional<Transaction> findByName(String name) {
         return transactionRepository.findByName(name);
     }
 
-    public boolean existsById(Long id){
-        return transactionRepository.existsById(id);
+    @Override
+    protected JpaRepository<Transaction, Long> getRepository() {
+        return transactionRepository;
     }
 
-    public void deleteById(Long id){
-        transactionRepository.deleteById(id);
+    @Override
+    public Class<Transaction> getEntityClass() {
+        return Transaction.class;
+    }
+
+    @Override
+    public Transaction createEntity() {
+        return new Transaction();
     }
 }

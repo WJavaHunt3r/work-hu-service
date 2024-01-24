@@ -1,6 +1,7 @@
 package com.ktk.workhuservice.data;
 
 import com.ktk.workhuservice.enums.Account;
+import com.ktk.workhuservice.enums.TransactionType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -35,4 +36,8 @@ public class Transaction extends BaseEntity<Transaction, Long>{
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     @Column(name = "CREATE_DATE_TIME")
     private LocalDateTime createDateTime;
+
+    @Column(name = "TRANSACTION_TYPE")
+    @Enumerated(EnumType.STRING)
+    private TransactionType transactionType;
 }

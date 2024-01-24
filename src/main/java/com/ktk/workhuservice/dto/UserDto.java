@@ -26,13 +26,9 @@ public class UserDto {
 
     private long myShareID;
 
-    private Integer goal;
-
     private Integer baseMyShareCredit;
 
     private Integer currentMyShareCredit;
-
-    private double points;
 
     private boolean changedPassword;
 

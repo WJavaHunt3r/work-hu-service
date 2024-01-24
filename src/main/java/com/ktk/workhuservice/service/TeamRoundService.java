@@ -1,13 +1,17 @@
 package com.ktk.workhuservice.service;
 
-import com.ktk.workhuservice.data.*;
+import com.ktk.workhuservice.data.Round;
+import com.ktk.workhuservice.data.Team;
+import com.ktk.workhuservice.data.TeamRound;
+import com.ktk.workhuservice.data.UserRound;
 import com.ktk.workhuservice.repositories.TeamRoundRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-public class TeamRoundService {
+public class TeamRoundService extends BaseService<TeamRound, Long> {
     private TeamRoundRepository teamRoundRepository;
     private RoundService roundService;
     private TeamService teamService;
@@ -22,13 +26,9 @@ public class TeamRoundService {
         this.userRoundService = userRoundService1;
     }
 
-    public TeamRound save(TeamRound teamRound) {
-        return teamRoundRepository.save(teamRound);
-    }
-
-    public Iterable<TeamRound> findAll() {
-        teamService.getAll().forEach(t ->
-                roundService.getAll().forEach(r -> {
+    public Iterable<TeamRound> findAll(int seasonYear) {
+        teamService.findAll().forEach(t ->
+                roundService.findAllBySeasonYear(seasonYear).forEach(r -> {
                             if (findByTeamAndRound(t, r).isEmpty()) {
                                 save(createTeamRound(t, r));
                             }
@@ -36,21 +36,23 @@ public class TeamRoundService {
                 )
         );
         calculateTeamRoundPoints();
-        return teamRoundRepository.findAll();
+        return teamRoundRepository.findAllBySeasonYear(seasonYear);
     }
 
     private void calculateTeamRoundPoints() {
-        for (TeamRound tr : teamRoundRepository.findAll()) {
+        for (TeamRound tr : teamRoundRepository.findAllByRound(roundService.getLastRound())) {
+
             double teamPoints = 0;
             double samvirkPayments = 0;
             for (UserRound ur : userRoundService.findByRoundAndTeam(tr.getRound(), tr.getTeam())) {
-                    samvirkPayments += ur.getSamvirkPayments();
-                    teamPoints+= ur.getRoundPoints();
+                samvirkPayments += ur.getSamvirkPayments();
+                teamPoints += ur.getRoundPoints();
 
             }
             tr.setSamvirkPayments(samvirkPayments);
-            tr.setTeamPoints(teamPoints / userService.countAllByTeam(tr.getTeam()));
+            tr.setTeamPoints(teamPoints / userService.countAllByTeam(tr.getTeam(), tr.getRound().getSeason().getSeasonYear()));
             teamRoundRepository.save(tr);
+
         }
 
     }
@@ -66,8 +68,18 @@ public class TeamRoundService {
         return teamRoundRepository.findByTeamAndRound(team, round);
     }
 
-    public Iterable<TeamRound> findAllByRound(Round round) {
-        return teamRoundRepository.findAllByRound(round);
+    @Override
+    protected JpaRepository<TeamRound, Long> getRepository() {
+        return teamRoundRepository;
     }
 
+    @Override
+    public Class<TeamRound> getEntityClass() {
+        return TeamRound.class;
+    }
+
+    @Override
+    public TeamRound createEntity() {
+        return new TeamRound();
+    }
 }

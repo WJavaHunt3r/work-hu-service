@@ -19,8 +19,11 @@ public class RoundController {
     }
 
     @GetMapping("/rounds")
-    public ResponseEntity getRounds() {
-        return ResponseEntity.status(200).body(roundService.getAll());
+    public ResponseEntity getRounds(@Nullable @RequestParam("seasonYear") Integer seasonYear) {
+        if (seasonYear != null) {
+            return ResponseEntity.status(200).body(roundService.findAllBySeasonYear(seasonYear));
+        }
+        return ResponseEntity.status(200).body(roundService.findAll());
     }
 
     @GetMapping("/round")
@@ -36,20 +39,20 @@ public class RoundController {
     }
 
     @PostMapping("/round")
-    public ResponseEntity postRound(@Valid @RequestBody Round round){
+    public ResponseEntity postRound(@Valid @RequestBody Round round) {
         return ResponseEntity.status(200).body(roundService.save(round));
     }
 
     @PutMapping("/round")
-    public ResponseEntity putRound(@Valid @RequestBody Round round, @RequestParam("roundId") Long roundId){
-        if(roundService.findById(roundId).isEmpty() || !round.getId().equals(roundId)){
+    public ResponseEntity putRound(@Valid @RequestBody Round round, @RequestParam("roundId") Long roundId) {
+        if (roundService.findById(roundId).isEmpty() || !round.getId().equals(roundId)) {
             return ResponseEntity.status(400).body("Invalid roundId");
         }
         return ResponseEntity.status(200).body(roundService.save(round));
     }
 
     @GetMapping("/currentRound")
-    public ResponseEntity getCurrentRound(){
+    public ResponseEntity getCurrentRound() {
         return ResponseEntity.status(200).body(roundService.findRoundByDate(LocalDateTime.now()));
     }
 }

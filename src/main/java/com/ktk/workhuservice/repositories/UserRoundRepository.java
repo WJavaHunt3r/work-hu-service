@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,7 +16,10 @@ public interface UserRoundRepository extends JpaRepository<UserRound, Long> {
 
     Optional<UserRound> findByUserAndRound(User u, Round r);
 
-    Iterable<UserRound> findByUser(User u);
+    List<UserRound> findByUser(User u);
+
+    @Query("SELECT ur FROM UserRound ur WHERE ur.user = ?1 AND ur.round.season.seasonYear = ?2 ")
+    List<UserRound> findByUserAndSeason(User u, Integer seasonYear);
 
     Iterable<UserRound> findByRound(Round r);
 

@@ -60,10 +60,6 @@ public class User extends BaseEntity<User, Long> {
     @NotNull
     private long myShareID;
 
-    @Column(name = "GOAL")
-    @NotNull
-    private Integer goal = 0;
-
     @Column(name = "BASE_MYSHARE_CREDIT")
     private Integer baseMyShareCredit;
 
@@ -79,11 +75,14 @@ public class User extends BaseEntity<User, Long> {
     @Column(name = "CHANGED_PASSWORD")
     private boolean changedPassword;
 
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "USERS")
+//    private List<Goal> goals;
+
     public String getFullName() {
         return lastname + " " + firstname;
     }
 
-    public void addPoints(double points) {
-        this.points += points;
+    public boolean isAdmin(){
+        return this.role == Role.ADMIN;
     }
 }

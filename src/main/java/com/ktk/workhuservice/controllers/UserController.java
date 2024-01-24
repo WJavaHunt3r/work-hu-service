@@ -4,9 +4,10 @@ import com.ktk.workhuservice.data.Team;
 import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.dto.UserDto;
 import com.ktk.workhuservice.enums.Role;
+import com.ktk.workhuservice.mapper.UserMapper;
+import com.ktk.workhuservice.service.SeasonService;
 import com.ktk.workhuservice.service.TeamService;
 import com.ktk.workhuservice.service.UserService;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -22,24 +23,32 @@ public class UserController {
 
     private UserService userService;
     private TeamService teamService;
-    private ModelMapper modelMapper;
+    private UserMapper userMapper;
+    private SeasonService seasonService;
 
-    public UserController(UserService userService, TeamService teamService, ModelMapper modelMapper) {
+    public UserController(UserService userService, TeamService teamService, UserMapper modelMapper, SeasonService seasonService) {
         this.userService = userService;
         this.teamService = teamService;
-        this.modelMapper = modelMapper;
+        this.userMapper = modelMapper;
+        this.seasonService = seasonService;
     }
 
     @GetMapping("/user")
-    public ResponseEntity<?> getUser(@Nullable @RequestParam("username") String username, @Nullable @RequestParam("userId") Long userId) {
+    public ResponseEntity<?> getUser(@Nullable @RequestParam("username") String username, @Nullable @RequestParam("userId") Long userId, @Nullable @RequestParam("myShareId") Long myShareId) {
         Optional<User> user = userService.findByUsername(username);
         if (user.isPresent()) {
             userService.calculateUserPoints(user.get());
-            return ResponseEntity.status(200).body(entityToDto(user.get()));
+            return ResponseEntity.status(200).body(userMapper.entityToDto(user.get()));
         } else if (userId != null) {
             Optional<User> userById = userService.findById(userId);
             if (userById.isPresent()) {
-                return ResponseEntity.status(200).body(entityToDto(userById.get()));
+                return ResponseEntity.status(200).body(userMapper.entityToDto(userById.get()));
+            }
+        }
+        if (myShareId != null) {
+            Optional<User> userByMyShareId = userService.findByMyShareId(myShareId);
+            if (userByMyShareId.isPresent()) {
+                return ResponseEntity.status(200).body(userMapper.entityToDto(userByMyShareId.get()));
             }
         }
         return ResponseEntity.status(404).body("User not found");
@@ -52,12 +61,12 @@ public class UserController {
             if (team.isEmpty()) {
                 return ResponseEntity.status(400).body("No team found with id: " + teamId);
             }
-            return ResponseEntity.status(200).body(StreamSupport.stream(userService.findAllByTeam(team.get()).spliterator(), false).map((Function<User, Object>) this::entityToDto));
+            return ResponseEntity.status(200).body(StreamSupport.stream(userService.findAllByTeam(team.get(), seasonService.findBySeasonYear(2024).get()).spliterator(), false).map((Function<User, Object>) userMapper::entityToDto));
         }
         if (listO36 == null || !listO36) {
-            return ResponseEntity.status(200).body(StreamSupport.stream(userService.getAllYouth().spliterator(), false).map((Function<User, Object>) this::entityToDto));
+            return ResponseEntity.status(200).body(StreamSupport.stream(userService.getAllYouth().spliterator(), false).map((Function<User, Object>) userMapper::entityToDto));
         }
-        return ResponseEntity.status(200).body(StreamSupport.stream(userService.getAll().spliterator(), false).map(this::entityToDto));
+        return ResponseEntity.status(200).body(StreamSupport.stream(userService.getAll().spliterator(), false).map(userMapper::entityToDto));
     }
 
     @PutMapping("/user")
@@ -73,24 +82,7 @@ public class UserController {
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userDto.getId());
         }
-        User updatedUser = dtoToEntity(userDto, user.get());
-        return ResponseEntity.status(200).body(entityToDto(userService.save(updatedUser)));
-    }
-
-    private UserDto entityToDto(User u) {
-        return modelMapper.map(u, UserDto.class);
-    }
-
-    private User dtoToEntity(UserDto dto, User user){
-        user.setRole(dto.getRole());
-        user.setGoal(dto.getGoal());
-        user.setTeam(dto.getTeam());
-        user.setBirthDate(dto.getBirthDate());
-        user.setLastname(dto.getLastname());
-        user.setFirstname(dto.getFirstname());
-        user.setBaseMyShareCredit(dto.getBaseMyShareCredit());
-        user.setGoal(dto.getGoal());
-        return user;
+        return ResponseEntity.status(200).body(userMapper.entityToDto(userService.save(userMapper.dtoToEntity(userDto, user.get()))));
     }
 
 }

@@ -5,6 +5,8 @@ import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.enums.TransactionType;
 import com.ktk.workhuservice.repositories.UserRoundRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,12 +17,15 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @Service
-public class UserRoundService {
+public class UserRoundService extends BaseService<UserRound, Long> {
     private UserRoundRepository userRoundRepository;
     private UserService userService;
     private TransactionItemService transactionItemService;
     private TransactionService transactionService;
     private RoundService roundService;
+
+    @Autowired
+    private GoalService goalService;
 
     public UserRoundService(UserRoundRepository userRoundRepository, UserService userService, TransactionItemService transactionItemService, TransactionService transactionService, RoundService roundService) {
         this.userRoundRepository = userRoundRepository;
@@ -36,16 +41,6 @@ public class UserRoundService {
         return userRound;
     }
 
-    public UserRound save(UserRound userRound) {
-        return userRoundRepository.save(userRound);
-    }
-
-    public Iterable<UserRound> findAll() {
-        userRoundRepository.findAll().forEach(this::calculateCurrentRoundPoints);
-//        userService.getAllYouth().forEach(u -> roundService.getAll().forEach(r -> createUserRound(u, r)));
-        return userRoundRepository.findAll();
-    }
-
     private UserRound createUserRound(User user, Round round) {
         UserRound newUserRound = new UserRound();
         newUserRound.setRound(round);
@@ -53,25 +48,33 @@ public class UserRoundService {
         return save(newUserRound);
     }
 
-    public Iterable<UserRound> findByUser(User user) {
-        user.setCurrentMyShareCredit(user.getBaseMyShareCredit());
+    public List<UserRound> findByUserAndSeasonYear(User user, Integer season) {
+        for (var u : userRoundRepository.findByUserAndSeason(user, season)) {
+            calculateCurrentRoundPoints(u);
+        }
+        return userRoundRepository.findByUserAndSeason(user, season);
+    }
+
+    public List<UserRound> findByUser(User user) {
         for (var u : userRoundRepository.findByUser(user)) {
             calculateCurrentRoundPoints(u);
         }
         return userRoundRepository.findByUser(user);
     }
 
+    private void getUserRoundOrCreate() {
+        userService.getAllYouth().forEach(u -> findByUserAndRound(u, roundService.getLastRound()));
+    }
+
     public Iterable<UserRound> findByRound(Round r) {
-        for (var u : userRoundRepository.findByRound(r)) {
-            calculateCurrentRoundPoints(u);
-        }
         return userRoundRepository.findByRound(r);
     }
 
     Iterable<UserRound> findByRoundAndTeam(Round r, Team t) {
-        for (var u : userRoundRepository.findByRoundAndTeam(r, t)) {
-            calculateCurrentRoundPoints(u);
-        }
+        getUserRoundOrCreate();
+//        for (var u : userRoundRepository.findByRoundAndTeam(r, t)) {
+//            calculateCurrentRoundPoints(u);
+//        }
         return userRoundRepository.findByRoundAndTeam(r, t);
     }
 
@@ -84,19 +87,25 @@ public class UserRoundService {
             userRound.setRoundPoints(0);
             userRound.setSamvirkPayments(0);
             userRound.setSamvirkPoints(0);
-            userRound.setForbildePoints(0);
+            userRound.setBMMPerfectWeekPoints(0);
             User user = userRound.getUser();
             Round round = userRound.getRound();
+            Optional<Goal> userGoal = goalService.findByUserAndSeason(user, round.getSeason().getSeasonYear());
+            if (userGoal.isEmpty()) {
+                return;
+            }
+
+            Integer goal = userGoal.get().getGoal();
 
             double points = 0;
-            Iterable<TransactionItem> transactions = transactionItemService.findAllByUserIdAndRound(user.getId(), round);
+            Iterable<TransactionItem> transactions = transactionItemService.findAllByUserAndRound(user, round);
             transactions.forEach(t -> addTransaction(t, userRound));
 
-            if (!userRound.isMyShareOnTrackPoints() && user.getGoal() > 0 && ((double) user.getCurrentMyShareCredit() / user.getGoal()) * 100 >= round.getMyShareGoal()) {
+            if (!userRound.isMyShareOnTrackPoints() && goal > 0 && ((double) user.getCurrentMyShareCredit() / goal) * 100 >= round.getMyShareGoal()) {
                 userRound.setMyShareOnTrackPoints(true);
                 myShareOnTrackItems.add(createOnTrackTransactionItem(user, round, "MyShare On Track " + round.getRoundNumber(), 50));
                 points += 50;
-            } else if (userRound.isMyShareOnTrackPoints() && user.getGoal() > 0 && ((double) user.getCurrentMyShareCredit() / user.getGoal()) * 100 < round.getMyShareGoal()) {
+            } else if (userRound.isMyShareOnTrackPoints() && goal > 0 && ((double) user.getCurrentMyShareCredit() / goal) * 100 < round.getMyShareGoal()) {
                 userRound.setMyShareOnTrackPoints(false);
                 myShareOnTrackItems.add(createOnTrackTransactionItem(user, round, "MyShare On Track Round " + round.getRoundNumber() + " revert", -50));
                 points -= 50;
@@ -166,8 +175,23 @@ public class UserRoundService {
         if (t.getAccount().equals(Account.SAMVIRK)) {
             userRound.addSamvirkPayment(t.getCredit());
             userRound.addSamvirkPoints((double) t.getCredit() / 1000);
-        } else if (t.getAccount().equals(Account.OTHER) && t.getTransactionType().equals(TransactionType.VAER_ET_FORBILDE)) {
-            userRound.addForbildePoints(t.getPoints());
+        } else if (t.getAccount().equals(Account.OTHER) && t.getTransactionType().equals(TransactionType.BMM_PERFECT_WEEK)) {
+            userRound.addBMMPerfectWeekPoints(t.getPoints());
         }
+    }
+
+    @Override
+    protected JpaRepository<UserRound, Long> getRepository() {
+        return userRoundRepository;
+    }
+
+    @Override
+    public Class<UserRound> getEntityClass() {
+        return UserRound.class;
+    }
+
+    @Override
+    public UserRound createEntity() {
+        return new UserRound();
     }
 }

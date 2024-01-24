@@ -39,8 +39,8 @@ public class UserRound extends BaseEntity<UserRound, Long> {
     @Column(name = "ROUND_POINTS", columnDefinition = "float8 default 0")
     private double roundPoints;
 
-    @Column(name = "FORBILDE_POINTS", columnDefinition = "float8 default 0")
-    private double forbildePoints;
+    @Column(name = "BMM_PERFECT_WEEK_POINTS", columnDefinition = "float8 default 0")
+    private double bMMPerfectWeekPoints;
 
     public void addSamvirkPoints(double points) {
         samvirkPoints += points;
@@ -54,8 +54,8 @@ public class UserRound extends BaseEntity<UserRound, Long> {
         roundPoints += points;
     }
 
-    public void addForbildePoints(double points) {
-        forbildePoints += points;
+    public void addBMMPerfectWeekPoints(double points) {
+        bMMPerfectWeekPoints += points;
     }
 
 }

@@ -78,7 +78,7 @@ public class UserImportService {
                 }
             }
 
-            if (roundService.countAll() == 0) {
+            if (roundService.count() == 0) {
                 createRound1();
             }
 
@@ -108,14 +108,12 @@ public class UserImportService {
     }
 
     private void copyUser(User user, User newUser) {
-        user.setPoints(newUser.getPoints());
         user.setFirstname(newUser.getFirstname());
         user.setLastname(newUser.getLastname());
         user.setCurrentMyShareCredit(newUser.getCurrentMyShareCredit());
         user.setBaseMyShareCredit(newUser.getBaseMyShareCredit());
         user.setBirthDate(newUser.getBirthDate());
         user.setRole(newUser.getRole());
-        user.setGoal(newUser.getGoal());
         user.setTeam(newUser.getTeam());
         user.setMyShareID(newUser.getMyShareID());
         user.setPassword(newUser.getPassword());
@@ -145,8 +143,6 @@ public class UserImportService {
         }
         user.setBaseMyShareCredit(Integer.parseInt(data[9]));
         user.setCurrentMyShareCredit(Integer.parseInt(data[9]));
-        user.setGoal(Integer.parseInt(data[10]));
-        user.setPoints(0F);
         return user;
     }
 

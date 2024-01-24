@@ -1,17 +1,20 @@
 package com.ktk.workhuservice.service;
 
+import com.ktk.workhuservice.data.Season;
 import com.ktk.workhuservice.data.Team;
 import com.ktk.workhuservice.data.TransactionItem;
 import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.repositories.UserRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class UserService extends BaseService<User, Long>{
 
     private UserRepository userRepository;
     private TransactionItemService transactionItemService;
@@ -21,23 +24,15 @@ public class UserService {
         this.transactionItemService = transactionService;
     }
 
-    long count() {
-        return userRepository.count();
-    }
-
     public Optional<User> findByUsername(String username) {
         Optional<User> user = userRepository.findByUsername(username);
         user.ifPresent(this::calculateUserPoints);
         return user;
     }
 
-    public User save(User u) {
-        return userRepository.save(u);
-    }
-
     public Iterable<User> getAll() {
         calculateUserPointsForAllUsers();
-        return userRepository.findAll();
+        return findAll();
     }
 
     public Iterable<User> getAllYouth() {
@@ -46,23 +41,20 @@ public class UserService {
     }
 
     private Iterable<User> getYouth() {
-        return userRepository.findAllByGoalGreaterThan(0);
+        return userRepository.findAllBUKBySeason(LocalDate.now().getYear());
     }
+
 
     void calculateUserPointsForAllUsers() {
         getYouth().forEach(this::calculateUserPoints);
-    }
-
-    public void deleteAll() {
-        userRepository.deleteAll();
     }
 
     public Iterable<User> findAllByRole(Role role) {
         return userRepository.findAllByRole(role);
     }
 
-    public Iterable<User> findAllByTeam(Team t) {
-        return userRepository.findAllByTeamAndGoalGreaterThan(t, 0);
+    public Iterable<User> findAllByTeam(Team t, Season s) {
+        return userRepository.findAllByTeamAndSeasonAndGoal(t, s);
     }
 
     public Optional<User> findByMyShareId(Long id) {
@@ -77,25 +69,35 @@ public class UserService {
         return user;
     }
 
-    int countAllByTeam(Team t) {
-        return userRepository.countAllByTeamAndGoalGreaterThan(t, 0);
+    Long countAllByTeam(Team t, Integer season) {
+        return userRepository.countAllByTeamAndSeasonAndGoal(t, season);
     }
 
-    public double calculateUserPoints(User u) {
-        u.setPoints(0);
+    public void calculateUserPoints(User u) {
         u.setCurrentMyShareCredit(u.getBaseMyShareCredit());
-        calculateCurrentMySharePoints(u);
+        transactionItemService.findAllByUserAndSeasonYear(u, LocalDate.now().getYear()).forEach(t -> addTransaction(t, u));
         save(u);
-        return u.getPoints();
-    }
-
-    private void calculateCurrentMySharePoints(User user) {
-        transactionItemService.findAllByUser(user.getId()).forEach(t -> addTransaction(t, user));
     }
 
     private void addTransaction(TransactionItem t, User u) {
         if (t.getAccount().equals(Account.MYSHARE)) {
             u.setCurrentMyShareCredit(u.getCurrentMyShareCredit() + t.getCredit());
         }
+    }
+
+
+    @Override
+    protected JpaRepository<User, Long> getRepository() {
+        return userRepository;
+    }
+
+    @Override
+    public Class<User> getEntityClass() {
+        return User.class;
+    }
+
+    @Override
+    public User createEntity() {
+        return new User();
     }
 }

@@ -17,6 +17,6 @@ public class SeasonController {
 
     @GetMapping("/seasons")
     public ResponseEntity getSeasons(){
-        return ResponseEntity.status(200).body(seasonService.getAll());
+        return ResponseEntity.status(200).body(seasonService.findAll());
     }
 }

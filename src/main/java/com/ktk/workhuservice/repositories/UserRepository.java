@@ -1,9 +1,11 @@
 package com.ktk.workhuservice.repositories;
 
+import com.ktk.workhuservice.data.Season;
 import com.ktk.workhuservice.data.Team;
 import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.enums.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -17,9 +19,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Iterable<User> findAllByRole(Role role);
 
-    Iterable<User> findAllByTeamAndGoalGreaterThan(Team t, int goal);
+    @Query("SELECT u FROM Goal g JOIN g.user u JOIN g.season s where s = ?2 and u.team = ?1")
+    Iterable<User> findAllByTeamAndSeasonAndGoal(Team t, Season s);
 
-    int countAllByTeamAndGoalGreaterThan(Team t, int goal);
+    @Query("SELECT COUNT(u) FROM Goal g JOIN g.user u JOIN g.season s where s.seasonYear = ?2 and u.team = ?1")
+    Long countAllByTeamAndSeasonAndGoal(Team t, Integer s);
 
-    Iterable<User> findAllByGoalGreaterThan(int goal);
+    @Query("SELECT u FROM Goal g JOIN g.user u JOIN g.season s where s.seasonYear = ?1 and u IS NOT null ")
+    Iterable<User> findAllBUKBySeason(Integer seasonYear);
 }

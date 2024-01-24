@@ -1,6 +1,7 @@
 package com.ktk.workhuservice.dto;
 
 import com.ktk.workhuservice.enums.Account;
+import com.ktk.workhuservice.enums.TransactionType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,4 +21,6 @@ public class TransactionDto {
     private LocalDateTime createDateTime;
 
     private Integer transactionCount;
+
+    private TransactionType transactionType;
 }
