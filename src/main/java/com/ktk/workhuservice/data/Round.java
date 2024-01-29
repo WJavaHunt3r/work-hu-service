@@ -53,4 +53,7 @@ public class Round extends BaseEntity<Round, Long> {
     @JoinColumn(name = "SEASON")
     @ManyToOne
     private Season season;
+
+    @Column(name = "USER_ROUNDS_CREATED", columnDefinition = "boolean default false")
+    private Boolean userRoundsCreated;
 }

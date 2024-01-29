@@ -62,8 +62,8 @@ public class UserRoundService extends BaseService<UserRound, Long> {
         return userRoundRepository.findByUser(user);
     }
 
-    private void getUserRoundOrCreate() {
-        userService.getAllYouth().forEach(u -> findByUserAndRound(u, roundService.getLastRound()));
+    void getUserRoundsOrCreate(Round round) {
+        userService.getAllYouth().forEach(u -> findByUserAndRound(u, round));
     }
 
     public Iterable<UserRound> findByRound(Round r) {
@@ -71,10 +71,6 @@ public class UserRoundService extends BaseService<UserRound, Long> {
     }
 
     Iterable<UserRound> findByRoundAndTeam(Round r, Team t) {
-        getUserRoundOrCreate();
-//        for (var u : userRoundRepository.findByRoundAndTeam(r, t)) {
-//            calculateCurrentRoundPoints(u);
-//        }
         return userRoundRepository.findByRoundAndTeam(r, t);
     }
 
@@ -101,13 +97,16 @@ public class UserRoundService extends BaseService<UserRound, Long> {
             Iterable<TransactionItem> transactions = transactionItemService.findAllByUserAndRound(user, round);
             transactions.forEach(t -> addTransaction(t, userRound));
 
+            String myShareOnTrackName = "MyShare On Track Round " + round.getRoundNumber() + "(" + round.getSeason().getSeasonYear() + ")";
+            String samvirkOnTrackName = "Samvirk On Track Round " + round.getRoundNumber() + "(" + round.getSeason().getSeasonYear() + ")";
+
             if (!userRound.isMyShareOnTrackPoints() && goal > 0 && ((double) user.getCurrentMyShareCredit() / goal) * 100 >= round.getMyShareGoal()) {
                 userRound.setMyShareOnTrackPoints(true);
-                myShareOnTrackItems.add(createOnTrackTransactionItem(user, round, "MyShare On Track " + round.getRoundNumber(), 50));
+                myShareOnTrackItems.add(createOnTrackTransactionItem(user, round, myShareOnTrackName, 50));
                 points += 50;
             } else if (userRound.isMyShareOnTrackPoints() && goal > 0 && ((double) user.getCurrentMyShareCredit() / goal) * 100 < round.getMyShareGoal()) {
                 userRound.setMyShareOnTrackPoints(false);
-                myShareOnTrackItems.add(createOnTrackTransactionItem(user, round, "MyShare On Track Round " + round.getRoundNumber() + " revert", -50));
+                myShareOnTrackItems.add(createOnTrackTransactionItem(user, round, myShareOnTrackName + " revert", -50));
                 points -= 50;
             }
 
@@ -119,21 +118,21 @@ public class UserRoundService extends BaseService<UserRound, Long> {
                     userRound.addSamvirkPoints(onTrackPoints);
                     if (maxPoints != 0 && userRound.getSamvirkPoints() > maxPoints) userRound.setSamvirkPoints(maxPoints);
                     userRound.setSamvirkOnTrackPoints(true);
-                    samvirkOnTrackItems.add(createOnTrackTransactionItem(user, round, "Samvirk On Track Round " + round.getRoundNumber(), onTrackPoints));
+                    samvirkOnTrackItems.add(createOnTrackTransactionItem(user, round, samvirkOnTrackName, onTrackPoints));
                     points += onTrackPoints;
                 }
             }
             if (userRound.getSamvirkPayments() < round.getSamvirkGoal() && userRound.isSamvirkOnTrackPoints()) {
                 userRound.setSamvirkOnTrackPoints(false);
-                samvirkOnTrackItems.add(createOnTrackTransactionItem(user, round, "Samvirk On Track Round " + round.getRoundNumber() + " revert", onTrackPoints * -1));
+                samvirkOnTrackItems.add(createOnTrackTransactionItem(user, round, samvirkOnTrackName + " revert", onTrackPoints * -1));
                 points -= onTrackPoints;
             }
 
             points += StreamSupport.stream(transactions.spliterator(), false).mapToDouble(TransactionItem::getPoints).sum();
             userRound.setRoundPoints(points);
             save(userRound);
-            if (!myShareOnTrackItems.isEmpty()) saveOnTrackItems(myShareOnTrackItems, "MyShare On Track Round " + round.getRoundNumber());
-            if (!samvirkOnTrackItems.isEmpty()) saveOnTrackItems(samvirkOnTrackItems, "Samvirk On Track Round " + round.getRoundNumber());
+            if (!myShareOnTrackItems.isEmpty()) saveOnTrackItems(myShareOnTrackItems, myShareOnTrackName);
+            if (!samvirkOnTrackItems.isEmpty()) saveOnTrackItems(samvirkOnTrackItems, samvirkOnTrackName);
         }
     }
 
@@ -178,6 +177,14 @@ public class UserRoundService extends BaseService<UserRound, Long> {
         } else if (t.getAccount().equals(Account.OTHER) && t.getTransactionType().equals(TransactionType.BMM_PERFECT_WEEK)) {
             userRound.addBMMPerfectWeekPoints(t.getPoints());
         }
+    }
+
+    public double calculateTeamRoundSamvirkPayments(Team team, Round round){
+        return userRoundRepository.calculateTeamRoundSamvirkPayments(team, round);
+    }
+
+    public double calculateTeamRoundPoints(Team team, Round round){
+        return userRoundRepository.calculateTeamRoundPoints(team, round);
     }
 
     @Override

@@ -3,7 +3,6 @@ package com.ktk.workhuservice.service;
 import com.ktk.workhuservice.data.Round;
 import com.ktk.workhuservice.data.Team;
 import com.ktk.workhuservice.data.TeamRound;
-import com.ktk.workhuservice.data.UserRound;
 import com.ktk.workhuservice.repositories.TeamRoundRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,7 @@ public class TeamRoundService extends BaseService<TeamRound, Long> {
     private UserService userService;
     private UserRoundService userRoundService;
 
-    public TeamRoundService(TeamRoundRepository teamRoundRepository, RoundService userRoundService, TeamService teamService, UserService userService, UserRoundService userRoundService1) {
+    public TeamRoundService(TeamRoundRepository teamRoundRepository, RoundService userRoundService, TeamService teamService, UserService userService, UserRoundService userRoundService1, TransactionItemService transactionItemService) {
         this.teamRoundRepository = teamRoundRepository;
         this.roundService = userRoundService;
         this.teamService = teamService;
@@ -42,15 +41,23 @@ public class TeamRoundService extends BaseService<TeamRound, Long> {
     private void calculateTeamRoundPoints() {
         for (TeamRound tr : teamRoundRepository.findAllByRound(roundService.getLastRound())) {
 
-            double teamPoints = 0;
-            double samvirkPayments = 0;
-            for (UserRound ur : userRoundService.findByRoundAndTeam(tr.getRound(), tr.getTeam())) {
-                samvirkPayments += ur.getSamvirkPayments();
-                teamPoints += ur.getRoundPoints();
-
+            if (!tr.getRound().getUserRoundsCreated()) {
+                userRoundService.getUserRoundsOrCreate(tr.getRound());
+                Round round = tr.getRound();
+                round.setUserRoundsCreated(true);
+                roundService.save(round);
             }
+
+            double teamPoints = userRoundService.calculateTeamRoundPoints(tr.getTeam(), tr.getRound());
+            double samvirkPayments = userRoundService.calculateTeamRoundSamvirkPayments(tr.getTeam(), tr.getRound());
+//            for (UserRound ur : userRoundService.findByRoundAndTeam(tr.getRound(), tr.getTeam())) {
+//                samvirkPayments += ur.getSamvirkPayments();
+//                teamPoints += ur.getRoundPoints();
+//
+//            }
             tr.setSamvirkPayments(samvirkPayments);
-            tr.setTeamPoints(teamPoints / userService.countAllByTeam(tr.getTeam(), tr.getRound().getSeason().getSeasonYear()));
+            Long userCount = userService.countAllByTeam(tr.getTeam(), tr.getRound().getSeason().getSeasonYear());
+            tr.setTeamPoints(userCount == 0 ? 0 : teamPoints / userCount);
             teamRoundRepository.save(tr);
 
         }

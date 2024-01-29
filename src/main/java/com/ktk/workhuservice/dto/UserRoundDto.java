@@ -24,5 +24,5 @@ public class UserRoundDto {
 
     private double roundPoints;
 
-    private double forbildePoints;
+    private double bMMPerfectWeekPoints;
 }

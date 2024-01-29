@@ -25,4 +25,12 @@ public interface UserRoundRepository extends JpaRepository<UserRound, Long> {
 
     @Query("SELECT ur FROM UserRound ur WHERE ur.round = ?1 AND ur.user.team = ?2 ")
     Iterable<UserRound> findByRoundAndTeam(Round r, Team t);
+
+    @Query("SELECT sum(ur.roundPoints) FROM UserRound  ur where ur.user.team = ?1 " +
+            " and ur.round = ?2 ")
+    double calculateTeamRoundPoints(Team t, Round round);
+
+    @Query("SELECT sum(ur.samvirkPayments) FROM UserRound  ur where ur.user.team = ?1 " +
+            " and ur.round = ?2 ")
+    double calculateTeamRoundSamvirkPayments(Team t, Round round);
 }
