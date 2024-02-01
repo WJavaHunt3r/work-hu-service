@@ -38,7 +38,7 @@ public class ActivityMapper extends BaseMapper<Activity, ActivityDto> {
     public Activity dtoToEntity(ActivityDto dto, Activity entity) {
         Activity activity = modelMapper.map(dto, Activity.class);
         activity.setEmployer(entity.getEmployer());
-        activity.setResponsible(entity.getEmployer());
+        activity.setResponsible(entity.getResponsible());
         activity.setCreateUser(entity.getCreateUser());
         if (activity.getCreateDateTime() == null) {
             activity.setCreateDateTime(LocalDateTime.now());
