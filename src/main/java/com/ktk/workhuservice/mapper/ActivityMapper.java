@@ -9,6 +9,8 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeMap;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 public class ActivityMapper extends BaseMapper<Activity, ActivityDto> {
 
@@ -34,6 +36,14 @@ public class ActivityMapper extends BaseMapper<Activity, ActivityDto> {
 
     @Override
     public Activity dtoToEntity(ActivityDto dto, Activity entity) {
-        return modelMapper.map(dto, Activity.class);
+        Activity activity = modelMapper.map(dto, Activity.class);
+        activity.setEmployer(entity.getEmployer());
+        activity.setResponsible(entity.getEmployer());
+        activity.setCreateUser(entity.getCreateUser());
+        if (activity.getCreateDateTime() == null) {
+            activity.setCreateDateTime(LocalDateTime.now());
+        }
+
+        return activity;
     }
 }

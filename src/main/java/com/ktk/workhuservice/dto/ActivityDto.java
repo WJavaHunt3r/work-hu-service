@@ -1,16 +1,18 @@
 package com.ktk.workhuservice.dto;
 
+import com.ktk.workhuservice.enums.Account;
+import com.ktk.workhuservice.enums.TransactionType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
 @Setter
 public class ActivityDto {
+    private Long id;
 
     private LocalDateTime createDateTime;
 
@@ -30,9 +32,7 @@ public class ActivityDto {
 
     private boolean registeredInMyShare;
 
-    private boolean paid;
+    private TransactionType transactionType;
 
-    private LocalDate paymentDate;
-
-    private Integer paidAmount = 0;
+    private Account account;
 }

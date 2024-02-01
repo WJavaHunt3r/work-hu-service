@@ -17,8 +17,8 @@ public class ActivityService extends BaseService<Activity, Long>{
         this.repository = repository;
     }
 
-    public List<Activity> fetchByQuery(Long responsible, Long employer, boolean paid, boolean registeredInApp, boolean registeredInMyShare, Long createUser) {
-        return repository.fetchByQuery(responsible, employer, paid, registeredInApp, registeredInMyShare, createUser);
+    public List<Activity> fetchByQuery(Long responsible, Long employer, Boolean registeredInApp, Boolean registeredInMyShare, Long createUser) {
+        return repository.fetchByQuery(responsible, employer, registeredInApp, registeredInMyShare, createUser);
     }
 
     public Optional<Activity> findById(Long id) {
