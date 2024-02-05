@@ -33,10 +33,10 @@ public class ActivityController {
 
     @GetMapping("/activities")
     public ResponseEntity getActivities(@Nullable @RequestParam("responsibleUserId") Long responsibleId,
-                                        @Nullable @RequestParam("responsibleUserId") Long employerId,
+                                        @Nullable @RequestParam("employerId") Long employerId,
                                         @Nullable @RequestParam("registeredInApp") Boolean registeredInApp,
                                         @Nullable @RequestParam("registeredInMyShare") Boolean registeredInMyShare,
-                                        @Nullable @RequestParam("responsibleUserId") Long createUserId) {
+                                        @Nullable @RequestParam("createUserId") Long createUserId) {
         return ResponseEntity.status(200).body(activityService.fetchByQuery(responsibleId, employerId, registeredInApp, registeredInMyShare, createUserId));
     }
 
@@ -55,9 +55,9 @@ public class ActivityController {
         if (createUser.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + activity.getCreateUser().getId());
         }
-        if (createUser.get().getRole().equals(Role.USER)) {
-            return ResponseEntity.status(403).body("Permission denied:");
-        }
+//        if (createUser.get().getRole().equals(Role.USER)) {
+//            return ResponseEntity.status(403).body("Permission denied:");
+//        }
         Optional<User> employer = userService.findById(activity.getEmployer().getId());
         if (employer.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + activity.getEmployer().getId());
@@ -90,7 +90,7 @@ public class ActivityController {
         }
         Optional<Activity> item = activityService.findById(activityId);
         if (item.isPresent()) {
-            if (!item.get().getCreateUser().getId().equals(user.get().getId()) || user.get().getRole().equals(Role.USER)) {
+            if (!item.get().getCreateUser().getId().equals(user.get().getId()) && !user.get().getRole().equals(Role.ADMIN)) {
                 return ResponseEntity.status(403).body("Permission denied!");
             }
             if (item.get().isRegisteredInApp() || item.get().isRegisteredInMyShare()) {
@@ -103,6 +103,32 @@ public class ActivityController {
 
         return ResponseEntity.status(403).body("No activity item found with id:" + activityId);
 
+    }
+
+    @GetMapping("/register")
+    public ResponseEntity registerActivity(@RequestParam Long activityId, @RequestParam Long userId) {
+        Optional<User> user = userService.findById(userId);
+        if (user.isEmpty()) {
+            return ResponseEntity.status(400).body("No user with id:" + userId);
+        }
+        if (user.get().getRole().equals(Role.USER)) {
+            return ResponseEntity.status(403).body("Permission denied:");
+        }
+        Optional<Activity> activity = activityService.findById(activityId);
+        if (activity.isEmpty()) {
+            return ResponseEntity.status(400).body("No user with id:" + activityId);
+        }
+        if (activity.get().isRegisteredInApp()) {
+            return ResponseEntity.status(400).body("Activity already registered!");
+        }
+
+        try {
+            activityService.registerActivity(activity.get(), user.get());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(e.toString());
+        }
+
+        return ResponseEntity.status(200).body("Registration successful");
     }
 
 }

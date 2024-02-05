@@ -74,7 +74,7 @@ public class TransactionItemService {
                 }
 
             } else if (t.getAccount().equals(Account.SAMVIRK)) {
-                double creditPoints = (double) t.getCredit() / 500.0;
+                double creditPoints = (double) t.getCredit() / 1000.0;
                 double samvirkpoints = StreamSupport.stream(transactionItemRepository.findAllByUserAndRoundAndAccount(t.getUser(), t.getRound(), Account.SAMVIRK).spliterator(), false)
                         .mapToDouble(TransactionItem::getPoints).sum();
                 double maxPoints = t.getRound().getSamvirkMaxPoints();
@@ -86,7 +86,12 @@ public class TransactionItemService {
                 }
 
             } else if (t.getAccount().equals(Account.OTHER)) {
-                t.setHours(0);
+                if (t.getPoints() == 0) {
+                    t.setPoints(t.getHours() * 4);
+                } else {
+                    t.setHours(0);
+                }
+
                 t.setCredit(0);
             }
 

@@ -59,8 +59,6 @@ public class ActivityItemController {
         Optional<User> createUser = userService.findById(activityItem.getCreateUser().getId());
         if (createUser.isEmpty()) {
             return ResponseEntity.status(400).body("CreateUser not found by id: " + activityItem.getCreateUser());
-        } else if (createUser.get().getRole().equals(Role.USER)) {
-            return ResponseEntity.status(403).body("User is not allowed to create activitys");
         }
 
         activityItemService.save(convertToEntity(activityItem, user.get(), createUser.get()));
@@ -97,12 +95,17 @@ public class ActivityItemController {
     }
 
     @GetMapping("/activityItems")
-    public ResponseEntity<?> getActivityItems(@Nullable @RequestParam("activityId") Long activityId) {
+    public ResponseEntity<?> getActivityItems(@Nullable @RequestParam("activityId") Long activityId,
+                                              @Nullable @RequestParam("userId") Long userId,
+                                              @Nullable @RequestParam("registeredInApp") Boolean registeredInApp,
+                                              @Nullable @RequestParam("roundId") Long roundId) {
         if (activityId != null) {
             return ResponseEntity.ok(activityItemService.findByActivity(activityId).stream().map(this::convertToDto));
         }
 
-        return ResponseEntity.status(400).body("Empty parameters");
+        return ResponseEntity.ok(activityItemService.fetchByQuery(userId, registeredInApp, roundId).stream().map(this::convertToDto));
+
+        //return ResponseEntity.status(400).body("Empty parameters");
 
     }
 
