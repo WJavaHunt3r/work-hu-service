@@ -35,7 +35,7 @@ public class UserRoundService extends BaseService<UserRound, Long> {
         this.roundService = roundService;
     }
 
-    public UserRound findByUserAndRound(User u, Round r) {
+public UserRound findByUserAndRound(User u, Round r) {
         UserRound userRound = userRoundRepository.findByUserAndRound(u, r).orElseGet(() -> createUserRound(u, r));
         calculateCurrentRoundPoints(userRound);
         return userRound;
@@ -62,7 +62,7 @@ public class UserRoundService extends BaseService<UserRound, Long> {
         return userRoundRepository.findByUser(user);
     }
 
-    void getUserRoundsOrCreate(Round round) {
+    public void getUserRoundsOrCreate(Round round) {
         userService.getAllYouth().forEach(u -> findByUserAndRound(u, round));
     }
 

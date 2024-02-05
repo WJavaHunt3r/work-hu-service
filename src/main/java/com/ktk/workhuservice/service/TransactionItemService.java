@@ -86,7 +86,12 @@ public class TransactionItemService {
                 }
 
             } else if (t.getAccount().equals(Account.OTHER)) {
-                t.setHours(0);
+                if (t.getPoints() == 0) {
+                    t.setPoints(t.getHours() * 4);
+                } else {
+                    t.setHours(0);
+                }
+
                 t.setCredit(0);
             }
 

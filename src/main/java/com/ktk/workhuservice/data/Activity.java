@@ -1,5 +1,7 @@
 package com.ktk.workhuservice.data;
 
+import com.ktk.workhuservice.enums.Account;
+import com.ktk.workhuservice.enums.TransactionType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -9,7 +11,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -51,19 +52,18 @@ public class Activity extends BaseEntity<Activity, Long> {
     @Column(name = "ACTIVITY_ID")
     private Integer activityId;
 
-    @Column(name = "REGISTERED_IN_APP")
+    @Column(name = "REGISTERED_IN_APP", columnDefinition = "boolean default false")
     private boolean registeredInApp;
 
-    @Column(name = "REGISTERED_IN_MYSHARE")
+    @Column(name = "REGISTERED_IN_MYSHARE", columnDefinition = "boolean default false")
     private boolean registeredInMyShare;
 
-    @Column(name = "PAID")
-    private boolean paid;
+    @Column(name = "ACCOUNT")
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Account account;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @Column(name = "PAYMENT_DATE")
-    private LocalDate paymentDate;
-
-    @Column(name = "PAID_AMOUNT", columnDefinition = "integer default 0")
-    private Integer paidAmount = 0;
+    @Column(name = "TRANSACTION_TYPE")
+    @Enumerated(EnumType.STRING)
+    private TransactionType transactionType;
 }

@@ -1,11 +1,13 @@
 package com.ktk.workhuservice.controllers;
 
 import com.ktk.workhuservice.data.Transaction;
+import com.ktk.workhuservice.data.TransactionItem;
 import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.dto.TransactionDto;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.service.TransactionItemService;
 import com.ktk.workhuservice.service.TransactionService;
+import com.ktk.workhuservice.service.UserRoundService;
 import com.ktk.workhuservice.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -24,12 +26,14 @@ public class TransactionsController {
     private ModelMapper modelMapper;
     private TransactionItemService transactionItemService;
     private UserService userService;
+    private UserRoundService userRoundService;
 
-    public TransactionsController(TransactionService transactionService, ModelMapper modelMapper, TransactionItemService transactionItemService, UserService userService) {
+    public TransactionsController(TransactionService transactionService, ModelMapper modelMapper, TransactionItemService transactionItemService, UserService userService, UserRoundService userRoundService) {
         this.transactionService = transactionService;
         this.modelMapper = modelMapper;
         this.transactionItemService = transactionItemService;
         this.userService = userService;
+        this.userRoundService = userRoundService;
     }
 
     @PostMapping("/transaction")
@@ -54,8 +58,13 @@ public class TransactionsController {
             return ResponseEntity.status(403).body("Permission denied!");
         }
         if (transactionService.existsById(transactionId)) {
+            Iterable<TransactionItem> items = transactionItemService.findAllByTransactionId(transactionId);
             transactionService.deleteById(transactionId);
             transactionItemService.deleteByTransactionId(transactionId);
+            for (var item : items) {
+                userRoundService.calculateCurrentRoundPoints(userRoundService.findByUserAndRound(item.getUser(), item.getRound()));
+            }
+
             return ResponseEntity.status(200).body("Delete successful");
         }
         return ResponseEntity.status(403).body("No transaction found with id:" + transactionId);
