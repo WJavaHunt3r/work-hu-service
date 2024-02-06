@@ -75,8 +75,11 @@ public class User extends BaseEntity<User, Long> {
     @Column(name = "CHANGED_PASSWORD")
     private boolean changedPassword;
 
-//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "USERS")
-//    private List<Goal> goals;
+    @JoinColumn(name = "SPOUSE_ID")
+    private Long spouseId;
+
+    @Column(name = "FAMILY_ID")
+    private Long familyId;
 
     public String getFullName() {
         return lastname + " " + firstname;

@@ -32,4 +32,8 @@ public class UserDto {
 
     private boolean changedPassword;
 
+    private Long spouseId;
+
+    private Long familyId;
+
 }
