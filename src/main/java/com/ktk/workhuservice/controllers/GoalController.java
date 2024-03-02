@@ -11,7 +11,6 @@ import com.ktk.workhuservice.service.SeasonService;
 import com.ktk.workhuservice.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -19,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
-@Controller
+@RestController
 @RequestMapping("/api")
 public class GoalController {
 
