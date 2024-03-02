@@ -35,7 +35,7 @@ public class UserRoundService extends BaseService<UserRound, Long> {
         this.roundService = roundService;
     }
 
-public UserRound findByUserAndRound(User u, Round r) {
+    public UserRound findByUserAndRound(User u, Round r) {
         UserRound userRound = userRoundRepository.findByUserAndRound(u, r).orElseGet(() -> createUserRound(u, r));
         calculateCurrentRoundPoints(userRound);
         return userRound;
@@ -133,6 +133,7 @@ public UserRound findByUserAndRound(User u, Round r) {
             save(userRound);
             if (!myShareOnTrackItems.isEmpty()) saveOnTrackItems(myShareOnTrackItems, myShareOnTrackName);
             if (!samvirkOnTrackItems.isEmpty()) saveOnTrackItems(samvirkOnTrackItems, samvirkOnTrackName);
+            userService.calculateUserPoints(user);
         }
     }
 
@@ -179,11 +180,11 @@ public UserRound findByUserAndRound(User u, Round r) {
         }
     }
 
-    public double calculateTeamRoundSamvirkPayments(Team team, Round round){
+    public double calculateTeamRoundSamvirkPayments(Team team, Round round) {
         return userRoundRepository.calculateTeamRoundSamvirkPayments(team, round);
     }
 
-    public double calculateTeamRoundPoints(Team team, Round round){
+    public double calculateTeamRoundPoints(Team team, Round round) {
         return userRoundRepository.calculateTeamRoundPoints(team, round);
     }
 

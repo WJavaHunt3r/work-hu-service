@@ -69,6 +69,7 @@ public class UserImportService {
             while ((line = br.readLine()) != null) {
                 String[] attr = line.split(";");
                 User u = createUser(attr);
+                System.out.println(u.getFirstname() + " " + u.getLastname());
                 Optional<User> existingUser = userService.findByUsername(u.getUsername());
                 if (existingUser.isEmpty()) {
                     userService.save(u);

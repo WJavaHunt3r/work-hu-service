@@ -19,7 +19,7 @@ public class GoalService extends BaseService<Goal, Long> {
     }
 
     public Optional<Goal> findByUserAndSeason(User user, Integer year){
-        return goalRepository.findByUserAndSeasonSeasonYear(user, year);
+        return goalRepository.findByUserAndSeasonSeasonYearOrUserSpouse(user, year, user.getId());
     }
 
     public List<Goal> findBySeason(Season season){

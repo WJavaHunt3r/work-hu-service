@@ -105,8 +105,6 @@ public class ActivityItemController {
 
         return ResponseEntity.ok(activityItemService.fetchByQuery(userId, registeredInApp, roundId).stream().map(this::convertToDto));
 
-        //return ResponseEntity.status(400).body("Empty parameters");
-
     }
 
     private ActivityItem convertToEntity(ActivityItemDto dto, User user, User createUser) {

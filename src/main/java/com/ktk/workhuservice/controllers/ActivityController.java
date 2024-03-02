@@ -7,6 +7,7 @@ import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.mapper.ActivityMapper;
 import com.ktk.workhuservice.service.ActivityItemService;
 import com.ktk.workhuservice.service.ActivityService;
+import com.ktk.workhuservice.service.UserRoundService;
 import com.ktk.workhuservice.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -23,12 +24,14 @@ public class ActivityController {
     private UserService userService;
     private ActivityMapper activityMapper;
     private ActivityItemService activityItemService;
+    private UserRoundService userRoundService;
 
-    public ActivityController(ActivityService activityService, UserService userService, ActivityMapper activityMapper, ActivityItemService activityItemService) {
+    public ActivityController(ActivityService activityService, UserService userService, ActivityMapper activityMapper, ActivityItemService activityItemService, UserRoundService userRoundService) {
         this.activityService = activityService;
         this.userService = userService;
         this.activityMapper = activityMapper;
         this.activityItemService = activityItemService;
+        this.userRoundService = userRoundService;
     }
 
     @GetMapping("/activities")
@@ -124,6 +127,7 @@ public class ActivityController {
 
         try {
             activityService.registerActivity(activity.get(), user.get());
+            userRoundService.findAll().forEach(userRoundService::calculateCurrentRoundPoints);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(e.toString());
         }

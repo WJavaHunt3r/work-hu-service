@@ -34,7 +34,9 @@ public class UserRoundController {
     }
 
     @GetMapping("/userRounds")
-    public ResponseEntity getUserRounds(@Nullable @RequestParam("userId") Long userId, @Nullable @RequestParam("roundId") Long roundId, @Nullable @RequestParam("seasonYear") Integer seasonYear) {
+    public ResponseEntity getUserRounds(@Nullable @RequestParam("userId") Long userId,
+                                        @Nullable @RequestParam("roundId") Long roundId,
+                                        @Nullable @RequestParam("seasonYear") Integer seasonYear) {
         if (userId != null) {
             var user = userService.findById(userId);
             if (user.isEmpty()) {
