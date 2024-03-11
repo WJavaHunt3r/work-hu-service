@@ -25,6 +25,71 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: com.microsoft.graph:microsoft-graph:6.2.1" level="project" />
+    <orderEntry type="library" name="Maven: com.microsoft.graph:microsoft-graph-core:3.1.3" level="project" />
+    <orderEntry type="library" name="Maven: com.microsoft.kiota:microsoft-kiota-abstractions:1.0.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.github.std-uritemplate:std-uritemplate:0.0.52" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.code.gson:gson:2.8.9" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.guava:guava:33.0.0-jre" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.guava:failureaccess:1.0.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.code.findbugs:jsr305:3.0.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.errorprone:error_prone_annotations:2.23.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.google.j2objc:j2objc-annotations:2.8" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.okhttp3:okhttp:3.14.9" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.okio:okio:1.17.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.microsoft.kiota:microsoft-kiota-authentication-azure:1.0.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.opentelemetry:opentelemetry-api:1.35.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.opentelemetry:opentelemetry-context:1.35.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.microsoft.kiota:microsoft-kiota-http-okHttp:1.0.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: io.opentelemetry.semconv:opentelemetry-semconv:1.23.1-alpha" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.microsoft.kiota:microsoft-kiota-serialization-json:1.0.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.microsoft.kiota:microsoft-kiota-serialization-text:1.0.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.microsoft.kiota:microsoft-kiota-serialization-form:1.0.2" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.microsoft.kiota:microsoft-kiota-serialization-multipart:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: com.azure:azure-identity:1.12.0-beta.1" level="project" />
+    <orderEntry type="library" name="Maven: com.azure:azure-core:1.46.0" level="project" />
+    <orderEntry type="library" name="Maven: com.azure:azure-json:1.1.0" level="project" />
+    <orderEntry type="library" name="Maven: io.projectreactor:reactor-core:3.4.15" level="project" />
+    <orderEntry type="library" name="Maven: org.reactivestreams:reactive-streams:1.0.3" level="project" />
+    <orderEntry type="library" name="Maven: com.azure:azure-core-http-netty:1.14.0" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-handler:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-resolver:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-tcnative-classes:2.0.48.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-handler-proxy:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec-socks:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-buffer:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec-http:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec-http2:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport-native-unix-common:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport-native-epoll:linux-x86_64:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport-classes-epoll:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport-native-kqueue:osx-x86_64:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-transport-classes-kqueue:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-tcnative-boringssl-static:2.0.50.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-tcnative-boringssl-static:linux-x86_64:2.0.48.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-tcnative-boringssl-static:linux-aarch_64:2.0.48.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-tcnative-boringssl-static:osx-x86_64:2.0.48.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-tcnative-boringssl-static:osx-aarch_64:2.0.48.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-tcnative-boringssl-static:windows-x86_64:2.0.48.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.projectreactor.netty:reactor-netty-http:1.0.16" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-resolver-dns:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-codec-dns:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-resolver-dns-native-macos:osx-x86_64:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-resolver-dns-classes-macos:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: io.projectreactor.netty:reactor-netty-core:1.0.16" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-common:4.1.74.Final" level="project" />
+    <orderEntry type="library" name="Maven: com.microsoft.azure:msal4j:1.14.0" level="project" />
+    <orderEntry type="library" name="Maven: com.nimbusds:oauth2-oidc-sdk:10.7.1" level="project" />
+    <orderEntry type="library" name="Maven: com.github.stephenc.jcip:jcip-annotations:1.0-1" level="project" />
+    <orderEntry type="library" name="Maven: com.nimbusds:content-type:2.2" level="project" />
+    <orderEntry type="library" name="Maven: com.nimbusds:lang-tag:1.7" level="project" />
+    <orderEntry type="library" name="Maven: com.nimbusds:nimbus-jose-jwt:9.30.2" level="project" />
+    <orderEntry type="library" name="Maven: com.microsoft.azure:msal4j-persistence-extension:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: net.java.dev.jna:jna:5.13.0" level="project" />
+    <orderEntry type="library" name="Maven: net.java.dev.jna:jna-platform:5.6.0" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-data-jpa:2.6.4" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-aop:2.6.4" level="project" />
     <orderEntry type="library" name="Maven: org.aspectj:aspectjweaver:1.9.7" level="project" />

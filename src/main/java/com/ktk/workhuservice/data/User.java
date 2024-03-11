@@ -81,6 +81,13 @@ public class User extends BaseEntity<User, Long> {
     @Column(name = "FAMILY_ID")
     private Long familyId;
 
+    @Column(name = "PHONE_NUMBER")
+    private Long phoneNumber;
+
+    @Size(max = 200)
+    @Column(name = "EMAIL", length = 200)
+    private String email;
+
     public String getFullName() {
         return lastname + " " + firstname;
     }
