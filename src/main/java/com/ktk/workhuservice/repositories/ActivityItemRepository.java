@@ -16,4 +16,7 @@ public interface ActivityItemRepository extends JpaRepository<ActivityItem, Long
             " ( ?1 is NULL OR ai.user = ?1 ) " +
             " and (?2 is null or ai.activity.registeredInApp = ?2 ) " )
     List<ActivityItem> fetchByQuery(Long userId, Boolean registeredInApp, Long roundId);
+
+    @Query("select sum(ai.hours) from ActivityItem ai where ai.activity.id = ?1 ")
+    double sumHoursByActivity(Long activityId);
 }

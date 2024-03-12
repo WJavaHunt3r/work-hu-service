@@ -58,6 +58,9 @@ public class Activity extends BaseEntity<Activity, Long> {
     @Column(name = "REGISTERED_IN_MYSHARE", columnDefinition = "boolean default false")
     private boolean registeredInMyShare;
 
+    @Column(name = "REGISTERED_IN_TEAMS", columnDefinition = "boolean default false")
+    private boolean registeredInTeams;
+
     @Column(name = "ACCOUNT")
     @Enumerated(EnumType.STRING)
     @NotNull
