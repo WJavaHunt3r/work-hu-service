@@ -13,5 +13,11 @@
       <jdbc-driver>org.h2.Driver</jdbc-driver>
       <jdbc-url>jdbc:h2:tcp://localhost:9092/default</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="workhu@remote" uuid="de5423e8-2284-470c-9781-64b7e4495e9d">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://78.139.43.2:5432/workhudb</jdbc-url>
+    </data-source>
   </component>
 </project>
