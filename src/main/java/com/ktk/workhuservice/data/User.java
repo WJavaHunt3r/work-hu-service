@@ -11,6 +11,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.time.Period;
 
 @Getter
 @Setter
@@ -92,7 +93,11 @@ public class User extends BaseEntity<User, Long> {
         return lastname + " " + firstname;
     }
 
-    public boolean isAdmin(){
+    public boolean isAdmin() {
         return this.role == Role.ADMIN;
+    }
+
+    public int getAge() {
+        return Period.between(birthDate, LocalDate.now()).getYears();
     }
 }

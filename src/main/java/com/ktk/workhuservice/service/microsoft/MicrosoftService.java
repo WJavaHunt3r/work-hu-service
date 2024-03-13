@@ -4,17 +4,23 @@ import com.ktk.workhuservice.config.MicrosoftConfig;
 import com.ktk.workhuservice.data.Activity;
 import com.ktk.workhuservice.enums.TransactionType;
 import com.ktk.workhuservice.service.ActivityItemService;
+import com.ktk.workhuservice.service.Utils;
 import com.microsoft.aad.msal4j.ClientCredentialFactory;
 import com.microsoft.aad.msal4j.ClientCredentialParameters;
 import com.microsoft.aad.msal4j.ConfidentialClientApplication;
 import com.microsoft.aad.msal4j.IAuthenticationResult;
+import com.microsoft.graph.models.Drive;
 import com.microsoft.graph.models.FieldValueSet;
 import com.microsoft.graph.models.ListItem;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
 import com.microsoft.kiota.RequestInformation;
 import com.microsoft.kiota.authentication.AuthenticationProvider;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +38,8 @@ public class MicrosoftService {
         this.activityItemService = activityItemService;
     }
 
-    public void sendActivityToSharePointListItem(Activity activity) throws Exception {
+    public void sendActivityToSharePointListItem(Activity activity, byte[] activityWorkbook) throws Exception {
+        var sumHours = activityItemService.sumHoursByActivity(activity.getId());
         BuildConfidentialClientObject();
         IAuthenticationResult accessTokenResult = getAccessTokenByClientCredentialGrant();
 
@@ -50,21 +57,49 @@ public class MicrosoftService {
         FieldValueSet fields = new FieldValueSet();
         HashMap<String, Object> additionalData = new HashMap<String, Object>();
         if (activity.getTransactionType().equals(TransactionType.HOURS)) {
-            createPaidListItem(activity, additionalData, graphClient);
+            createPaidListItem(activity, additionalData, graphClient, sumHours);
             fields.setAdditionalData(additionalData);
             listItem.setFields(fields);
             ListItem result = graphClient.sites().bySiteId(config.getSiteId()).lists().byListId(config.getPaidJobsId()).items().post(listItem);
+            sendXlsxToSharepointFolder(graphClient, activity, sumHours);
         } else if (activity.getTransactionType().equals(TransactionType.DUKA_MUNKA)) {
-            createUnpaidListItem(activity, additionalData, graphClient);
+            createUnpaidListItem(activity, additionalData, graphClient, sumHours);
             fields.setAdditionalData(additionalData);
             listItem.setFields(fields);
             ListItem result = graphClient.sites().bySiteId(config.getSiteId()).lists().byListId(config.getUnpaidJobsId()).items().post(listItem);
+            sendXlsxToSharepointFolder(graphClient, activity, sumHours);
         }
 
     }
 
-    private void createUnpaidListItem(Activity activity, HashMap<String, Object> additionalData, GraphServiceClient graphClient) {
-        var sumHours = activityItemService.sumHoursByActivity(activity.getId());
+    private Drive getDriveId(GraphServiceClient graphServiceClient) {
+        return graphServiceClient.sites().bySiteId(config.getSiteId()).drive().get();
+    }
+
+    private void sendXlsxToSharepointFolder(GraphServiceClient graphServiceClient, Activity activity, double sumHours) throws IOException {
+        Drive drive = getDriveId(graphServiceClient);
+        var items = activityItemService.findByActivity(activity.getId());
+        var path = Utils.createXlsxFromActivity(activity, items, sumHours, new ClassPathResource("imports/docs/munkalap_sablon_uj.xlsx").getInputStream());
+        graphServiceClient.drives().byDriveId(drive.getId()).root().content().withUrl(buildUri(drive.getId(), buildFilename(activity)))
+                .put(new FileInputStream(path));
+    }
+
+    private String buildFilename(Activity activity) {
+        return buildYearString(activity.getActivityDateTime()) + "_" + Utils.changeSpecChars(activity.getDescription()) + ".xlsx";
+    }
+
+    private String buildYearString(LocalDateTime dateTime) {
+        return String.valueOf(dateTime.getYear()) + dateTime.getMonthValue() + dateTime.getDayOfMonth();
+    }
+
+    private String buildUri(String driveId, String filename) {
+        return "https://graph.microsoft.com/v1.0/sites/" + config.getSiteId() +
+                "/drives/" +
+                driveId +
+                "/root:/WORK/Munkalapok/" + filename + ":/content";
+    }
+
+    private void createUnpaidListItem(Activity activity, HashMap<String, Object> additionalData, GraphServiceClient graphClient, double sumHours) {
         var teamsLookUpId = getUserTeamsListId(graphClient, activity.getResponsible().getId());
         additionalData.put("Title", activity.getDescription());
         additionalData.put("ResponsibleLookupId", teamsLookUpId);
@@ -74,8 +109,7 @@ public class MicrosoftService {
         additionalData.put("Appactivityid", String.valueOf(activity.getId()));
     }
 
-    private void createPaidListItem(Activity activity, HashMap<String, Object> additionalData, GraphServiceClient graphClient) {
-        var sumHours = activityItemService.sumHoursByActivity(activity.getId());
+    private void createPaidListItem(Activity activity, HashMap<String, Object> additionalData, GraphServiceClient graphClient, double sumHours) {
         var teamsLookUpId = getUserTeamsListId(graphClient, activity.getEmployer().getId());
         additionalData.put("Title", activity.getDescription());
         additionalData.put("EmployerLookupId", teamsLookUpId);
@@ -111,5 +145,5 @@ public class MicrosoftService {
         CompletableFuture<IAuthenticationResult> future = app.acquireToken(clientCredentialParam);
         return future.get();
     }
-    
+
 }

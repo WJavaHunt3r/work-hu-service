@@ -113,8 +113,8 @@ public class ActivityController {
 
     }
 
-    @GetMapping("/register")
-    public ResponseEntity registerActivity(@RequestParam Long activityId, @RequestParam Long userId) {
+    @PostMapping("/register")
+    public ResponseEntity registerActivity(@RequestParam Long activityId, @RequestParam Long userId, @RequestBody @Nullable byte[] activityWorkbook) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userId);
@@ -133,7 +133,7 @@ public class ActivityController {
         activityService.registerActivity(activity.get(), user.get());
         userRoundService.findAll().forEach(userRoundService::calculateCurrentRoundPoints);
         try {
-            microsoftService.sendActivityToSharePointListItem(activity.get());
+            microsoftService.sendActivityToSharePointListItem(activity.get(), activityWorkbook);
             activity.get().setRegisteredInTeams(true);
         } catch (Exception e) {
             if (e instanceof ODataError) {
@@ -147,8 +147,8 @@ public class ActivityController {
         return ResponseEntity.status(200).body("Registration successful");
     }
 
-    @GetMapping("/registerInTeams")
-    public ResponseEntity registerActivityInTeams(@RequestParam Long activityId, @RequestParam Long userId) {
+    @PostMapping("/registerInTeams")
+    public ResponseEntity registerActivityInTeams(@RequestParam Long activityId, @RequestParam Long userId, @RequestBody @Nullable byte[] activityWorkbook) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userId);
@@ -165,8 +165,11 @@ public class ActivityController {
         }
 
         try {
-            microsoftService.sendActivityToSharePointListItem(activity.get());
+            microsoftService.sendActivityToSharePointListItem(activity.get(), activityWorkbook);
             activity.get().setRegisteredInTeams(true);
+            activityService.save(activity.get());
+
+            return ResponseEntity.status(200).body("Successfully registered in Teams");
         } catch (Exception e) {
             if (e instanceof ODataError) {
                 ((ODataError) e).getError().getCode();
@@ -174,9 +177,6 @@ public class ActivityController {
             }
             return ResponseEntity.status(500).body(e.toString());
         }
-        activityService.save(activity.get());
-
-        return ResponseEntity.status(200).body("Successfully registered in Teams");
     }
 
 }
