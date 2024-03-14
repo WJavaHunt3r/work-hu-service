@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
@@ -42,6 +43,14 @@ public class Utils {
         return map;
     }
 
+    public static String formatDate(LocalDate date) {
+        return formatDate(date, "yyyy.MM.dd");
+    }
+
+    public static String formatDate(LocalDate date, String pattern) {
+        return DateTimeFormatter.ofPattern(pattern).format(date);
+    }
+
     public static String createXlsxFromActivity(Activity activity, List<ActivityItem> registrations, double fullHours, InputStream file) throws IOException {
         XSSFWorkbook workbook = new XSSFWorkbook(file);
         XSSFSheet sheet = workbook.getSheetAt(0);
@@ -52,7 +61,7 @@ public class Utils {
 
         var row1 = sheet.getRow(1);
         row1.getCell(2).setCellValue(activity.getEmployer().getFullName());
-        row1.getCell(5).setCellValue(DateTimeFormatter.ofPattern("yyyy.MM.dd").format(activity.getActivityDateTime().toLocalDate()));
+        row1.getCell(5).setCellValue(formatDate(activity.getActivityDateTime().toLocalDate(), ""));
 
         var row2 = sheet.getRow(2);
         row2.getCell(2).setCellValue(activity.getDescription());

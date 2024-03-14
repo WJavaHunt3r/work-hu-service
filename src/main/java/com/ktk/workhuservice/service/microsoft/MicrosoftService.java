@@ -9,10 +9,9 @@ import com.microsoft.aad.msal4j.ClientCredentialFactory;
 import com.microsoft.aad.msal4j.ClientCredentialParameters;
 import com.microsoft.aad.msal4j.ConfidentialClientApplication;
 import com.microsoft.aad.msal4j.IAuthenticationResult;
-import com.microsoft.graph.models.Drive;
-import com.microsoft.graph.models.FieldValueSet;
-import com.microsoft.graph.models.ListItem;
+import com.microsoft.graph.models.*;
 import com.microsoft.graph.serviceclient.GraphServiceClient;
+import com.microsoft.graph.users.item.sendmail.SendMailPostRequestBody;
 import com.microsoft.kiota.RequestInformation;
 import com.microsoft.kiota.authentication.AuthenticationProvider;
 import org.springframework.core.io.ClassPathResource;
@@ -20,10 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -38,7 +34,7 @@ public class MicrosoftService {
         this.activityItemService = activityItemService;
     }
 
-    public void sendActivityToSharePointListItem(Activity activity, byte[] activityWorkbook) throws Exception {
+    public void sendActivityToSharePointListItem(Activity activity) throws Exception {
         var sumHours = activityItemService.sumHoursByActivity(activity.getId());
         BuildConfidentialClientObject();
         IAuthenticationResult accessTokenResult = getAccessTokenByClientCredentialGrant();
@@ -55,20 +51,69 @@ public class MicrosoftService {
 
         ListItem listItem = new ListItem();
         FieldValueSet fields = new FieldValueSet();
-        HashMap<String, Object> additionalData = new HashMap<String, Object>();
+        HashMap<String, Object> additionalData = new HashMap<>();
+
+        var items = activityItemService.findByActivity(activity.getId());
+        String xlsx = Utils.createXlsxFromActivity(activity, items, sumHours, new ClassPathResource("imports/docs/munkalap_sablon_uj.xlsx").getInputStream());
+
         if (activity.getTransactionType().equals(TransactionType.HOURS)) {
             createPaidListItem(activity, additionalData, graphClient, sumHours);
             fields.setAdditionalData(additionalData);
             listItem.setFields(fields);
-            ListItem result = graphClient.sites().bySiteId(config.getSiteId()).lists().byListId(config.getPaidJobsId()).items().post(listItem);
-            sendXlsxToSharepointFolder(graphClient, activity, sumHours);
+            graphClient.sites().bySiteId(config.getSiteId()).lists().byListId(config.getPaidJobsId()).items().post(listItem);
+            sendXlsxToSharepointFolder(graphClient, activity, xlsx);
+            sendMailToEmployer(graphClient, activity, sumHours, xlsx);
         } else if (activity.getTransactionType().equals(TransactionType.DUKA_MUNKA)) {
             createUnpaidListItem(activity, additionalData, graphClient, sumHours);
             fields.setAdditionalData(additionalData);
             listItem.setFields(fields);
-            ListItem result = graphClient.sites().bySiteId(config.getSiteId()).lists().byListId(config.getUnpaidJobsId()).items().post(listItem);
-            sendXlsxToSharepointFolder(graphClient, activity, sumHours);
+            graphClient.sites().bySiteId(config.getSiteId()).lists().byListId(config.getUnpaidJobsId()).items().post(listItem);
+            sendXlsxToSharepointFolder(graphClient, activity, xlsx);
         }
+
+    }
+
+    private void sendMailToEmployer(GraphServiceClient graphClient, Activity activity, double sumHours, String xlsx) throws IOException {
+
+        Message message = new Message();
+        ItemBody body = new ItemBody();
+        body.setContentType(BodyType.Text);
+
+        body.setContent(createContent(activity, sumHours));
+        message.setBody(body);
+        message.setSubject(String.format("Befizetés:  %s", activity.getDescription()));
+
+        LinkedList<Recipient> toRecipientsList = new LinkedList<>();
+        Recipient toRecipients = new Recipient();
+        EmailAddress emailAddress1 = new EmailAddress();
+        emailAddress1.setAddress(activity.getEmployer().getEmail());
+        toRecipients.setEmailAddress(emailAddress1);
+        toRecipientsList.add(toRecipients);
+        message.setToRecipients(toRecipientsList);
+
+        FileAttachment attachment = new FileAttachment();
+        attachment.setName(buildFilename(activity));
+        attachment.setContentType("text/plain");
+        attachment.setContentBytes(new FileInputStream(xlsx).readAllBytes());
+
+        ArrayList<Attachment> attachmentList = new ArrayList<>();
+        attachmentList.add(attachment);
+        message.setAttachments(attachmentList);
+
+        SendMailPostRequestBody request = new SendMailPostRequestBody();
+        request.setMessage(message);
+        request.setSaveToSentItems(false);
+
+        graphClient.users().byUserId("a3567991-3787-4c33-9d3a-6a52825d6eba").sendMail().post(request);
+
+    }
+
+    private String createContent(Activity activity, double sumHours) {
+        String date = Utils.formatDate(activity.getActivityDateTime().toLocalDate());
+        return "Kedves " + activity.getEmployer().getFullName() + "!\n\n" + date +
+                " dátummal egy munka került rögzítésre rendszerünkbe. A munka részleteit a csatolt munkalapon láthatod.\n\nAz elvégzett munka utáni befizetendő összeg: " + (int) (sumHours * 2000) +
+                "Ft\n\nKérjük, a befizetendő összeget a MyShare számlára utald el!\nSzámlaszám: 10700323-43750203-52000001\nKözlemény: " + date.replace(".", "") + " " + activity.getDescription()
+                + "\n\nHa már utaltál, akkor tekintsd tárgytalannak az emailt. Kérdés esetén erre az email-re válaszolva veheted fel velünk a kapcsolatot. \n\nÜdvözlettel, \nMyShare csapat";
 
     }
 
@@ -76,20 +121,14 @@ public class MicrosoftService {
         return graphServiceClient.sites().bySiteId(config.getSiteId()).drive().get();
     }
 
-    private void sendXlsxToSharepointFolder(GraphServiceClient graphServiceClient, Activity activity, double sumHours) throws IOException {
+    private void sendXlsxToSharepointFolder(GraphServiceClient graphServiceClient, Activity activity, String xlsx) throws IOException {
         Drive drive = getDriveId(graphServiceClient);
-        var items = activityItemService.findByActivity(activity.getId());
-        var path = Utils.createXlsxFromActivity(activity, items, sumHours, new ClassPathResource("imports/docs/munkalap_sablon_uj.xlsx").getInputStream());
         graphServiceClient.drives().byDriveId(drive.getId()).root().content().withUrl(buildUri(drive.getId(), buildFilename(activity)))
-                .put(new FileInputStream(path));
+                .put(new FileInputStream(xlsx));
     }
 
     private String buildFilename(Activity activity) {
-        return buildYearString(activity.getActivityDateTime()) + "_" + Utils.changeSpecChars(activity.getDescription()) + ".xlsx";
-    }
-
-    private String buildYearString(LocalDateTime dateTime) {
-        return String.valueOf(dateTime.getYear()) + dateTime.getMonthValue() + dateTime.getDayOfMonth();
+        return Utils.formatDate(activity.getActivityDateTime().toLocalDate()).replace(".", "") + "_" + Utils.changeSpecChars(activity.getDescription().trim()) + ".xlsx";
     }
 
     private String buildUri(String driveId, String filename) {

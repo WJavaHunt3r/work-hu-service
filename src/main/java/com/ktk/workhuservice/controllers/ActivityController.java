@@ -114,7 +114,7 @@ public class ActivityController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity registerActivity(@RequestParam Long activityId, @RequestParam Long userId, @RequestBody @Nullable byte[] activityWorkbook) {
+    public ResponseEntity registerActivity(@RequestParam Long activityId, @RequestParam Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userId);
@@ -133,7 +133,7 @@ public class ActivityController {
         activityService.registerActivity(activity.get(), user.get());
         userRoundService.findAll().forEach(userRoundService::calculateCurrentRoundPoints);
         try {
-            microsoftService.sendActivityToSharePointListItem(activity.get(), activityWorkbook);
+            microsoftService.sendActivityToSharePointListItem(activity.get());
             activity.get().setRegisteredInTeams(true);
         } catch (Exception e) {
             if (e instanceof ODataError) {
@@ -148,7 +148,7 @@ public class ActivityController {
     }
 
     @PostMapping("/registerInTeams")
-    public ResponseEntity registerActivityInTeams(@RequestParam Long activityId, @RequestParam Long userId, @RequestBody @Nullable byte[] activityWorkbook) {
+    public ResponseEntity registerActivityInTeams(@RequestParam Long activityId, @RequestParam Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userId);
@@ -165,7 +165,7 @@ public class ActivityController {
         }
 
         try {
-            microsoftService.sendActivityToSharePointListItem(activity.get(), activityWorkbook);
+            microsoftService.sendActivityToSharePointListItem(activity.get());
             activity.get().setRegisteredInTeams(true);
             activityService.save(activity.get());
 
