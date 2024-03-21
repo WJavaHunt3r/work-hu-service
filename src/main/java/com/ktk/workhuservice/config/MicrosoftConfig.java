@@ -16,4 +16,5 @@ public class MicrosoftConfig {
     private String unpaidJobsId;
     private String siteId;
     private String workUsersId;
+    private String myshareMail;
 }

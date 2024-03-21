@@ -104,7 +104,7 @@ public class MicrosoftService {
         request.setMessage(message);
         request.setSaveToSentItems(false);
 
-        graphClient.users().byUserId("a3567991-3787-4c33-9d3a-6a52825d6eba").sendMail().post(request);
+        graphClient.users().byUserId(config.getMyshareMail()).sendMail().post(request);
 
     }
 
