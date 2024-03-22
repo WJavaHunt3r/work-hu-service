@@ -36,4 +36,9 @@ public class UserDto {
 
     private Long familyId;
 
+    private Long phoneNumber;
+
+    private String email;
+
+
 }

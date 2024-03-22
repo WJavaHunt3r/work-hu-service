@@ -32,6 +32,8 @@ public class ActivityDto {
 
     private boolean registeredInMyShare;
 
+    private boolean registeredInTeams;
+
     private TransactionType transactionType;
 
     private Account account;

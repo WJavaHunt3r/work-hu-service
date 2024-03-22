@@ -1,7 +1,137 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e2a6a1b6-a161-44aa-b303-d4d8c9265d29" name="Default Changelist" comment="" />
+    <list default="true" id="e2a6a1b6-a161-44aa-b303-d4d8c9265d29" name="Default Changelist" comment="Spouses">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ktk/workhuservice/service/Utils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f2f61805-8c7a-4da7-82d5-b47987b60e5f.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f2f61805-8c7a-4da7-82d5-b47987b60e5f.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f2f61805-8c7a-4da7-82d5-b47987b60e5f/storage_v2/_src_/database/WORKHUDB.3NDCMA/schema/INFORMATION_SCHEMA.NBgcMw.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f2f61805-8c7a-4da7-82d5-b47987b60e5f/storage_v2/_src_/database/WORKHUDB.3NDCMA/schema/INFORMATION_SCHEMA.NBgcMw.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/f2f61805-8c7a-4da7-82d5-b47987b60e5f/storage_v2/_src_/database/WORKHUDB.3NDCMA/schema/PUBLIC.aaZQjQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/f2f61805-8c7a-4da7-82d5-b47987b60e5f/storage_v2/_src_/database/WORKHUDB.3NDCMA/schema/PUBLIC.aaZQjQ.zip" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__ch_qos_logback_logback_classic_1_2_9.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__ch_qos_logback_logback_core_1_2_9.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_annotations_2_12_6.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_core_2_12_6.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_core_jackson_databind_2_12_6.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_datatype_jackson_datatype_jdk8_2_12_6.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_datatype_jackson_datatype_jsr310_2_12_6.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_fasterxml_jackson_module_jackson_module_parameter_names_2_12_6.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_jayway_jsonpath_json_path_2_5_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__net_bytebuddy_byte_buddy_1_10_22.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__net_bytebuddy_byte_buddy_agent_1_10_22.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__net_minidev_accessors_smart_2_4_7.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__net_minidev_json_smart_2_4_7.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_logging_log4j_log4j_api_2_17_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_logging_log4j_log4j_to_slf4j_2_17_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_tomcat_embed_tomcat_embed_core_9_0_56.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_tomcat_embed_tomcat_embed_el_9_0_56.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_apache_tomcat_embed_tomcat_embed_websocket_9_0_56.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_apiguardian_apiguardian_api_1_1_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_assertj_assertj_core_3_19_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_atteo_evo_inflector_1_2_2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_dom4j_dom4j_2_1_3.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_glassfish_jaxb_jaxb_runtime_2_3_5.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_glassfish_jaxb_txw2_2_3_5.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_hibernate_hibernate_core_5_4_33.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_hibernate_validator_hibernate_validator_6_2_0_Final.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_javassist_javassist_3_27_0_GA.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_jboss_jandex_2_2_3_Final.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_jboss_logging_jboss_logging_3_4_2_Final.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_junit_jupiter_junit_jupiter_5_7_2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_junit_jupiter_junit_jupiter_api_5_7_2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_junit_jupiter_junit_jupiter_engine_5_7_2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_junit_jupiter_junit_jupiter_params_5_7_2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_junit_platform_junit_platform_commons_1_7_2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_junit_platform_junit_platform_engine_1_7_2.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_mockito_mockito_core_3_9_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_mockito_mockito_junit_jupiter_3_9_0.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_postgresql_postgresql_42_2_24.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_slf4j_jul_to_slf4j_1_7_32.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_slf4j_slf4j_api_1_7_32.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_autoconfigure_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_devtools_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_aop_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_data_jpa_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_data_rest_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_jdbc_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_json_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_logging_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_security_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_test_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_tomcat_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_validation_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_starter_web_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_test_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_boot_spring_boot_test_autoconfigure_2_5_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_data_spring_data_commons_2_5_7.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_data_spring_data_jpa_2_5_7.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_data_spring_data_rest_core_3_5_7.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_data_spring_data_rest_webmvc_3_5_7.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_hateoas_spring_hateoas_1_3_6.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_security_spring_security_config_5_5_4.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_security_spring_security_core_5_5_4.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_security_spring_security_crypto_5_5_4.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_security_spring_security_test_5_5_4.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_security_spring_security_web_5_5_4.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_session_spring_session_core_2_5_4.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_aop_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_aspects_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_beans_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_context_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_core_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_expression_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_jcl_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_jdbc_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_orm_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_test_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_tx_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_web_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_springframework_spring_webmvc_5_3_14.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_yaml_snakeyaml_1_28.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ktk/workhuservice/controllers/ActivityController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ktk/workhuservice/controllers/ActivityController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ktk/workhuservice/data/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ktk/workhuservice/data/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ktk/workhuservice/service/microsoft/MicrosoftService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ktk/workhuservice/service/microsoft/MicrosoftService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/imports/docs/munkalap_sablon_uj.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/imports/docs/munkalap_sablon_uj.xlsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/WorkHuServiceApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/WorkHuServiceApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/controllers/RestConfiguration.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/controllers/RestConfiguration.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/controllers/SeasonController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/controllers/SeasonController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/controllers/TeamsController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/controllers/TeamsController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/controllers/TransactionsController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/controllers/TransactionsController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/controllers/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/controllers/UserController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/BaseEntity.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/BaseEntity.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/Season$Fields.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/Season$Fields.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/Season.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/Season.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/Transaction$Fields.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/Transaction$Fields.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/Transaction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/Transaction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/User$Fields.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/User$Fields.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/data/User.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/enums/Account.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/enums/Account.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/enums/Role.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/enums/Role.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/enums/TransactionType.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/enums/TransactionType.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/repositories/SeasonRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/repositories/SeasonRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/repositories/TransactionRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/repositories/TransactionRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/repositories/UserRepository.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/repositories/UserRepository.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/security/SecurityUtils.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/security/SecurityUtils.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/security/WorkHuDetailsManager.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/security/WorkHuDetailsManager.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/security/WorkHuSecurityConfig$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/security/WorkHuSecurityConfig$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/security/WorkHuSecurityConfig.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/security/WorkHuSecurityConfig.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/service/SeasonService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/service/SeasonService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/service/TeamService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/service/TeamService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/service/TransactionService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/service/TransactionService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/service/UserImportService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/service/UserImportService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/ktk/workhuservice/service/UserService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/imports/myshare/Pmo_lista.csv" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/imports/myshare/Pmo_lista.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/test-classes/com/ktk/workhuservice/WorkHuServiceApplicationTests.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/work-hu-service.iml" beforeDir="false" afterPath="$PROJECT_DIR$/work-hu-service.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workhudb.mv.db" beforeDir="false" afterPath="$PROJECT_DIR$/workhudb.mv.db" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workhudb.trace.db" beforeDir="false" afterPath="$PROJECT_DIR$/workhudb.trace.db" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,6 +156,10 @@
       <set />
     </option>
     <expand>
+      <path>
+        <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
+        <item name="default@localhost" type="feb32156:DbDataSourceImpl" />
+      </path>
       <path>
         <item name="Database" type="3277223f:DatabaseStructure$DbRootGroup" />
         <item name="workhudb" type="feb32156:DbDataSourceImpl" />
@@ -69,7 +203,12 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/Work-Hu-service" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MavenImportPreferences">
     <option name="generalSettings">
@@ -90,20 +229,21 @@
   <component name="ProjectId" id="2VTFnGR0LD87Z556h2T91Vp3uWc" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
-    <property name="DatabaseDriversLRU" value="h2" />
+    <property name="DatabaseDriversLRU" value="h2&#10;postgresql" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/main/resources/imports/myshare/samvirk" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/main/resources/imports/docs" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Global Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="com.intellij.jarRepository.settings.RemoteRepositoriesConfigurable" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\workspace\private\work-hu-service\src\main\resources\imports\docs" />
       <recent name="C:\workspace\private\work-hu-service\src\main\resources\imports\myshare\samvirk" />
     </key>
   </component>
@@ -144,6 +284,26 @@
       <item itemvalue="Spring Boot.WorkHuServiceApplication" />
     </list>
   </component>
+  <component name="ServiceViewManager">
+    <option name="allServicesViewState">
+      <serviceView>
+        <treeState>
+          <expand>
+            <path>
+              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@307e3ed6" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+            </path>
+            <path>
+              <item name="services root" type="e789fda9:ObjectUtils$Sentinel" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceGroupNode@307e3ed6" type="7427dc5b:ServiceModel$ServiceGroupNode" />
+              <item name="com.intellij.execution.services.ServiceModel$ServiceNode@5b98dd10" type="9fbbdea:ServiceModel$ServiceNode" />
+            </path>
+          </expand>
+          <select />
+        </treeState>
+      </serviceView>
+    </option>
+  </component>
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -157,7 +317,74 @@
       <workItem from="1694852332349" duration="762000" />
       <workItem from="1694853440862" duration="35149000" />
       <workItem from="1694944013116" duration="13070000" />
+      <workItem from="1707144825835" duration="3080000" />
+      <workItem from="1707203177630" duration="21328000" />
+      <workItem from="1707288666930" duration="697000" />
+      <workItem from="1707343305846" duration="749000" />
+      <workItem from="1707374561951" duration="599000" />
+      <workItem from="1707463451718" duration="1759000" />
+      <workItem from="1707655677370" duration="2157000" />
+      <workItem from="1707671319071" duration="1501000" />
+      <workItem from="1707721226434" duration="29000" />
+      <workItem from="1708262539147" duration="381000" />
+      <workItem from="1708328010532" duration="234000" />
+      <workItem from="1708584520979" duration="3912000" />
+      <workItem from="1708667904721" duration="594000" />
+      <workItem from="1708856540452" duration="1664000" />
+      <workItem from="1708930335312" duration="1468000" />
+      <workItem from="1709016250549" duration="3480000" />
+      <workItem from="1709128418467" duration="1191000" />
+      <workItem from="1709190205043" duration="1027000" />
+      <workItem from="1709371034346" duration="8998000" />
+      <workItem from="1709454211757" duration="1027000" />
+      <workItem from="1709538386547" duration="2138000" />
+      <workItem from="1709585840368" duration="2270000" />
+      <workItem from="1709626655576" duration="3442000" />
+      <workItem from="1709710000949" duration="1987000" />
+      <workItem from="1709795272558" duration="1990000" />
+      <workItem from="1709882255583" duration="3045000" />
+      <workItem from="1709976503763" duration="2845000" />
+      <workItem from="1710141581434" duration="3861000" />
+      <workItem from="1710182099286" duration="2894000" />
+      <workItem from="1710225952517" duration="30020000" />
+      <workItem from="1710312821701" duration="18427000" />
     </task>
+    <task id="LOCAL-00001" summary="Formázás">
+      <created>1707145867506</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1707145867506</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Spouses">
+      <created>1707246296304</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1707246296304</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Mentor mentees">
+      <created>1709374264690</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1709374264690</updated>
+    </task>
+    <task id="LOCAL-00004" summary="User email and phone number">
+      <created>1710184806895</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1710184806895</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Send activities to teams">
+      <created>1710283708645</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1710283708645</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -168,10 +395,22 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_CODE_SMELLS_BEFORE_PROJECT_COMMIT" value="false" />
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="Formázás" />
+    <MESSAGE value="Spouses" />
+    <MESSAGE value="Mentor mentees" />
+    <MESSAGE value="User email and phone number" />
+    <MESSAGE value="Send activities to teams" />
+    <option name="LAST_COMMIT_MESSAGE" value="Send activities to teams" />
   </component>
 </project>

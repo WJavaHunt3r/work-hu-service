@@ -27,6 +27,10 @@ public class ActivityItemService extends BaseService<ActivityItem, Long> {
         findByActivity(activityId).forEach(a -> deleteById(a.getId()));
     }
 
+    public double sumHoursByActivity(Long activityId) {
+        return activityItemRepository.sumHoursByActivity(activityId);
+    }
+
     @Override
     protected JpaRepository<ActivityItem, Long> getRepository() {
         return activityItemRepository;

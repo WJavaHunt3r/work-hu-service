@@ -9,6 +9,9 @@ import com.ktk.workhuservice.service.ActivityItemService;
 import com.ktk.workhuservice.service.ActivityService;
 import com.ktk.workhuservice.service.UserRoundService;
 import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.service.microsoft.MicrosoftService;
+import com.microsoft.graph.models.odataerrors.ODataError;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +28,8 @@ public class ActivityController {
     private ActivityMapper activityMapper;
     private ActivityItemService activityItemService;
     private UserRoundService userRoundService;
+    @Autowired
+    private MicrosoftService microsoftService;
 
     public ActivityController(ActivityService activityService, UserService userService, ActivityMapper activityMapper, ActivityItemService activityItemService, UserRoundService userRoundService) {
         this.activityService = activityService;
@@ -108,7 +113,7 @@ public class ActivityController {
 
     }
 
-    @GetMapping("/register")
+    @PostMapping("/register")
     public ResponseEntity registerActivity(@RequestParam Long activityId, @RequestParam Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
@@ -119,20 +124,59 @@ public class ActivityController {
         }
         Optional<Activity> activity = activityService.findById(activityId);
         if (activity.isEmpty()) {
-            return ResponseEntity.status(400).body("No user with id:" + activityId);
+            return ResponseEntity.status(400).body("No activity with id:" + activityId);
         }
         if (activity.get().isRegisteredInApp()) {
             return ResponseEntity.status(400).body("Activity already registered!");
         }
 
+        activityService.registerActivity(activity.get(), user.get());
+        userRoundService.findAll().forEach(userRoundService::calculateCurrentRoundPoints);
         try {
-            activityService.registerActivity(activity.get(), user.get());
-            userRoundService.findAll().forEach(userRoundService::calculateCurrentRoundPoints);
+            microsoftService.sendActivityToSharePointListItem(activity.get());
+            activity.get().setRegisteredInTeams(true);
         } catch (Exception e) {
+            if (e instanceof ODataError) {
+                ((ODataError) e).getError().getCode();
+                ((ODataError) e).getError().getMessage();
+            }
             return ResponseEntity.status(500).body(e.toString());
         }
+        activityService.save(activity.get());
 
         return ResponseEntity.status(200).body("Registration successful");
+    }
+
+    @PostMapping("/registerInTeams")
+    public ResponseEntity registerActivityInTeams(@RequestParam Long activityId, @RequestParam Long userId) {
+        Optional<User> user = userService.findById(userId);
+        if (user.isEmpty()) {
+            return ResponseEntity.status(400).body("No user with id:" + userId);
+        }
+        if (user.get().getRole().equals(Role.USER)) {
+            return ResponseEntity.status(403).body("Permission denied:");
+        }
+        Optional<Activity> activity = activityService.findById(activityId);
+        if (activity.isEmpty()) {
+            return ResponseEntity.status(400).body("No activity with id:" + activityId);
+        }
+        if (activity.get().isRegisteredInTeams()) {
+            return ResponseEntity.status(400).body("Activity already registered!");
+        }
+
+        try {
+            microsoftService.sendActivityToSharePointListItem(activity.get());
+            activity.get().setRegisteredInTeams(true);
+            activityService.save(activity.get());
+
+            return ResponseEntity.status(200).body("Successfully registered in Teams");
+        } catch (Exception e) {
+            if (e instanceof ODataError) {
+                ((ODataError) e).getError().getCode();
+                ((ODataError) e).getError().getMessage();
+            }
+            return ResponseEntity.status(500).body(e.toString());
+        }
     }
 
 }

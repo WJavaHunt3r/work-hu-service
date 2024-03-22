@@ -54,7 +54,6 @@ public class ActivityService extends BaseService<Activity, Long> {
             createTransactionItem(transaction, createUser, item);
         }
         activity.setRegisteredInApp(true);
-        save(activity);
     }
 
     private void createTransactionItem(Transaction transaction, User createUser, ActivityItem item) {
