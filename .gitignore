@@ -205,3 +205,6 @@ target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
 target/test-classes/com/ktk/workhuservice/WorkHuServiceApplicationTests.class
 target/work-hu-service-0.0.1-SNAPSHOT.jar
 target/work-hu-service-0.0.1-SNAPSHOT.jar.original
+/.idea
+/target/classes
+/target
