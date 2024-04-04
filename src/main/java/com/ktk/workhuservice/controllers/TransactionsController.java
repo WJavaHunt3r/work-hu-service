@@ -1,14 +1,12 @@
 package com.ktk.workhuservice.controllers;
 
+import com.ktk.workhuservice.data.Round;
 import com.ktk.workhuservice.data.Transaction;
 import com.ktk.workhuservice.data.TransactionItem;
 import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.dto.TransactionDto;
 import com.ktk.workhuservice.enums.Role;
-import com.ktk.workhuservice.service.TransactionItemService;
-import com.ktk.workhuservice.service.TransactionService;
-import com.ktk.workhuservice.service.UserRoundService;
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.service.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -26,13 +24,15 @@ public class TransactionsController {
     private ModelMapper modelMapper;
     private TransactionItemService transactionItemService;
     private UserService userService;
+    private RoundService roundService;
     private UserRoundService userRoundService;
 
-    public TransactionsController(TransactionService transactionService, ModelMapper modelMapper, TransactionItemService transactionItemService, UserService userService, UserRoundService userRoundService) {
+    public TransactionsController(TransactionService transactionService, ModelMapper modelMapper, TransactionItemService transactionItemService, UserService userService, RoundService roundService, UserRoundService userRoundService) {
         this.transactionService = transactionService;
         this.modelMapper = modelMapper;
         this.transactionItemService = transactionItemService;
         this.userService = userService;
+        this.roundService = roundService;
         this.userRoundService = userRoundService;
     }
 
@@ -72,13 +72,20 @@ public class TransactionsController {
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<?> getTransactions(@Nullable @RequestParam("createUserId") Long createUserId) {
+    public ResponseEntity<?> getTransactions(@Nullable @RequestParam("createUserId") Long createUserId, @Nullable @RequestParam("roundId") Long roundId) {
         if (createUserId != null) {
             Optional<User> createUser = userService.findById(createUserId);
             if (createUser.isPresent()) {
                 return ResponseEntity.status(200).body(StreamSupport.stream(transactionService.findAllByCreateUser(createUser.get()).spliterator(), false).map(this::convertToDto));
             }
 
+        }
+        if (roundId != null) {
+            Optional<Round> round = roundService.findById(roundId);
+            if (round.isEmpty()) {
+                return ResponseEntity.status(400).body("No Round with given ID: " + roundId);
+            }
+            return ResponseEntity.status(200).body(transactionService.findAllByRound(round.get()).stream().map(this::convertToDto));
         }
         return ResponseEntity.status(200).body(StreamSupport.stream(transactionService.findAll().spliterator(), false).map(this::convertToDto));
     }

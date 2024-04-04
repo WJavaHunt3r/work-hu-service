@@ -14,9 +14,12 @@ import com.microsoft.graph.serviceclient.GraphServiceClient;
 import com.microsoft.graph.users.item.sendmail.SendMailPostRequestBody;
 import com.microsoft.kiota.RequestInformation;
 import com.microsoft.kiota.authentication.AuthenticationProvider;
+import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
@@ -60,15 +63,15 @@ public class MicrosoftService {
             createPaidListItem(activity, additionalData, graphClient, sumHours);
             fields.setAdditionalData(additionalData);
             listItem.setFields(fields);
-            graphClient.sites().bySiteId(config.getSiteId()).lists().byListId(config.getPaidJobsId()).items().post(listItem);
             sendXlsxToSharepointFolder(graphClient, activity, xlsx);
+            graphClient.sites().bySiteId(config.getSiteId()).lists().byListId(config.getPaidJobsId()).items().post(listItem);
             sendMailToEmployer(graphClient, activity, sumHours, xlsx);
         } else if (activity.getTransactionType().equals(TransactionType.DUKA_MUNKA)) {
             createUnpaidListItem(activity, additionalData, graphClient, sumHours);
             fields.setAdditionalData(additionalData);
             listItem.setFields(fields);
-            graphClient.sites().bySiteId(config.getSiteId()).lists().byListId(config.getUnpaidJobsId()).items().post(listItem);
             sendXlsxToSharepointFolder(graphClient, activity, xlsx);
+            graphClient.sites().bySiteId(config.getSiteId()).lists().byListId(config.getUnpaidJobsId()).items().post(listItem);
         }
 
     }
@@ -123,8 +126,9 @@ public class MicrosoftService {
 
     private void sendXlsxToSharepointFolder(GraphServiceClient graphServiceClient, Activity activity, String xlsx) throws IOException {
         Drive drive = getDriveId(graphServiceClient);
+        ByteArrayInputStream input = new ByteArrayInputStream(FileUtils.readFileToByteArray(new File(xlsx)));
         graphServiceClient.drives().byDriveId(drive.getId()).root().content().withUrl(buildUri(drive.getId(), buildFilename(activity)))
-                .put(new FileInputStream(xlsx));
+                .put(input);
     }
 
     private String buildFilename(Activity activity) {

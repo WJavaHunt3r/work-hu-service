@@ -1,5 +1,6 @@
 package com.ktk.workhuservice.service;
 
+import com.ktk.workhuservice.data.Round;
 import com.ktk.workhuservice.data.Transaction;
 import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.repositories.TransactionRepository;
@@ -7,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -47,5 +49,10 @@ public class TransactionService extends BaseService<Transaction, Long> {
     @Override
     public Transaction createEntity() {
         return new Transaction();
+    }
+
+    public List<Transaction> findAllByRound(Round round) {
+        return transactionRepository.findAllByRoundNr(round.getStartDateTime(), round.getEndDateTime());
+
     }
 }
