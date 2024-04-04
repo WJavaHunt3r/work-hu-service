@@ -61,7 +61,7 @@ public class Utils {
 
         var row1 = sheet.getRow(1);
         row1.getCell(2).setCellValue(activity.getEmployer().getFullName());
-        row1.getCell(5).setCellValue(formatDate(activity.getActivityDateTime().toLocalDate(), ""));
+        row1.getCell(5).setCellValue(formatDate(activity.getActivityDateTime().toLocalDate()));
 
         var row2 = sheet.getRow(2);
         row2.getCell(2).setCellValue(activity.getDescription());
