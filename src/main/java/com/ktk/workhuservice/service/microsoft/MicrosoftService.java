@@ -2,6 +2,8 @@ package com.ktk.workhuservice.service.microsoft;
 
 import com.ktk.workhuservice.config.MicrosoftConfig;
 import com.ktk.workhuservice.data.Activity;
+import com.ktk.workhuservice.data.Round;
+import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.enums.TransactionType;
 import com.ktk.workhuservice.service.ActivityItemService;
 import com.ktk.workhuservice.service.Utils;
@@ -23,7 +25,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 
 @Service
 public class MicrosoftService {
@@ -38,19 +39,10 @@ public class MicrosoftService {
     }
 
     public void sendActivityToSharePointListItem(Activity activity) throws Exception {
+
+        GraphServiceClient graphClient = getGraphClient();
+
         var sumHours = activityItemService.sumHoursByActivity(activity.getId());
-        BuildConfidentialClientObject();
-        IAuthenticationResult accessTokenResult = getAccessTokenByClientCredentialGrant();
-
-        var authProvider = new AuthenticationProvider() {
-            @Override
-            public void authenticateRequest(RequestInformation request, Map<String, Object> additionalAuthenticationContext) {
-                request.headers.add("Authorization", "Bearer " + accessTokenResult.accessToken());
-                additionalAuthenticationContext.put("Authorization", "Bearer " + accessTokenResult.accessToken());
-            }
-        };
-
-        GraphServiceClient graphClient = new GraphServiceClient(authProvider);
 
         ListItem listItem = new ListItem();
         FieldValueSet fields = new FieldValueSet();
@@ -172,7 +164,40 @@ public class MicrosoftService {
         return result.getValue().get(0).getFields().getId();
     }
 
-    private void BuildConfidentialClientObject() throws Exception {
+    public void sendStatusUpdate(Integer currentCredit, double currentStatus, Integer creditToBeOnTrack, User user, Round round) throws Exception {
+
+        GraphServiceClient graphClient = getGraphClient();
+
+        Message message = new Message();
+        ItemBody body = new ItemBody();
+        body.setContentType(BodyType.Text);
+
+        body.setContent(createStatusMailBody(user, currentCredit, currentStatus, creditToBeOnTrack, round));
+        message.setBody(body);
+        message.setSubject("Státusz update");
+
+        LinkedList<Recipient> toRecipientsList = new LinkedList<>();
+        Recipient toRecipients = new Recipient();
+        EmailAddress emailAddress1 = new EmailAddress();
+        emailAddress1.setAddress(user.getEmail());
+        toRecipients.setEmailAddress(emailAddress1);
+        toRecipientsList.add(toRecipients);
+        message.setToRecipients(toRecipientsList);
+
+        SendMailPostRequestBody request = new SendMailPostRequestBody();
+        request.setMessage(message);
+        request.setSaveToSentItems(false);
+
+        graphClient.users().byUserId(config.getMyshareMail()).sendMail().post(request);
+    }
+
+    private String createStatusMailBody(User user, Integer currentCredit, double currentStatus, Integer creditToBeOnTrack, Round round) {
+        return String.format("Kedves %s!\n\nJelenlegi MyShare státuszod: %s (%.2f%%).\nAz OnTrackhez szükséges összeg: %s.\nEzt %s %s-ig tudod befizetni.\n\nÜdvözlettel, \nMyShare csapat",
+                user.getFullName(), currentCredit, currentStatus, creditToBeOnTrack, round.getEndDateTime().toLocalDate(), round.getEndDateTime().toLocalTime());
+
+    }
+
+    private void buildConfidentialClientObject() throws Exception {
         app = ConfidentialClientApplication.builder(
                 config.getClientId(),
                 ClientCredentialFactory.createFromSecret(config.getClientSecret()))
@@ -185,8 +210,22 @@ public class MicrosoftService {
                 Collections.singleton(config.getScope()))
                 .build();
 
-        CompletableFuture<IAuthenticationResult> future = app.acquireToken(clientCredentialParam);
-        return future.get();
+        return app.acquireToken(clientCredentialParam).get();
+    }
+
+    private GraphServiceClient getGraphClient() throws Exception {
+        buildConfidentialClientObject();
+        IAuthenticationResult accessTokenResult = getAccessTokenByClientCredentialGrant();
+
+        var authProvider = new AuthenticationProvider() {
+            @Override
+            public void authenticateRequest(RequestInformation request, Map<String, Object> additionalAuthenticationContext) {
+                request.headers.add("Authorization", "Bearer " + accessTokenResult.accessToken());
+                additionalAuthenticationContext.put("Authorization", "Bearer " + accessTokenResult.accessToken());
+            }
+        };
+
+        return new GraphServiceClient(authProvider);
     }
 
 }

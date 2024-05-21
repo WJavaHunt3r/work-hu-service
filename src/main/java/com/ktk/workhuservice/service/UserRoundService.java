@@ -5,8 +5,10 @@ import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.enums.TransactionType;
 import com.ktk.workhuservice.repositories.UserRoundRepository;
+import com.ktk.workhuservice.service.microsoft.MicrosoftService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,16 +25,18 @@ public class UserRoundService extends BaseService<UserRound, Long> {
     private TransactionItemService transactionItemService;
     private TransactionService transactionService;
     private RoundService roundService;
+    private MicrosoftService microsoftService;
 
     @Autowired
     private GoalService goalService;
 
-    public UserRoundService(UserRoundRepository userRoundRepository, UserService userService, TransactionItemService transactionItemService, TransactionService transactionService, RoundService roundService) {
+    public UserRoundService(UserRoundRepository userRoundRepository, UserService userService, TransactionItemService transactionItemService, TransactionService transactionService, RoundService roundService, MicrosoftService microsoftService) {
         this.userRoundRepository = userRoundRepository;
         this.userService = userService;
         this.transactionItemService = transactionItemService;
         this.transactionService = transactionService;
         this.roundService = roundService;
+        this.microsoftService = microsoftService;
     }
 
     public UserRound findByUserAndRound(User u, Round r) {
@@ -62,7 +66,7 @@ public class UserRoundService extends BaseService<UserRound, Long> {
         return userRoundRepository.findByUser(user);
     }
 
-    public void getUserRoundsOrCreate(Round round) {
+    void getUserRoundsOrCreate(Round round) {
         userService.getAllYouth().forEach(u -> findByUserAndRound(u, round));
     }
 
@@ -94,8 +98,6 @@ public class UserRoundService extends BaseService<UserRound, Long> {
             Integer goal = userGoal.get().getGoal();
 
             double points = 0;
-            Iterable<TransactionItem> transactions = transactionItemService.findAllByUserAndRound(user, round);
-            transactions.forEach(t -> addTransaction(t, userRound));
 
             String myShareOnTrackName = "MyShare On Track Round " + round.getRoundNumber() + "(" + round.getSeason().getSeasonYear() + ")";
             String samvirkOnTrackName = "Samvirk On Track Round " + round.getRoundNumber() + "(" + round.getSeason().getSeasonYear() + ")";
@@ -128,11 +130,16 @@ public class UserRoundService extends BaseService<UserRound, Long> {
                 points -= onTrackPoints;
             }
 
+            if (!myShareOnTrackItems.isEmpty()) saveOnTrackItems(myShareOnTrackItems, myShareOnTrackName);
+            if (!samvirkOnTrackItems.isEmpty()) saveOnTrackItems(samvirkOnTrackItems, samvirkOnTrackName);
+
+            Iterable<TransactionItem> transactions = transactionItemService.findAllByUserAndRound(user, round);
+            transactions.forEach(t -> addTransaction(t, userRound));
+
             points += StreamSupport.stream(transactions.spliterator(), false).mapToDouble(TransactionItem::getPoints).sum();
             userRound.setRoundPoints(points);
             save(userRound);
-            if (!myShareOnTrackItems.isEmpty()) saveOnTrackItems(myShareOnTrackItems, myShareOnTrackName);
-            if (!samvirkOnTrackItems.isEmpty()) saveOnTrackItems(samvirkOnTrackItems, samvirkOnTrackName);
+
             userService.calculateUserPoints(user);
         }
     }
@@ -180,7 +187,7 @@ public class UserRoundService extends BaseService<UserRound, Long> {
         }
     }
 
-    public double calculateTeamRoundSamvirkPayments(Team team, Round round) {
+    double calculateTeamRoundSamvirkPayments(Team team, Round round) {
         return userRoundRepository.calculateTeamRoundSamvirkPayments(team, round);
     }
 
@@ -202,4 +209,26 @@ public class UserRoundService extends BaseService<UserRound, Long> {
     public UserRound createEntity() {
         return new UserRound();
     }
+
+    @Scheduled(cron = "0 0 18 ? * WED")
+    private void sendOnTrackEmails() {
+        Round currentRound = roundService.getLastRound();
+        for (User u : userService.getAllYouth()) {
+            Optional<UserRound> ur = userRoundRepository.findByUserAndRound(u, currentRound);
+            Optional<Goal> goal = goalService.findByUserAndSeason(u, LocalDate.now().getYear());
+            if (goal.isPresent() && ur.isPresent()) {
+                if (u.getCurrentMyShareCredit() < goal.get().getGoal() * currentRound.getMyShareGoal()) {
+                    double currentUserGoal = goal.get().getGoal() * (currentRound.getMyShareGoal() / 100.0);
+                    try {
+//                        if (u.getId() == 255) {
+                        microsoftService.sendStatusUpdate(u.getCurrentMyShareCredit(), (double) u.getCurrentMyShareCredit() / goal.get().getGoal() * 100, (int) currentUserGoal - u.getCurrentMyShareCredit(), u, currentRound);
+//                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
 }

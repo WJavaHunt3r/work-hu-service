@@ -5,6 +5,7 @@ import com.ktk.workhuservice.repositories.RoundRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -27,7 +28,7 @@ public class RoundService extends BaseService<Round, Long>{
     }
 
     public Round getLastRound(){
-        return findRoundByDate(LocalDateTime.now()).orElse(roundRepository.getLastRound());
+        return findRoundByDate(LocalDateTime.now()).orElse(roundRepository.getLastRound(LocalDate.now().getYear()));
     }
 
     @Override

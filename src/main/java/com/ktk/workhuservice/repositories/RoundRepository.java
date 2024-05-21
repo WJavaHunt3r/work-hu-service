@@ -16,8 +16,8 @@ public interface RoundRepository extends JpaRepository<Round, Long> {
     @Query("SELECT s FROM Round s WHERE s.startDateTime < ?1 AND s.endDateTime > ?1 ")
     Optional<Round> findRoundByDate(LocalDateTime date);
 
-    @Query("SELECT round FROM Round round WHERE round.roundNumber = (SELECT MAX(r.roundNumber) FROM Round r) ")
-    Round getLastRound();
+    @Query("SELECT round FROM Round round WHERE round.roundNumber = (SELECT MAX(r.roundNumber) FROM Round r) and round.season.seasonYear = ?1 ")
+    Round getLastRound(Integer year);
 
     List<Round> findAllBySeasonSeasonYear(int year);
 }
