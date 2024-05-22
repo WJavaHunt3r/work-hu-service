@@ -4,9 +4,12 @@ import com.ktk.workhuservice.data.User;
 import com.ktk.workhuservice.dto.ChangePasswordDto;
 import com.ktk.workhuservice.dto.LoginDto;
 import com.ktk.workhuservice.dto.ResetPasswordDto;
+import com.ktk.workhuservice.dto.SendNewPasswordDto;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.security.SecurityUtils;
 import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.service.microsoft.MicrosoftService;
+import com.microsoft.graph.models.odataerrors.ODataError;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,10 +27,12 @@ public class AuthController {
 
     private AuthenticationManager authenticationManager;
     private UserService userService;
+    private MicrosoftService microsoftService;
 
-    public AuthController(AuthenticationManager authenticationManager, UserService userService) {
+    public AuthController(AuthenticationManager authenticationManager, UserService userService, MicrosoftService microsoftService) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
+        this.microsoftService = microsoftService;
     }
 
     @PostMapping("/login")
@@ -74,7 +79,7 @@ public class AuthController {
         if (changer.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id: " + dto.getChangerId());
         }
-        if( changer.get().getRole() != Role.ADMIN){
+        if (changer.get().getRole() != Role.ADMIN) {
             return ResponseEntity.status(400).body("User is not admin");
         }
 
@@ -82,6 +87,32 @@ public class AuthController {
         user.get().setChangedPassword(false);
 
         userService.save(user.get());
+
+        return ResponseEntity.status(200).body("Password reset successful");
+    }
+
+    @PostMapping("/sendNewPassword")
+    public ResponseEntity<?> sendNewPassword(@RequestBody SendNewPasswordDto newPasswordDto) {
+
+        String email = newPasswordDto.getUsername();
+        Optional<User> user = userService.findByUsername(email).or(() -> userService.findByEmail(email));
+        if (user.isEmpty()) {
+            return ResponseEntity.status(400).body("No user with email or username: " + email);
+        }
+
+        user.get().setPassword(SecurityUtils.encryptSecret(user.get().getUsername()));
+        user.get().setChangedPassword(false);
+
+        userService.save(user.get());
+        try {
+            microsoftService.sendNewPassword(user.get(), user.get().getUsername());
+        } catch (Exception e) {
+            if (e instanceof ODataError) {
+                ((ODataError) e).getError().getCode();
+                ((ODataError) e).getError().getMessage();
+            }
+            return ResponseEntity.status(500).body(e.toString());
+        }
 
         return ResponseEntity.status(200).body("Password reset successful");
     }

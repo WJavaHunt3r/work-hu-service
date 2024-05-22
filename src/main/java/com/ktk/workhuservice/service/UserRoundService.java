@@ -210,15 +210,15 @@ public class UserRoundService extends BaseService<UserRound, Long> {
         return new UserRound();
     }
 
-    @Scheduled(cron = "0 0 18 ? * WED")
+    @Scheduled(cron = "0 0 17 ? * WED")
     private void sendOnTrackEmails() {
         Round currentRound = roundService.getLastRound();
         for (User u : userService.getAllYouth()) {
             Optional<UserRound> ur = userRoundRepository.findByUserAndRound(u, currentRound);
             Optional<Goal> goal = goalService.findByUserAndSeason(u, LocalDate.now().getYear());
             if (goal.isPresent() && ur.isPresent()) {
-                if (u.getCurrentMyShareCredit() < goal.get().getGoal() * currentRound.getMyShareGoal()) {
-                    double currentUserGoal = goal.get().getGoal() * (currentRound.getMyShareGoal() / 100.0);
+                double currentUserGoal = goal.get().getGoal() * (currentRound.getMyShareGoal() / 100.0);
+                if (u.getCurrentMyShareCredit() < currentUserGoal) {
                     try {
 //                        if (u.getId() == 255) {
                         microsoftService.sendStatusUpdate(u.getCurrentMyShareCredit(), (double) u.getCurrentMyShareCredit() / goal.get().getGoal() * 100, (int) currentUserGoal - u.getCurrentMyShareCredit(), u, currentRound);

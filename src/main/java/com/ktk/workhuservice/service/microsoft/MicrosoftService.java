@@ -68,23 +68,7 @@ public class MicrosoftService {
 
     }
 
-    private void sendMailToEmployer(GraphServiceClient graphClient, Activity activity, double sumHours, String xlsx) throws IOException {
-
-        Message message = new Message();
-        ItemBody body = new ItemBody();
-        body.setContentType(BodyType.Text);
-
-        body.setContent(createContent(activity, sumHours));
-        message.setBody(body);
-        message.setSubject(String.format("Befizetés:  %s", activity.getDescription()));
-
-        LinkedList<Recipient> toRecipientsList = new LinkedList<>();
-        Recipient toRecipients = new Recipient();
-        EmailAddress emailAddress1 = new EmailAddress();
-        emailAddress1.setAddress(activity.getEmployer().getEmail());
-        toRecipients.setEmailAddress(emailAddress1);
-        toRecipientsList.add(toRecipients);
-        message.setToRecipients(toRecipientsList);
+    private void sendMailToEmployer(GraphServiceClient graphClient, Activity activity, double sumHours, String xlsx) throws Exception {
 
         FileAttachment attachment = new FileAttachment();
         attachment.setName(buildFilename(activity));
@@ -93,13 +77,8 @@ public class MicrosoftService {
 
         ArrayList<Attachment> attachmentList = new ArrayList<>();
         attachmentList.add(attachment);
-        message.setAttachments(attachmentList);
 
-        SendMailPostRequestBody request = new SendMailPostRequestBody();
-        request.setMessage(message);
-        request.setSaveToSentItems(false);
-
-        graphClient.users().byUserId(config.getMyshareMail()).sendMail().post(request);
+        sendEmail(createContent(activity, sumHours), activity.getEmployer().getEmail(), String.format("Befizetés:  %s", activity.getDescription()), attachmentList);
 
     }
 
@@ -166,23 +145,38 @@ public class MicrosoftService {
 
     public void sendStatusUpdate(Integer currentCredit, double currentStatus, Integer creditToBeOnTrack, User user, Round round) throws Exception {
 
+        String content = createStatusMailBody(user, currentCredit, currentStatus, creditToBeOnTrack, round);
+        sendEmail(content, user.getEmail(), "Státusz update", new ArrayList<Attachment>());
+    }
+
+    public void sendNewPassword(User user, String newPassword) throws Exception {
+
+        String content = createNewPasswordMailBody(user, newPassword);
+        sendEmail(content, user.getEmail(), "Új jelszó", new ArrayList<Attachment>());
+    }
+
+    private void sendEmail(String content, String email, String subject, ArrayList<Attachment> attachmentList) throws Exception {
         GraphServiceClient graphClient = getGraphClient();
 
         Message message = new Message();
         ItemBody body = new ItemBody();
         body.setContentType(BodyType.Text);
 
-        body.setContent(createStatusMailBody(user, currentCredit, currentStatus, creditToBeOnTrack, round));
+        body.setContent(content);
         message.setBody(body);
-        message.setSubject("Státusz update");
+        message.setSubject(subject);
 
         LinkedList<Recipient> toRecipientsList = new LinkedList<>();
         Recipient toRecipients = new Recipient();
         EmailAddress emailAddress1 = new EmailAddress();
-        emailAddress1.setAddress(user.getEmail());
+        emailAddress1.setAddress(email);
         toRecipients.setEmailAddress(emailAddress1);
         toRecipientsList.add(toRecipients);
         message.setToRecipients(toRecipientsList);
+
+        if (!attachmentList.isEmpty()) {
+            message.setAttachments(attachmentList);
+        }
 
         SendMailPostRequestBody request = new SendMailPostRequestBody();
         request.setMessage(message);
@@ -194,6 +188,12 @@ public class MicrosoftService {
     private String createStatusMailBody(User user, Integer currentCredit, double currentStatus, Integer creditToBeOnTrack, Round round) {
         return String.format("Kedves %s!\n\nJelenlegi MyShare státuszod: %s (%.2f%%).\nAz OnTrackhez szükséges összeg: %s.\nEzt %s %s-ig tudod befizetni.\n\nÜdvözlettel, \nMyShare csapat",
                 user.getFullName(), currentCredit, currentStatus, creditToBeOnTrack, round.getEndDateTime().toLocalDate(), round.getEndDateTime().toLocalTime());
+
+    }
+
+    private String createNewPasswordMailBody(User user, String newPassword) {
+        return String.format("Kedves %s!\n\n%s felhasználóhoz tartozó új jelszavad: %s\n\nBelépés itt: https://work-hu.bcc-ktk.org/login\n\nÜdvözlettel, \nMyShare csapat",
+                user.getFullName(), user.getUsername(), newPassword);
 
     }
 

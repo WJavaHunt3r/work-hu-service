@@ -69,6 +69,10 @@ public class UserService extends BaseService<User, Long>{
         return user;
     }
 
+    public Optional<User> findByEmail(String email) {
+        return  userRepository.findByEmail(email);
+    }
+
     Long countAllByTeam(Team t, Integer season) {
         return userRepository.countAllByTeamAndSeasonAndGoal(t, season);
     }
