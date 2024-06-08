@@ -210,7 +210,7 @@ public class UserRoundService extends BaseService<UserRound, Long> {
         return new UserRound();
     }
 
-    @Scheduled(cron = "0 0 17 ? * WED")
+    @Scheduled(cron = "0 0 17 ? * TUE")
     private void sendOnTrackEmails() {
         Round currentRound = roundService.getLastRound();
         for (User u : userService.getAllYouth()) {
