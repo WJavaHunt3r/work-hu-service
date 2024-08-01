@@ -74,6 +74,9 @@ public class TransactionItemService {
                 } else if (t.getTransactionType().equals(TransactionType.DUKA_MUNKA) && t.getHours() != 0) {
                     t.setPoints(t.getHours() * 4.0);
                     t.setCredit((int) (t.getHours() * 1000));
+                } else if (t.getTransactionType().equals(TransactionType.DUKA_MUNKA_2000) && t.getHours() != 0) {
+                    t.setPoints(t.getHours() * 4.0);
+                    t.setCredit((int) (t.getHours() * 2000));
                 }
 
             } else if (t.getAccount().equals(Account.SAMVIRK)) {

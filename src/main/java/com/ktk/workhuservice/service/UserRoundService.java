@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -94,6 +95,8 @@ public class UserRoundService extends BaseService<UserRound, Long> {
             if (userGoal.isEmpty()) {
                 return;
             }
+            List<TransactionItem> transactions = StreamSupport.stream(transactionItemService.findAllByUserAndRound(user, round).spliterator(), false).collect(Collectors.toList());
+            transactions.forEach(t -> addTransaction(t, userRound));
 
             Integer goal = userGoal.get().getGoal();
 
@@ -130,13 +133,17 @@ public class UserRoundService extends BaseService<UserRound, Long> {
                 points -= onTrackPoints;
             }
 
-            if (!myShareOnTrackItems.isEmpty()) saveOnTrackItems(myShareOnTrackItems, myShareOnTrackName);
-            if (!samvirkOnTrackItems.isEmpty()) saveOnTrackItems(samvirkOnTrackItems, samvirkOnTrackName);
+            if (!myShareOnTrackItems.isEmpty()) {
+                saveOnTrackItems(myShareOnTrackItems, myShareOnTrackName);
+                transactions.add(myShareOnTrackItems.get(0));
+            }
 
-            Iterable<TransactionItem> transactions = transactionItemService.findAllByUserAndRound(user, round);
-            transactions.forEach(t -> addTransaction(t, userRound));
+            if (!samvirkOnTrackItems.isEmpty()) {
+                saveOnTrackItems(samvirkOnTrackItems, samvirkOnTrackName);
+                transactions.add(samvirkOnTrackItems.get(0));
+            }
 
-            points += StreamSupport.stream(transactions.spliterator(), false).mapToDouble(TransactionItem::getPoints).sum();
+            points += transactions.stream().mapToDouble(TransactionItem::getPoints).sum();
             userRound.setRoundPoints(points);
             save(userRound);
 

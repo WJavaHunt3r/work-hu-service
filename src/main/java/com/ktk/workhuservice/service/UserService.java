@@ -89,7 +89,6 @@ public class UserService extends BaseService<User, Long>{
         }
     }
 
-
     @Override
     protected JpaRepository<User, Long> getRepository() {
         return userRepository;

@@ -58,7 +58,7 @@ public class MicrosoftService {
             sendXlsxToSharepointFolder(graphClient, activity, xlsx);
             graphClient.sites().bySiteId(config.getSiteId()).lists().byListId(config.getPaidJobsId()).items().post(listItem);
             sendMailToEmployer(graphClient, activity, sumHours, xlsx);
-        } else if (activity.getTransactionType().equals(TransactionType.DUKA_MUNKA)) {
+        } else if (Arrays.asList(TransactionType.DUKA_MUNKA, TransactionType.DUKA_MUNKA_2000).contains(activity.getTransactionType())) {
             createUnpaidListItem(activity, additionalData, graphClient, sumHours);
             fields.setAdditionalData(additionalData);
             listItem.setFields(fields);
@@ -119,7 +119,7 @@ public class MicrosoftService {
         additionalData.put("ResponsibleLookupId", teamsLookUpId);
         additionalData.put("Activitydate", activity.getActivityDateTime().toString());
         additionalData.put("Hours", String.valueOf(sumHours));
-        additionalData.put("Credits", String.valueOf(sumHours * 1000));
+        additionalData.put("Credits", String.valueOf(sumHours * (activity.getTransactionType().equals(TransactionType.DUKA_MUNKA_2000) ? 2000 : 1000)));
         additionalData.put("Appactivityid", String.valueOf(activity.getId()));
     }
 
