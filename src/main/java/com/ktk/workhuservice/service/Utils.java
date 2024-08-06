@@ -1,7 +1,7 @@
 package com.ktk.workhuservice.service;
 
-import com.ktk.workhuservice.data.Activity;
-import com.ktk.workhuservice.data.ActivityItem;
+import com.ktk.workhuservice.data.activity.Activity;
+import com.ktk.workhuservice.data.activityitems.ActivityItem;
 import com.ktk.workhuservice.enums.TransactionType;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;

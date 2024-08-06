@@ -1,16 +1,16 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Activity;
-import com.ktk.workhuservice.data.ActivityItem;
-import com.ktk.workhuservice.data.Round;
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.activity.Activity;
+import com.ktk.workhuservice.data.activityitems.ActivityItem;
+import com.ktk.workhuservice.data.rounds.Round;
+import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.dto.ActivityItemDto;
 import com.ktk.workhuservice.dto.UserDto;
 import com.ktk.workhuservice.enums.Role;
-import com.ktk.workhuservice.service.ActivityItemService;
-import com.ktk.workhuservice.service.ActivityService;
-import com.ktk.workhuservice.service.RoundService;
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.data.activityitems.ActivityItemService;
+import com.ktk.workhuservice.data.activity.ActivityService;
+import com.ktk.workhuservice.data.rounds.RoundService;
+import com.ktk.workhuservice.data.users.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;

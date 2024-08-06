@@ -1,7 +1,7 @@
 package com.ktk.workhuservice.mapper;
 
-import com.ktk.workhuservice.data.MentorMentee;
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.mentormentee.MentorMentee;
+import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.dto.MentorMenteeDto;
 import com.ktk.workhuservice.dto.UserDto;
 import org.modelmapper.Converter;

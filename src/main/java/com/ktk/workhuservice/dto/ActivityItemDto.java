@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.dto;
 
-import com.ktk.workhuservice.data.Round;
+import com.ktk.workhuservice.data.rounds.Round;
 import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.enums.TransactionType;
 import lombok.Getter;

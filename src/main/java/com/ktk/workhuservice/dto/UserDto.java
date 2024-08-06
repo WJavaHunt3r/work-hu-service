@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.dto;
 
-import com.ktk.workhuservice.data.Team;
+import com.ktk.workhuservice.data.teams.Team;
 import com.ktk.workhuservice.enums.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

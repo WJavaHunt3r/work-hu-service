@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.dto;
 
-import com.ktk.workhuservice.data.Season;
+import com.ktk.workhuservice.data.seasons.Season;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

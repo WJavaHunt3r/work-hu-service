@@ -1,11 +1,11 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.MentorMentee;
+import com.ktk.workhuservice.data.mentormentee.MentorMentee;
 import com.ktk.workhuservice.dto.MentorMenteeDto;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.mapper.MentorMenteeMapper;
-import com.ktk.workhuservice.service.MentorMenteeService;
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.data.mentormentee.MentorMenteeService;
+import com.ktk.workhuservice.data.users.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;

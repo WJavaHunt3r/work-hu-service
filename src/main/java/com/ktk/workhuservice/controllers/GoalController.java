@@ -1,14 +1,14 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Goal;
-import com.ktk.workhuservice.data.Season;
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.goals.Goal;
+import com.ktk.workhuservice.data.seasons.Season;
+import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.dto.GoalDto;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.mapper.GoalMapper;
-import com.ktk.workhuservice.service.GoalService;
-import com.ktk.workhuservice.service.SeasonService;
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.data.goals.GoalService;
+import com.ktk.workhuservice.data.seasons.SeasonService;
+import com.ktk.workhuservice.data.users.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -44,7 +44,7 @@ public class GoalController {
         if (season.isEmpty()) {
             return ResponseEntity.status(404).body("No season with given id: " + seasonYear);
         }
-        Optional<Goal> goal = goalService.findByUserAndSeason(user.get(), seasonYear);
+        Optional<Goal> goal = goalService.findByUserAndSeasonYear(user.get(), seasonYear);
         if (goal.isEmpty()) {
             return ResponseEntity.status(404).body("No goal found with userId: " + userId + " in season: " + seasonYear);
         }

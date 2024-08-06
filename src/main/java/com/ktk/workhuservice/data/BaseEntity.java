@@ -20,5 +20,6 @@ public abstract class BaseEntity<T, I extends Serializable> implements Serializa
     public void setId(I id) {
         this.id = id;
     }
+
 }
 

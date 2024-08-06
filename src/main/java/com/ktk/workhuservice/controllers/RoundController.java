@@ -1,7 +1,7 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Round;
-import com.ktk.workhuservice.service.RoundService;
+import com.ktk.workhuservice.data.rounds.Round;
+import com.ktk.workhuservice.data.rounds.RoundService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +19,9 @@ public class RoundController {
     }
 
     @GetMapping("/rounds")
-    public ResponseEntity getRounds(@Nullable @RequestParam("seasonYear") Integer seasonYear) {
+    public ResponseEntity getRounds(@Nullable @RequestParam("seasonYear") Integer seasonYear, @Nullable @RequestParam("activeRounds") Boolean activeRounds) {
         if (seasonYear != null) {
-            return ResponseEntity.status(200).body(roundService.findAllBySeasonYear(seasonYear));
+            return ResponseEntity.status(200).body(roundService.findAllByRoundYear(seasonYear));
         }
         return ResponseEntity.status(200).body(roundService.findAll());
     }

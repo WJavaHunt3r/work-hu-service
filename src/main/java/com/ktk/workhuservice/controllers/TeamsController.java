@@ -1,7 +1,7 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.service.TeamService;
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.data.teams.TeamService;
+import com.ktk.workhuservice.data.users.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;

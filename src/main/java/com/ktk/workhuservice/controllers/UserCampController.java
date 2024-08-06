@@ -1,14 +1,15 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Camp;
-import com.ktk.workhuservice.data.Season;
-import com.ktk.workhuservice.data.User;
-import com.ktk.workhuservice.data.UserCamp;
+import com.ktk.workhuservice.data.camps.Camp;
+import com.ktk.workhuservice.data.camps.CampService;
+import com.ktk.workhuservice.data.seasons.Season;
+import com.ktk.workhuservice.data.seasons.SeasonService;
+import com.ktk.workhuservice.data.usercamps.UserCamp;
+import com.ktk.workhuservice.data.usercamps.UserCampService;
+import com.ktk.workhuservice.data.users.User;
+import com.ktk.workhuservice.data.users.UserService;
+import com.ktk.workhuservice.dto.UserCampDto;
 import com.ktk.workhuservice.mapper.UserCampMapper;
-import com.ktk.workhuservice.service.CampService;
-import com.ktk.workhuservice.service.SeasonService;
-import com.ktk.workhuservice.service.UserCampService;
-import com.ktk.workhuservice.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
@@ -18,7 +19,7 @@ import javax.validation.Valid;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/api")
+@RequestMapping("/api/userCamp")
 public class UserCampController {
     private UserCampService userCampService;
     private UserService userService;
@@ -34,7 +35,7 @@ public class UserCampController {
         this.seasonService = seasonService;
     }
 
-    @GetMapping("/userCamps")
+    @GetMapping()
     public ResponseEntity getUserCamps(@Nullable @RequestParam("userId") Long userId,
                                        @Nullable @RequestParam("campId") Long campId,
                                        @Nullable @RequestParam("seasonYear") Integer seasonYear,
@@ -66,8 +67,8 @@ public class UserCampController {
         return ResponseEntity.status(200).body(userCampService.fetchByQuery(user.orElse(null), camp.orElse(null), season.orElse(null), participates).stream().map(userCampMapper::entityToDto));
     }
 
-    @GetMapping("/userCamp")
-    public ResponseEntity getUserCamp(@Nullable @RequestParam("userCampId") Long userCampId) {
+    @GetMapping("/{userCampId}")
+    public ResponseEntity getUserCamp(@PathVariable Long userCampId) {
         var userCamp = userCampService.findById(userCampId);
         if (userCamp.isEmpty()) {
             return ResponseEntity.status(404).body("No userCamp with id: " + userCampId);
@@ -75,8 +76,8 @@ public class UserCampController {
         return ResponseEntity.status(200).body(userCampMapper.entityToDto(userCamp.get()));
     }
 
-    @GetMapping("/userCampByUser")
-    public ResponseEntity getUserCampByUser(@Nullable @RequestParam("userId") Long userId) {
+    @GetMapping("/user/{userId}")
+    public ResponseEntity getUserCampByUser(@PathVariable Long userId) {
         var user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(404).body("No user with id: " + userId);
@@ -86,23 +87,26 @@ public class UserCampController {
         return ResponseEntity.status(200).body(userCamp.stream().map(userCampMapper::entityToDto));
     }
 
-    @PostMapping("/userCamp")
-    public ResponseEntity postUserCamp(@Valid @RequestBody UserCamp userCamp, @RequestParam Long userId) {
+    @PostMapping()
+    public ResponseEntity postUserCamp(@Valid @RequestBody UserCampDto userCamp, @RequestParam Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(404).body("No user found with id: " + userId);
         }
-        if (!user.get().isAdmin()) {
+        if (!user.get().isAdmin() || !userId.equals(userCamp.getUser().getId())) {
             return ResponseEntity.status(404).body("Unauthorized request");
         }
-        return ResponseEntity.status(200).body(userCampMapper.entityToDto(userCampService.save(userCamp)));
+        UserCamp newUC = new UserCamp();
+        newUC.setUser(user.get());
+        return ResponseEntity.status(200).body(userCampMapper.entityToDto(userCampService.save(userCampMapper.dtoToEntity(userCamp, newUC))));
     }
 
-    @PutMapping("/userCamp")
-    public ResponseEntity putUserCamp(@Valid @RequestBody UserCamp userCamp, @RequestParam("userCampId") Long userCampId) {
-        if (userCampService.findById(userCampId).isEmpty() || !userCamp.getId().equals(userCampId)) {
+    @PutMapping("/{userCampId}")
+    public ResponseEntity putUserCamp(@Valid @RequestBody UserCampDto userCampDto, @PathVariable Long userCampId) {
+        Optional<UserCamp> userCamp = userCampService.findById(userCampId);
+        if (userCamp.isEmpty() || !userCampDto.getId().equals(userCampId)) {
             return ResponseEntity.status(400).body("Invalid userCampId");
         }
-        return ResponseEntity.status(200).body(userCampMapper.entityToDto(userCampService.save(userCamp)));
+        return ResponseEntity.status(200).body(userCampMapper.entityToDto(userCampService.save(userCampMapper.dtoToEntity(userCampDto, userCamp.get()))));
     }
 }

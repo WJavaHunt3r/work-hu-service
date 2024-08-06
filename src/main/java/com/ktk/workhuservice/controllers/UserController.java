@@ -1,13 +1,13 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Team;
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.teams.Team;
+import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.dto.UserDto;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.mapper.UserMapper;
-import com.ktk.workhuservice.service.SeasonService;
-import com.ktk.workhuservice.service.TeamService;
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.data.seasons.SeasonService;
+import com.ktk.workhuservice.data.teams.TeamService;
+import com.ktk.workhuservice.data.users.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -64,9 +64,9 @@ public class UserController {
             return ResponseEntity.status(200).body(StreamSupport.stream(userService.findAllByTeam(team.get(), seasonService.findBySeasonYear(2024).get()).spliterator(), false).map((Function<User, Object>) userMapper::entityToDto));
         }
         if (listO36 == null || !listO36) {
-            return ResponseEntity.status(200).body(StreamSupport.stream(userService.getAllYouth().spliterator(), false).map((Function<User, Object>) userMapper::entityToDto));
+            return ResponseEntity.status(200).body(StreamSupport.stream(userService.getYouth().spliterator(), false).map((Function<User, Object>) userMapper::entityToDto));
         }
-        return ResponseEntity.status(200).body(StreamSupport.stream(userService.getAll().spliterator(), false).map(userMapper::entityToDto));
+        return ResponseEntity.status(200).body(StreamSupport.stream(userService.findAll().spliterator(), false).map(userMapper::entityToDto));
     }
 
     @PutMapping("/user")

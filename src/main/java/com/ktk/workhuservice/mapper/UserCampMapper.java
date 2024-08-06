@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.mapper;
 
-import com.ktk.workhuservice.data.UserCamp;
+import com.ktk.workhuservice.data.usercamps.UserCamp;
 import com.ktk.workhuservice.dto.UserCampDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

@@ -1,11 +1,11 @@
 package com.ktk.workhuservice.service.microsoft;
 
 import com.ktk.workhuservice.config.MicrosoftConfig;
-import com.ktk.workhuservice.data.Activity;
-import com.ktk.workhuservice.data.Round;
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.activity.Activity;
+import com.ktk.workhuservice.data.rounds.Round;
+import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.enums.TransactionType;
-import com.ktk.workhuservice.service.ActivityItemService;
+import com.ktk.workhuservice.data.activityitems.ActivityItemService;
 import com.ktk.workhuservice.service.Utils;
 import com.microsoft.aad.msal4j.ClientCredentialFactory;
 import com.microsoft.aad.msal4j.ClientCredentialParameters;

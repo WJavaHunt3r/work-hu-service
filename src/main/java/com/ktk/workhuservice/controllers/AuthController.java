@@ -1,13 +1,13 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.dto.ChangePasswordDto;
 import com.ktk.workhuservice.dto.LoginDto;
 import com.ktk.workhuservice.dto.ResetPasswordDto;
 import com.ktk.workhuservice.dto.SendNewPasswordDto;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.security.SecurityUtils;
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.service.microsoft.MicrosoftService;
 import com.microsoft.graph.models.odataerrors.ODataError;
 import org.springframework.http.ResponseEntity;

@@ -1,17 +1,15 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Activity;
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.activity.Activity;
+import com.ktk.workhuservice.data.activity.ActivityService;
+import com.ktk.workhuservice.data.activityitems.ActivityItemService;
+import com.ktk.workhuservice.data.users.User;
+import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.dto.ActivityDto;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.mapper.ActivityMapper;
-import com.ktk.workhuservice.service.ActivityItemService;
-import com.ktk.workhuservice.service.ActivityService;
-import com.ktk.workhuservice.service.UserRoundService;
-import com.ktk.workhuservice.service.UserService;
 import com.ktk.workhuservice.service.microsoft.MicrosoftService;
 import com.microsoft.graph.models.odataerrors.ODataError;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -27,16 +25,14 @@ public class ActivityController {
     private UserService userService;
     private ActivityMapper activityMapper;
     private ActivityItemService activityItemService;
-    private UserRoundService userRoundService;
-    @Autowired
-    private MicrosoftService microsoftService;
+    private final MicrosoftService microsoftService;
 
-    public ActivityController(ActivityService activityService, UserService userService, ActivityMapper activityMapper, ActivityItemService activityItemService, UserRoundService userRoundService) {
+    public ActivityController(ActivityService activityService, UserService userService, ActivityMapper activityMapper, ActivityItemService activityItemService, MicrosoftService microsoftService) {
         this.activityService = activityService;
         this.userService = userService;
         this.activityMapper = activityMapper;
         this.activityItemService = activityItemService;
-        this.userRoundService = userRoundService;
+        this.microsoftService = microsoftService;
     }
 
     @GetMapping("/activities")
@@ -131,7 +127,6 @@ public class ActivityController {
         }
 
         activityService.registerActivity(activity.get(), user.get());
-        userRoundService.findAll().forEach(userRoundService::calculateCurrentRoundPoints);
         try {
             microsoftService.sendActivityToSharePointListItem(activity.get());
             activity.get().setRegisteredInTeams(true);
