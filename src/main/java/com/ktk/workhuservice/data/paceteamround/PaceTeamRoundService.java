@@ -31,6 +31,10 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
         return repository.findAllBySeasonYear(seasonYear);
     }
 
+    public void calculateAllTeamRoundPoints() {
+        calculateAllTeamRoundPoints(roundService.getLastRound());
+    }
+
     public void calculateAllTeamRoundPoints(Round round) {
         for (PaceTeamRound pct : repository.findAllByRound(round)) {
             paceUserRoundService.calculateAllUserRoundStatus(round);
@@ -47,6 +51,9 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
         save(ptr);
     }
 
+    public void createAllTeamRounds(){
+        createTeamRounds();
+    }
     private PaceTeamRound createTeamRound(PaceTeam t, Round r) {
         PaceTeamRound teamRound = new PaceTeamRound();
         teamRound.setTeam(t);
@@ -74,12 +81,11 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
     }
 
     @Scheduled(cron = "0 1 0 1 * ?")
-    private void createTeamRounds() {
+    public void createTeamRounds() {
         Optional<Round> currRound = roundService.findRoundByDate(LocalDateTime.now());
         currRound.ifPresent(round -> paceTeamService.findAll().forEach(paceTeam -> {
             paceUserRoundService.createAllPaceUserRounds(currRound.get());
-            PaceTeamRound newPaceTeamRound = createTeamRound(paceTeam, round);
-            calculateRoundCoinsForTeam(newPaceTeamRound);
+            calculateRoundCoinsForTeam(repository.findByTeamAndRound(paceTeam, round).orElse(createTeamRound(paceTeam, round)));
 
         }));
     }

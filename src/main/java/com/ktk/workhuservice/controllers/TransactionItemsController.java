@@ -1,12 +1,12 @@
 package com.ktk.workhuservice.controllers;
 
+import com.ktk.workhuservice.data.paceteamround.PaceTeamRoundService;
 import com.ktk.workhuservice.data.rounds.Round;
 import com.ktk.workhuservice.data.rounds.RoundService;
 import com.ktk.workhuservice.data.transactionitems.TransactionItem;
 import com.ktk.workhuservice.data.transactionitems.TransactionItemService;
 import com.ktk.workhuservice.data.transactions.Transaction;
 import com.ktk.workhuservice.data.transactions.TransactionService;
-import com.ktk.workhuservice.data.userrounds.UserRoundService;
 import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.dto.TransactionItemDto;
@@ -23,25 +23,25 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/transactionItem")
 public class TransactionItemsController {
     private TransactionItemService transactionItemService;
     private UserService userService;
     private RoundService roundService;
     private ModelMapper modelMapper;
     private TransactionService transactionService;
-    private UserRoundService userRoundService;
+    private PaceTeamRoundService paceTeamRoundService;
 
-    public TransactionItemsController(TransactionItemService transactionItemService, UserService userService, RoundService roundService, ModelMapper modelMapper, TransactionService transactionService, UserRoundService userRoundService) {
+    public TransactionItemsController(TransactionItemService transactionItemService, UserService userService, RoundService roundService, ModelMapper modelMapper, TransactionService transactionService, PaceTeamRoundService paceTeamRoundService) {
         this.transactionItemService = transactionItemService;
         this.userService = userService;
         this.roundService = roundService;
         this.modelMapper = modelMapper;
         this.transactionService = transactionService;
-        this.userRoundService = userRoundService;
+        this.paceTeamRoundService = paceTeamRoundService;
     }
 
-    @PostMapping("/transactionItem")
+    @PostMapping
     public ResponseEntity<?> addTransaction(@Valid @RequestBody TransactionItemDto transactionItem) {
         Optional<Transaction> transaction = transactionService.findById(transactionItem.getTransactionId());
         if (transaction.isEmpty()) {
@@ -69,16 +69,16 @@ public class TransactionItemsController {
         return ResponseEntity.status(200).build();
     }
 
-    @PostMapping("/transactionItems")
+    @PostMapping("/items")
     public ResponseEntity<?> addTransactions(@Valid @RequestBody List<TransactionItemDto> transactionItems) {
         transactionItems.forEach(this::addTransaction);
-        userRoundService.findAll().forEach(userRoundService::calculateCurrentRoundPoints);
+        paceTeamRoundService.calculateAllTeamRoundPoints();
         return ResponseEntity.ok().body("Successfully added");
 
     }
 
-    @DeleteMapping("/transactionItem")
-    public ResponseEntity<?> deleteTransaction(@RequestParam("transactionItemId") Long transactionItemId, @RequestParam("userId") Long userId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTransaction(@PathVariable Long id, @RequestParam("userId") Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userId);
@@ -86,18 +86,18 @@ public class TransactionItemsController {
         if (user.get().getRole().equals(Role.USER)) {
             return ResponseEntity.status(403).body("Permission denied!");
         }
-        Optional<TransactionItem> item = transactionItemService.findById(transactionItemId);
+        Optional<TransactionItem> item = transactionItemService.findById(id);
         if (item.isPresent()) {
-            transactionItemService.deleteById(transactionItemId);
-            userRoundService.calculateCurrentRoundPoints(userRoundService.findByUserAndRound(item.get().getUser(), item.get().getRound()));
+            transactionItemService.deleteById(id);
+            paceTeamRoundService.calculateAllTeamRoundPoints(item.get().getRound());
             return ResponseEntity.status(200).body("Delete successful");
         }
 
-        return ResponseEntity.status(403).body("No transaction item found with id:" + transactionItemId);
+        return ResponseEntity.status(403).body("No transaction item found with id:" + id);
 
     }
 
-    @GetMapping("/transactionItems")
+    @GetMapping
     public ResponseEntity<?> getTransactionItems(@Nullable @RequestParam("userId") Long userId, @Nullable @RequestParam("transactionId") Long transactionId, @Nullable @RequestParam("roundId") Long roundId) {
         if (userId != null) {
             Optional<User> user = userService.findById(userId);

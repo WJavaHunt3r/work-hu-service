@@ -105,6 +105,10 @@ public class User extends BaseEntity<User, Long> {
     }
 
     public int getAge() {
-        return Period.between(birthDate, LocalDate.now()).getYears();
+        return getAgeAtDate(LocalDate.now());
+    }
+
+    public int getAgeAtDate(LocalDate date) {
+        return Period.between(birthDate, date).getYears();
     }
 }

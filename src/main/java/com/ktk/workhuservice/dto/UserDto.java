@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.dto;
 
-import com.ktk.workhuservice.data.teams.Team;
+import com.ktk.workhuservice.data.paceteam.PaceTeam;
 import com.ktk.workhuservice.enums.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +20,7 @@ public class UserDto {
 
     private LocalDate birthDate;
 
-    private Team team;
+    private PaceTeam paceTeam;
 
     private Role role;
 

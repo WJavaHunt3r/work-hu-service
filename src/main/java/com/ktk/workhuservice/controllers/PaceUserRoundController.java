@@ -6,7 +6,7 @@ import com.ktk.workhuservice.data.rounds.Round;
 import com.ktk.workhuservice.data.rounds.RoundService;
 import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.dto.PaceUserRoundDto;
-import org.modelmapper.ModelMapper;
+import com.ktk.workhuservice.mapper.PaceUserRoundMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,15 +18,15 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/pacePaceUserRound")
+@RequestMapping("/api/paceUserRound")
 public class PaceUserRoundController {
 
     private PaceUserRoundService paceUserRoundService;
     private RoundService roundService;
     private UserService userService;
-    private ModelMapper modelMapper;
+    private PaceUserRoundMapper modelMapper;
 
-    public PaceUserRoundController(PaceUserRoundService paceUserRoundService, RoundService roundService, UserService userService, ModelMapper modelMapper) {
+    public PaceUserRoundController(PaceUserRoundService paceUserRoundService, RoundService roundService, UserService userService, PaceUserRoundMapper modelMapper) {
         this.paceUserRoundService = paceUserRoundService;
         this.roundService = roundService;
         this.userService = userService;
@@ -64,6 +64,6 @@ public class PaceUserRoundController {
     }
 
     public PaceUserRoundDto entityToDto(PaceUserRound ur) {
-        return modelMapper.map(ur, PaceUserRoundDto.class);
+        return modelMapper.entityToDto(ur);
     }
 }

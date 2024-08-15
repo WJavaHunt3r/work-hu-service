@@ -14,7 +14,7 @@ public class UserMapper extends BaseMapper<User, UserDto> {
 
     public User dtoToEntity(UserDto dto, User user) {
         user.setRole(dto.getRole());
-        user.setTeam(dto.getTeam());
+        user.setPaceTeam(dto.getPaceTeam());
         user.setBirthDate(dto.getBirthDate());
         user.setLastname(dto.getLastname());
         user.setFirstname(dto.getFirstname());

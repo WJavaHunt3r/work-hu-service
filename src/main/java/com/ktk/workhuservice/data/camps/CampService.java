@@ -1,19 +1,24 @@
 package com.ktk.workhuservice.data.camps;
 
 import com.ktk.workhuservice.data.seasons.Season;
+import com.ktk.workhuservice.data.seasons.SeasonService;
 import com.ktk.workhuservice.service.BaseService;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CampService extends BaseService<Camp, Long> {
 
     private CampRepository campRepository;
+    private SeasonService seasonService;
 
-    public CampService(CampRepository campRepository) {
+    public CampService(CampRepository campRepository, SeasonService seasonService) {
         this.campRepository = campRepository;
+        this.seasonService = seasonService;
     }
 
     @Override
@@ -21,8 +26,8 @@ public class CampService extends BaseService<Camp, Long> {
         return campRepository;
     }
 
-    public List<Camp> findAllBySeason(Season season){
-        return  campRepository.findAllBySeason(season);
+    public List<Camp> findAllBySeason(Season season) {
+        return campRepository.findAllBySeason(season);
     }
 
     @Override
@@ -33,5 +38,32 @@ public class CampService extends BaseService<Camp, Long> {
     @Override
     public Camp createEntity() {
         return new Camp();
+    }
+
+    public Camp createPaskeCamp() {
+        Optional<Camp> camp = campRepository.findByCampName("Påske Camp");
+        if (camp.isPresent()) {
+            return camp.get();
+        }
+
+        Camp paskeCamp = createEntity();
+        paskeCamp.setCampDate(LocalDate.of(2025, 4, 12));
+        paskeCamp.setCampName("Påske Camp");
+        paskeCamp.setFinanceCheckDate(LocalDate.of(2025, 4, 1));
+        paskeCamp.setO18BrunstadFee(100000);
+        paskeCamp.setO18LocalFee(160000);
+        paskeCamp.setU18BrunstadFee(60000);
+        paskeCamp.setU18LocalFee(100000);
+        Optional<Season> season = seasonService.findBySeasonYear(2025);
+        if (season.isEmpty()) {
+            Season s2025 = new Season();
+            s2025.setEndDate(LocalDate.of(2025, 12, 31));
+            s2025.setSeasonYear(2025);
+            s2025.setStartDate(LocalDate.of(2025, 1, 1));
+            paskeCamp.setSeason(seasonService.save(s2025));
+        } else {
+            season.ifPresent(paskeCamp::setSeason);
+        }
+        return save(paskeCamp);
     }
 }

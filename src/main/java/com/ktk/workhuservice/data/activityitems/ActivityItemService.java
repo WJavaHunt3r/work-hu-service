@@ -18,8 +18,8 @@ public class ActivityItemService extends BaseService<ActivityItem, Long> {
         return activityItemRepository.findByActivity_Id(activityId);
     }
 
-    public List<ActivityItem> fetchByQuery(Long userId, Boolean registeredInApp, Long roundId) {
-        return activityItemRepository.fetchByQuery(userId, registeredInApp, roundId);
+    public List<ActivityItem> fetchByQuery(Long userId, Boolean registeredInApp, Long roundId, String searchText) {
+        return activityItemRepository.fetchByQuery(userId, registeredInApp, roundId, searchText);
     }
 
     public void deleteByActivityId(Long activityId) {

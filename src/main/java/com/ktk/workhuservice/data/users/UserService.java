@@ -1,9 +1,14 @@
 package com.ktk.workhuservice.data.users;
 
+import com.ktk.workhuservice.data.camps.Camp;
+import com.ktk.workhuservice.data.camps.CampService;
+import com.ktk.workhuservice.data.paceteam.PaceTeam;
 import com.ktk.workhuservice.data.seasons.Season;
 import com.ktk.workhuservice.data.teams.Team;
 import com.ktk.workhuservice.data.transactionitems.TransactionItem;
 import com.ktk.workhuservice.data.transactionitems.TransactionItemService;
+import com.ktk.workhuservice.data.usercamps.UserCamp;
+import com.ktk.workhuservice.data.usercamps.UserCampService;
 import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.service.BaseService;
@@ -18,10 +23,14 @@ public class UserService extends BaseService<User, Long> {
 
     private UserRepository userRepository;
     private TransactionItemService transactionItemService;
+    private UserCampService userCampService;
+    private CampService campService;
 
-    public UserService(UserRepository userRepository, TransactionItemService transactionService) {
+    public UserService(UserRepository userRepository, TransactionItemService transactionService, UserCampService userCampService, CampService campService) {
         this.userRepository = userRepository;
         this.transactionItemService = transactionService;
+        this.userCampService = userCampService;
+        this.campService = campService;
     }
 
     public Optional<User> findByUsername(String username) {
@@ -48,6 +57,10 @@ public class UserService extends BaseService<User, Long> {
 
     public Iterable<User> findAllByTeam(Team t, Season s) {
         return userRepository.findAllByTeamAndSeasonAndGoal(t, s);
+    }
+
+    public Iterable<User> findAllByPaceTeam(PaceTeam t, Season s) {
+        return userRepository.findAllByPaceTeamAndSeasonAndGoal(t, s);
     }
 
     public Optional<User> findByMyShareId(Long id) {
@@ -91,5 +104,34 @@ public class UserService extends BaseService<User, Long> {
     @Override
     public User createEntity() {
         return new User();
+    }
+
+    public void setPaceTeams(PaceTeam bukTeam, PaceTeam samvirkTeam) {
+        Camp paskeCamp = campService.createPaskeCamp();
+        getYouth().forEach(u -> {
+            int age = u.getAgeAtDate(LocalDate.of(2024, 12, 31));
+            if (18 <= age && age < 26) {
+                u.setPaceTeam(samvirkTeam);
+            } else {
+                u.setPaceTeam(bukTeam);
+            }
+
+            if (userCampService.fetchByQuery(u, paskeCamp, paskeCamp.getSeason(), null).isEmpty()) {
+
+                UserCamp paskeUserCamp = userCampService.createEntity();
+                paskeUserCamp.setUser(u);
+                paskeUserCamp.setCamp(paskeCamp);
+                paskeUserCamp.setParticipates(true);
+                if (age < 18) {
+                    paskeUserCamp.setPrice(paskeCamp.getU18BrunstadFee() + paskeCamp.getU18LocalFee());
+                } else {
+                    paskeUserCamp.setPrice(paskeCamp.getO18BrunstadFee() + paskeCamp.getO18LocalFee());
+                }
+
+                userCampService.save(paskeUserCamp);
+            }
+            save(u);
+        });
+
     }
 }

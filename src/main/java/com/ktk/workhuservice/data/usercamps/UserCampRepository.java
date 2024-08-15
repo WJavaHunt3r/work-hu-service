@@ -14,10 +14,10 @@ public interface UserCampRepository extends JpaRepository<UserCamp, Long> {
 
     List<UserCamp> findAllByUser(User user);
 
-    @Query("SELECT uc From UserCamp uc JOIN FETCH uc.camp JOIN FETCH uc.user WHERE ( ?1 is NULL or uc.user = ?1 )" +
-            " AND ( ?2 IS NULL or uc.camp = ?2 )" +
-            " AND (uc.camp.season = ?3 or ?3 IS NULL ) " +
-            " AND (uc.participates = ?4 or ?4 IS NULL )")
+    @Query("SELECT uc From UserCamp uc JOIN FETCH uc.camp c JOIN FETCH uc.user u WHERE ( ?1 is NULL or u = ?1 )" +
+            " AND ( c = ?2 or ?2 IS NULL )" +
+            " AND ( c.season = ?3 or ?3 IS NULL ) " +
+            " AND ( uc.participates = ?4 or ?4 IS NULL )")
     List<UserCamp> fetchByQuery(User user, Camp camp, Season season, Boolean participates);
 
 }

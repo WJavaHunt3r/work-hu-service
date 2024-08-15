@@ -17,7 +17,7 @@ public class PaceTeamController {
         this.paceTeamService = teamService;
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<?> getTeams() {
         return ResponseEntity.status(200).body(paceTeamService.findAll());
     }

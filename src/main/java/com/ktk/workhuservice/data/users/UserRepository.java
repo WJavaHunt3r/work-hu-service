@@ -1,5 +1,6 @@
 package com.ktk.workhuservice.data.users;
 
+import com.ktk.workhuservice.data.paceteam.PaceTeam;
 import com.ktk.workhuservice.data.seasons.Season;
 import com.ktk.workhuservice.data.teams.Team;
 import com.ktk.workhuservice.enums.Role;
@@ -20,8 +21,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Iterable<User> findAllByRole(Role role);
 
+    @Query("SELECT u FROM Goal g JOIN g.user u JOIN g.season s where s = ?2 and u.paceTeam = ?1")
+    Iterable<User> findAllByPaceTeamAndSeasonAndGoal(PaceTeam t, Season s);
+
     @Query("SELECT u FROM Goal g JOIN g.user u JOIN g.season s where s = ?2 and u.team = ?1")
     Iterable<User> findAllByTeamAndSeasonAndGoal(Team t, Season s);
+
+    @Query("SELECT COUNT(u) FROM Goal g JOIN g.user u JOIN g.season s where s.seasonYear = ?2 and u.paceTeam = ?1")
+    Long countAllByPaceTeamAndSeasonAndGoal(PaceTeam t, Integer s);
 
     @Query("SELECT COUNT(u) FROM Goal g JOIN g.user u JOIN g.season s where s.seasonYear = ?2 and u.team = ?1")
     Long countAllByTeamAndSeasonAndGoal(Team t, Integer s);

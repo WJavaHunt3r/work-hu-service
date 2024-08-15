@@ -14,7 +14,7 @@ import javax.validation.Valid;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/mentorMentee")
 public class MentorMenteeController {
 
     private MentorMenteeService mentorMenteeService;
@@ -27,7 +27,7 @@ public class MentorMenteeController {
         this.userService = userService;
     }
 
-    @GetMapping("/mentees")
+    @GetMapping()
     public ResponseEntity getMentees(@Nullable @RequestParam("userId") Long userId) {
         if (userId != null) {
             var user = userService.findById(userId);
@@ -39,7 +39,7 @@ public class MentorMenteeController {
         return ResponseEntity.ok(StreamSupport.stream(mentorMenteeService.findAll().spliterator(), false).map(mapper::entityToDto));
     }
 
-    @PostMapping("/mentorMentee")
+    @PostMapping()
     public ResponseEntity postMentorMentee(@Valid @RequestBody MentorMenteeDto mentorMentee, @RequestParam("userId") Long userId) {
         var user = userService.findById(userId);
         if (user.isEmpty()) {
@@ -66,8 +66,8 @@ public class MentorMenteeController {
         return ResponseEntity.ok(mapper.entityToDto(mentorMenteeService.save(entity)));
     }
 
-    @DeleteMapping("/mentorMentee")
-    public ResponseEntity postMentorMentee(@RequestParam("id") Long id, @RequestParam("userId") Long userId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity postMentorMentee(@PathVariable Long id, @RequestParam("userId") Long userId) {
         var user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(404).body("No user with given id: " + userId);

@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/goal")
 public class GoalController {
 
     private GoalService goalService;
@@ -51,16 +51,16 @@ public class GoalController {
         return ResponseEntity.status(200).body(goalMapper.entityToDto(goal.get()));
     }
 
-    @GetMapping("/goal")
-    public ResponseEntity getGoalById(@RequestParam("goalId") Long goalId) {
-        Optional<Goal> goal = goalService.findById(goalId);
+    @GetMapping("/{id}")
+    public ResponseEntity getGoalById(@PathVariable Long id) {
+        Optional<Goal> goal = goalService.findById(id);
         if (goal.isEmpty()) {
             return ResponseEntity.status(404).body("No goal found with id: " + goal);
         }
         return ResponseEntity.status(200).body(goalMapper.entityToDto(goal.get()));
     }
 
-    @GetMapping("/goals")
+    @GetMapping()
     public ResponseEntity getAllGoals(@Nullable @RequestParam("seasonYear") Integer seasonYear) {
         if (seasonYear == null) {
             return ResponseEntity.status(200).body(StreamSupport.stream(goalService.findAll().spliterator(), false).map(goalMapper::entityToDto));
@@ -73,7 +73,7 @@ public class GoalController {
         return ResponseEntity.status(200).body(goals.stream().map(goalMapper::entityToDto));
     }
 
-    @PostMapping("/goal")
+    @PostMapping()
     public ResponseEntity saveGoal(@Valid @RequestBody GoalDto goalDto) {
         Optional<User> user = userService.findById(goalDto.getUser().getId());
         if (user.isEmpty()) {
@@ -84,16 +84,16 @@ public class GoalController {
         return ResponseEntity.status(200).body(goalMapper.entityToDto(goalService.save(goalMapper.dtoToEntity(goalDto, goal))));
     }
 
-    @PutMapping("/goal")
-    public ResponseEntity editGoal(@Valid @RequestBody GoalDto goalDto, @RequestParam("userId") Long userId) {
+    @PutMapping("/{id}")
+    public ResponseEntity editGoal(@Valid @RequestBody GoalDto goalDto, @RequestParam("userId") Long userId, @PathVariable Long id) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(404).body("No user found with id: " + userId);
         }
-        if (userId.equals(goalDto.getUser().getId()) || user.get().getRole() == Role.ADMIN) {
-            Optional<Goal> goal = goalService.findById(goalDto.getId());
-            if (goal.isEmpty()) {
-                return ResponseEntity.status(404).body("Goal not found with id: " + goalDto.getId());
+        if (user.get().getRole() == Role.ADMIN) {
+            Optional<Goal> goal = goalService.findById(id);
+            if (goal.isEmpty() || !goalDto.getId().equals(id)) {
+                return ResponseEntity.status(404).body("Goal not found with id: " + id);
             }
             return saveGoal(goalDto);
         }
@@ -101,8 +101,8 @@ public class GoalController {
 
     }
 
-    @DeleteMapping("/goal")
-    public ResponseEntity<?> deleteTransaction(@RequestParam("goalId") Long goalId, @RequestParam("userId") Long userId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTransaction(@PathVariable Long id, @RequestParam("userId") Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userId);
@@ -110,11 +110,11 @@ public class GoalController {
         if (user.get().getRole().equals(Role.USER)) {
             return ResponseEntity.status(403).body("Permission denied!");
         }
-        if (goalService.existsById(goalId)) {
-            goalService.deleteById(goalId);
+        if (goalService.existsById(id)) {
+            goalService.deleteById(id);
             return ResponseEntity.status(200).body("Delete successful");
         }
-        return ResponseEntity.status(403).body("No goal found with id:" + goalId);
+        return ResponseEntity.status(403).body("No goal found with id:" + id);
 
     }
 

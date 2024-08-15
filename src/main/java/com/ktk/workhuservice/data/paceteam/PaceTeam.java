@@ -1,7 +1,6 @@
 package com.ktk.workhuservice.data.paceteam;
 
 import com.ktk.workhuservice.data.BaseEntity;
-import com.ktk.workhuservice.data.users.User;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
@@ -20,8 +19,8 @@ import javax.validation.constraints.Size;
 @FieldNameConstants
 public class PaceTeam extends BaseEntity<PaceTeam, Long> {
 
-    @Column(name="TEAM_LEADER")
-    private User teamLeader;
+    @Column(name="TEAM_LEADER_ID")
+    private Long teamLeaderId;
 
     @Column(name = "COINS", columnDefinition = "float8 default 0")
     private double coins;

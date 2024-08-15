@@ -30,8 +30,8 @@ public class ActivityService extends BaseService<Activity, Long> {
         this.activityItemService = activityItemService;
     }
 
-    public List<Activity> fetchByQuery(Long responsible, Long employer, Boolean registeredInApp, Boolean registeredInMyShare, Long createUser) {
-        return repository.fetchByQuery(responsible, employer, registeredInApp, registeredInMyShare, createUser);
+    public List<Activity> fetchByQuery(Long responsible, Long employer, Boolean registeredInApp, Boolean registeredInMyShare, Long createUser, String searchText) {
+        return repository.fetchByQuery(responsible, employer, registeredInApp, registeredInMyShare, createUser, searchText);
     }
 
     public Optional<Activity> findById(Long id) {

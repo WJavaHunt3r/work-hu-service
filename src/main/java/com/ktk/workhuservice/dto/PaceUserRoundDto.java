@@ -9,6 +9,8 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class PaceUserRoundDto {
+    private Long id;
+
     private UserDto user;
 
     private Round round;

@@ -67,11 +67,11 @@ public class UserCampController {
         return ResponseEntity.status(200).body(userCampService.fetchByQuery(user.orElse(null), camp.orElse(null), season.orElse(null), participates).stream().map(userCampMapper::entityToDto));
     }
 
-    @GetMapping("/{userCampId}")
-    public ResponseEntity getUserCamp(@PathVariable Long userCampId) {
-        var userCamp = userCampService.findById(userCampId);
+    @GetMapping("/{id}")
+    public ResponseEntity getUserCamp(@PathVariable Long id) {
+        var userCamp = userCampService.findById(id);
         if (userCamp.isEmpty()) {
-            return ResponseEntity.status(404).body("No userCamp with id: " + userCampId);
+            return ResponseEntity.status(404).body("No userCamp with id: " + id);
         }
         return ResponseEntity.status(200).body(userCampMapper.entityToDto(userCamp.get()));
     }

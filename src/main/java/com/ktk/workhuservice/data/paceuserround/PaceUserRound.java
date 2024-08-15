@@ -13,7 +13,8 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @Entity
-@Table(name = "PACE_USER_ROUNDS")
+@Table(name = "PACE_USER_ROUNDS", uniqueConstraints =
+        {@UniqueConstraint(name = "UniqueRoundAndUser", columnNames = {"ROUNDS", "USERS"})})
 @FieldNameConstants
 public class PaceUserRound extends BaseEntity<PaceUserRound, Long> {
 

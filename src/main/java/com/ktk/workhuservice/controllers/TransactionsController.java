@@ -1,12 +1,12 @@
 package com.ktk.workhuservice.controllers;
 
+import com.ktk.workhuservice.data.paceuserround.PaceUserRoundService;
 import com.ktk.workhuservice.data.rounds.Round;
 import com.ktk.workhuservice.data.rounds.RoundService;
 import com.ktk.workhuservice.data.transactionitems.TransactionItem;
 import com.ktk.workhuservice.data.transactionitems.TransactionItemService;
 import com.ktk.workhuservice.data.transactions.Transaction;
 import com.ktk.workhuservice.data.transactions.TransactionService;
-import com.ktk.workhuservice.data.userrounds.UserRoundService;
 import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.dto.TransactionDto;
@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/transaction")
 public class TransactionsController {
 
     private TransactionService transactionService;
@@ -29,9 +29,9 @@ public class TransactionsController {
     private TransactionItemService transactionItemService;
     private UserService userService;
     private RoundService roundService;
-    private UserRoundService userRoundService;
+    private PaceUserRoundService userRoundService;
 
-    public TransactionsController(TransactionService transactionService, ModelMapper modelMapper, TransactionItemService transactionItemService, UserService userService, RoundService roundService, UserRoundService userRoundService) {
+    public TransactionsController(TransactionService transactionService, ModelMapper modelMapper, TransactionItemService transactionItemService, UserService userService, RoundService roundService, PaceUserRoundService userRoundService) {
         this.transactionService = transactionService;
         this.modelMapper = modelMapper;
         this.transactionItemService = transactionItemService;
@@ -40,7 +40,7 @@ public class TransactionsController {
         this.userRoundService = userRoundService;
     }
 
-    @PostMapping("/transaction")
+    @PostMapping
     public ResponseEntity<?> addTransaction(@Valid @RequestBody TransactionDto transaction, @RequestParam("userId") Long userId) {
         Optional<User> createUser = findById(userId);
         if (createUser.isEmpty()) {
@@ -52,8 +52,8 @@ public class TransactionsController {
         return ResponseEntity.status(200).body(convertToDto(transactionService.save(convertToEntity(transaction, createUser.get()))));
     }
 
-    @DeleteMapping("/transaction")
-    public ResponseEntity<?> deleteTransaction(@RequestParam("transactionId") Long transactionId, @RequestParam("userId") Long userId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTransaction(@PathVariable Long id, @RequestParam("userId") Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userId);
@@ -61,21 +61,21 @@ public class TransactionsController {
         if (user.get().getRole().equals(Role.USER)) {
             return ResponseEntity.status(403).body("Permission denied!");
         }
-        if (transactionService.existsById(transactionId)) {
-            Iterable<TransactionItem> items = transactionItemService.findAllByTransactionId(transactionId);
-            transactionService.deleteById(transactionId);
-            transactionItemService.deleteByTransactionId(transactionId);
+        if (transactionService.existsById(id)) {
+            Iterable<TransactionItem> items = transactionItemService.findAllByTransactionId(id);
+            transactionService.deleteById(id);
+            transactionItemService.deleteByTransactionId(id);
             for (var item : items) {
-                userRoundService.calculateCurrentRoundPoints(userRoundService.findByUserAndRound(item.getUser(), item.getRound()));
+                userRoundService.calculateUserRoundStatus(item.getRound(), item.getUser());
             }
 
             return ResponseEntity.status(200).body("Delete successful");
         }
-        return ResponseEntity.status(403).body("No transaction found with id:" + transactionId);
+        return ResponseEntity.status(403).body("No transaction found with id:" + id);
 
     }
 
-    @GetMapping("/transactions")
+    @GetMapping
     public ResponseEntity<?> getTransactions(@Nullable @RequestParam("createUserId") Long createUserId, @Nullable @RequestParam("roundId") Long roundId) {
         if (createUserId != null) {
             Optional<User> createUser = userService.findById(createUserId);
@@ -94,11 +94,11 @@ public class TransactionsController {
         return ResponseEntity.status(200).body(StreamSupport.stream(transactionService.findAll().spliterator(), false).map(this::convertToDto));
     }
 
-    @GetMapping("/transaction/:id")
-    public ResponseEntity<?> getTransaction(@RequestParam Long transactionId) {
-        Optional<Transaction> transaction = transactionService.findById(transactionId);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTransaction(@PathVariable Long id) {
+        Optional<Transaction> transaction = transactionService.findById(id);
         if (transaction.isEmpty()) {
-            return ResponseEntity.status(400).body("No transaction found with Id: " + transactionId);
+            return ResponseEntity.status(400).body("No transaction found with Id: " + id);
         }
         return ResponseEntity.status(200).body(convertToDto(transaction.get()));
     }
