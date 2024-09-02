@@ -3,7 +3,7 @@ package com.ktk.workhuservice.controllers;
 import com.ktk.workhuservice.data.activity.Activity;
 import com.ktk.workhuservice.data.activity.ActivityService;
 import com.ktk.workhuservice.data.activityitems.ActivityItemService;
-import com.ktk.workhuservice.data.paceuserround.PaceUserRoundService;
+import com.ktk.workhuservice.data.paceteamround.PaceTeamRoundService;
 import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.dto.ActivityDto;
@@ -27,15 +27,15 @@ public class ActivityController {
     private ActivityMapper activityMapper;
     private ActivityItemService activityItemService;
     private final MicrosoftService microsoftService;
-    private PaceUserRoundService paceUserRoundService;
+    private PaceTeamRoundService paceTeamRoundService;
 
-    public ActivityController(ActivityService activityService, UserService userService, ActivityMapper activityMapper, ActivityItemService activityItemService, MicrosoftService microsoftService, PaceUserRoundService paceUserRoundService) {
+    public ActivityController(ActivityService activityService, UserService userService, ActivityMapper activityMapper, ActivityItemService activityItemService, MicrosoftService microsoftService, PaceTeamRoundService paceTeamRoundService) {
         this.activityService = activityService;
         this.userService = userService;
         this.activityMapper = activityMapper;
         this.activityItemService = activityItemService;
         this.microsoftService = microsoftService;
-        this.paceUserRoundService = paceUserRoundService;
+        this.paceTeamRoundService = paceTeamRoundService;
     }
 
     @GetMapping()
@@ -131,7 +131,7 @@ public class ActivityController {
         }
 
         activityService.registerActivity(activity.get(), user.get());
-        paceUserRoundService.calculateAllUserRoundStatus();
+        paceTeamRoundService.calculateAllTeamRoundPoints();
         try {
             microsoftService.sendActivityToSharePointListItem(activity.get());
             activity.get().setRegisteredInTeams(true);

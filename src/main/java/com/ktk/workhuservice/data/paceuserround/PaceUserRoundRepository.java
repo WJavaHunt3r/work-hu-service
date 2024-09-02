@@ -34,4 +34,10 @@ public interface PaceUserRoundRepository extends JpaRepository<PaceUserRound, Lo
     @Query("SELECT sum(ur.samvirkPayments) FROM PaceUserRound  ur where ur.user.paceTeam = ?1 " +
             " and ur.round = ?2 ")
     double calculateTeamRoundSamvirkPayments(PaceTeam t, Round round);
+
+    @Query("SELECT ur FROM PaceUserRound ur WHERE ( ur.user.id = ?1 OR ?1 IS NULL ) " +
+            " AND ( ur.round.id = ?2 OR ?2 IS NULL) " +
+            " AND ( ur.round.season.seasonYear = ?3 OR ?3 IS NULL) " +
+            " AND ( ur.user.paceTeam.id = ?4 OR ?4 IS NULL) ")
+    List<PaceUserRound> findByQuery(Long userId, Long roundId, Integer seasonYear, Long paceTeamId);
 }

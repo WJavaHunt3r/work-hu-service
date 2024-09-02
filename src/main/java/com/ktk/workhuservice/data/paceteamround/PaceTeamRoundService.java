@@ -58,7 +58,7 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
         PaceTeamRound teamRound = new PaceTeamRound();
         teamRound.setTeam(t);
         teamRound.setRound(r);
-        return teamRound;
+        return save(teamRound);
     }
 
     private Optional<PaceTeamRound> findByTeamAndRound(PaceTeam team, Round round) {

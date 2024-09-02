@@ -192,7 +192,7 @@ public class MicrosoftService {
     }
 
     private String createNewPasswordMailBody(User user, String newPassword) {
-        return String.format("Kedves %s!\n\n%s felhasználóhoz tartozó új jelszavad: %s\n\nBelépés itt: https://work-hu.bcc-ktk.org/login\n\nÜdvözlettel, \nMyShare csapat",
+        return String.format("Kedves %s!\n\n%s felhasználóhoz tartozó új jelszavad: %s\n\nBelépés itt: https://dukapp.bcc-ktk.org/login\n\nÜdvözlettel, \nMyShare csapat",
                 user.getFullName(), user.getUsername(), newPassword);
 
     }

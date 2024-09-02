@@ -1,13 +1,13 @@
 package com.ktk.workhuservice.data.activity;
 
 import com.ktk.workhuservice.data.activityitems.ActivityItem;
-import com.ktk.workhuservice.data.transactions.Transaction;
-import com.ktk.workhuservice.data.transactionitems.TransactionItem;
-import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.data.activityitems.ActivityItemService;
-import com.ktk.workhuservice.service.BaseService;
+import com.ktk.workhuservice.data.transactionitems.TransactionItem;
 import com.ktk.workhuservice.data.transactionitems.TransactionItemService;
+import com.ktk.workhuservice.data.transactions.Transaction;
 import com.ktk.workhuservice.data.transactions.TransactionService;
+import com.ktk.workhuservice.data.users.User;
+import com.ktk.workhuservice.service.BaseService;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,11 @@ public class ActivityService extends BaseService<Activity, Long> {
     }
 
     public List<Activity> fetchByQuery(Long responsible, Long employer, Boolean registeredInApp, Boolean registeredInMyShare, Long createUser, String searchText) {
-        return repository.fetchByQuery(responsible, employer, registeredInApp, registeredInMyShare, createUser, searchText);
+        return fetchByQuery(responsible, employer, registeredInApp, registeredInMyShare, createUser, LocalDateTime.now().minusMonths(1), searchText);
+    }
+
+    public List<Activity> fetchByQuery(Long responsible, Long employer, Boolean registeredInApp, Boolean registeredInMyShare, Long createUser, LocalDateTime dateFrom, String searchText) {
+        return repository.fetchByQuery(responsible, employer, registeredInApp, registeredInMyShare, createUser, dateFrom, searchText);
     }
 
     public Optional<Activity> findById(Long id) {

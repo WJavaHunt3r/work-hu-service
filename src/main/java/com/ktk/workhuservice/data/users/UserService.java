@@ -109,28 +109,30 @@ public class UserService extends BaseService<User, Long> {
     public void setPaceTeams(PaceTeam bukTeam, PaceTeam samvirkTeam) {
         Camp paskeCamp = campService.createPaskeCamp();
         getYouth().forEach(u -> {
-            int age = u.getAgeAtDate(LocalDate.of(2024, 12, 31));
-            if (18 <= age && age < 26) {
-                u.setPaceTeam(samvirkTeam);
-            } else {
-                u.setPaceTeam(bukTeam);
-            }
-
-            if (userCampService.fetchByQuery(u, paskeCamp, paskeCamp.getSeason(), null).isEmpty()) {
-
-                UserCamp paskeUserCamp = userCampService.createEntity();
-                paskeUserCamp.setUser(u);
-                paskeUserCamp.setCamp(paskeCamp);
-                paskeUserCamp.setParticipates(true);
-                if (age < 18) {
-                    paskeUserCamp.setPrice(paskeCamp.getU18BrunstadFee() + paskeCamp.getU18LocalFee());
+            if(u.getTeam() == null) {
+                int age = u.getAgeAtDate(LocalDate.of(2024, 12, 31));
+                if (18 <= age && age < 26) {
+                    u.setPaceTeam(samvirkTeam);
                 } else {
-                    paskeUserCamp.setPrice(paskeCamp.getO18BrunstadFee() + paskeCamp.getO18LocalFee());
+                    u.setPaceTeam(bukTeam);
                 }
 
-                userCampService.save(paskeUserCamp);
+                if (userCampService.fetchByQuery(u, paskeCamp, paskeCamp.getSeason(), null).isEmpty()) {
+
+                    UserCamp paskeUserCamp = userCampService.createEntity();
+                    paskeUserCamp.setUser(u);
+                    paskeUserCamp.setCamp(paskeCamp);
+                    paskeUserCamp.setParticipates(true);
+                    if (age < 18) {
+                        paskeUserCamp.setPrice(paskeCamp.getU18BrunstadFee() + paskeCamp.getU18LocalFee());
+                    } else {
+                        paskeUserCamp.setPrice(paskeCamp.getO18BrunstadFee() + paskeCamp.getO18LocalFee());
+                    }
+
+                    userCampService.save(paskeUserCamp);
+                }
+                save(u);
             }
-            save(u);
         });
 
     }

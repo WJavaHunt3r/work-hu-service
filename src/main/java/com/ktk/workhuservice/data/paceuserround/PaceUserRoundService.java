@@ -45,6 +45,10 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         return repository.findByUser(u);
     }
 
+    public List<PaceUserRound> findByQuery(Long userId, Long roundId, Integer seasonYear, Long paceTeamId) {
+        return repository.findByQuery(userId, roundId, seasonYear, paceTeamId);
+    }
+
     public Optional<PaceUserRound> findByUserAndRound(User u, Round r) {
         return repository.findByUserAndRound(u, r);
     }
@@ -68,7 +72,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
     public void createAllPaceUserRounds(Round round) {
         userService.calculateUserPointsForAllUsers();
         for (User u : userService.getYouth()) {
-            Optional<PaceUserRound> pur = repository.findByUserAndRound(u, round);
+            Optional<PaceUserRound> pur = findByUserAndRound(u, round);
             if (pur.isPresent()) {
                 pur.get().setRoundMyShareGoal(calculateCurrRoundMyShareGoal(round, u));
             } else {
@@ -78,13 +82,14 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
     }
 
     public void calculateAllUserRoundStatus(Round round) {
+        userService.calculateUserPointsForAllUsers();
         for (User u : userService.getYouth()) {
             calculateUserRoundStatus(round, u);
         }
     }
 
     public void calculateUserRoundStatus(Round r, User u) {
-        repository.findByUserAndRound(u, r).ifPresent(pur -> {
+        findByUserAndRound(u, r).ifPresent(pur -> {
             calculateUserRoundStatus(pur);
             save(pur);
         });
@@ -123,6 +128,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
     }
 
     private void calculateUserRoundStatus(PaceUserRound pur) {
+        pur.setRoundCoins(0);
         Optional<Goal> goal = goalService.findByUserAndSeasonYear(pur.getUser(), pur.getRound().getSeason().getSeasonYear());
         if (goal.isPresent() && (double) pur.getUser().getCurrentMyShareCredit() / (double) goal.get().getGoal() * 100 >= pur.getRound().getMyShareGoal()) {
             pur.setRoundCoins(50);
