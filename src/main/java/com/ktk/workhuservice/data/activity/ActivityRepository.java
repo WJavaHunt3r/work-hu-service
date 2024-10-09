@@ -15,7 +15,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
             " AND (ac.registeredInApp = ?3 OR ?3 IS NULL) " +
             " AND (ac.registeredInMyShare = ?4 OR ?4 IS NULL) " +
             " AND (ac.createUser.id = ?5 OR ?5 IS NULL)" +
-            " AND (ac.activityDateTime  >= ?6) " +
-            " AND (lower(ac.description) like lower(concat('%', concat(?7, '%')))  OR ?7 IS NULL)")
-    List<Activity> fetchByQuery(Long responsible, Long employer, Boolean registeredInApp, Boolean registeredInMyShare, Long createUser, LocalDateTime dateFrom, String searchText);
+            " AND ( (cast(?6 as date) is null  OR cast(?7 as date ) is null  ) or ac.activityDateTime >= ?6 and ac.activityDateTime <= ?7) " +
+            " AND (lower(ac.description) like lower(concat('%', concat(?8, '%')))  OR ?8 IS NULL)")
+List<Activity> fetchByQuery(Long responsible, Long employer, Boolean registeredInApp, Boolean registeredInMyShare, Long createUser, LocalDateTime dateFrom, LocalDateTime dateTo, String searchText);
 }

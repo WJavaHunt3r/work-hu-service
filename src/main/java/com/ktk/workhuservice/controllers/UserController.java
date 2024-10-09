@@ -3,7 +3,6 @@ package com.ktk.workhuservice.controllers;
 import com.ktk.workhuservice.data.paceteam.PaceTeam;
 import com.ktk.workhuservice.data.paceteam.PaceTeamService;
 import com.ktk.workhuservice.data.paceteamround.PaceTeamRoundService;
-import com.ktk.workhuservice.data.paceuserround.PaceUserRoundService;
 import com.ktk.workhuservice.data.seasons.SeasonService;
 import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.data.users.UserService;
@@ -28,15 +27,13 @@ public class UserController {
     private UserMapper userMapper;
     private SeasonService seasonService;
     private PaceTeamRoundService paceTeamRoundService;
-    private PaceUserRoundService paceUserRoundService;
 
-    public UserController(UserService userService, PaceTeamService paceTeamService, UserMapper modelMapper, SeasonService seasonService, PaceTeamRoundService paceTeamRoundService, PaceUserRoundService paceUserRoundService) {
+    public UserController(UserService userService, PaceTeamService paceTeamService, UserMapper modelMapper, SeasonService seasonService, PaceTeamRoundService paceTeamRoundService) {
         this.userService = userService;
         this.paceTeamService = paceTeamService;
         this.userMapper = modelMapper;
         this.seasonService = seasonService;
         this.paceTeamRoundService = paceTeamRoundService;
-        this.paceUserRoundService = paceUserRoundService;
     }
 
     @GetMapping("/{id}")
@@ -85,12 +82,12 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> putUser(@Valid @RequestBody UserDto userDto, @PathVariable Long id) {
-        Optional<User> createUser = userService.findById(id);
+    public ResponseEntity<?> putUser(@Valid @RequestBody UserDto userDto, @PathVariable Long id, @RequestParam("modifyUserId") Long modifyUserId) {
+        Optional<User> createUser = userService.findById(modifyUserId);
         if (createUser.isEmpty()) {
-            return ResponseEntity.status(400).body("No user with id:" + id);
+            return ResponseEntity.status(400).body("No user with id:" + modifyUserId);
         }
-        if (createUser.get().getRole().equals(Role.USER)) {
+        if (createUser.get().getRole().equals(Role.USER) && !userDto.getId().equals(id)) {
             return ResponseEntity.status(403).body("Permission denied:");
         }
         Optional<User> user = userService.findById(userDto.getId());

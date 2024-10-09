@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 @Service
 public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
@@ -28,21 +29,17 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
     private GoalService goalService;
     private UserCampService userCampService;
     private SeasonService seasonService;
-    private RoundService roundService;
     private TransactionItemService transactionItemService;
+    private RoundService roundService;
 
-    public PaceUserRoundService(PaceUserRoundRepository repository, UserService userService, GoalService goalService, UserCampService userCampService, SeasonService seasonService, RoundService roundService, TransactionItemService transactionItemService) {
+    public PaceUserRoundService(PaceUserRoundRepository repository, UserService userService, GoalService goalService, UserCampService userCampService, SeasonService seasonService, TransactionItemService transactionItemService, RoundService roundService) {
         this.repository = repository;
         this.userService = userService;
         this.goalService = goalService;
         this.userCampService = userCampService;
         this.seasonService = seasonService;
-        this.roundService = roundService;
         this.transactionItemService = transactionItemService;
-    }
-
-    public List<PaceUserRound> findByUser(User u) {
-        return repository.findByUser(u);
+        this.roundService = roundService;
     }
 
     public List<PaceUserRound> findByQuery(Long userId, Long roundId, Integer seasonYear, Long paceTeamId) {
@@ -61,14 +58,6 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         return repository.calculatePaceTeamRoundCoins(t, round);
     }
 
-    public void calculateAllUserRoundStatus() {
-        calculateAllUserRoundStatus(roundService.getLastRound());
-    }
-
-    public void createAllPaceUserRounds() {
-        createAllPaceUserRounds(roundService.getLastRound());
-    }
-
     public void createAllPaceUserRounds(Round round) {
         userService.calculateUserPointsForAllUsers();
         for (User u : userService.getYouth()) {
@@ -83,9 +72,19 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
 
     public void calculateAllUserRoundStatus(Round round) {
         userService.calculateUserPointsForAllUsers();
-        for (User u : userService.getYouth()) {
-            calculateUserRoundStatus(round, u);
+        Iterable<User> usersWithGoals = userService.getYouth();
+        for (PaceUserRound ur : findByQuery(null, round.getId(), null, null)) {
+            if ((StreamSupport.stream(usersWithGoals.spliterator(), false).anyMatch(u -> u == ur.getUser()))) {
+                calculateUserRoundStatus(ur);
+                save(ur);
+            } else {
+                delete(ur);
+            }
         }
+    }
+
+    public void calculateUserRoundStatus(User u) {
+        calculateUserRoundStatus(roundService.getLastRound(), u);
     }
 
     public void calculateUserRoundStatus(Round r, User u) {
@@ -93,6 +92,10 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
             calculateUserRoundStatus(pur);
             save(pur);
         });
+    }
+
+    public void createPaceUserRound(User u) {
+        save(createPaceUserRound(u, roundService.getLastRound()));
     }
 
     private PaceUserRound createPaceUserRound(User u, Round round) {

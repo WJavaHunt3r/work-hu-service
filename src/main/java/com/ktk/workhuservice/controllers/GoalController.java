@@ -1,6 +1,7 @@
 package com.ktk.workhuservice.controllers;
 
 import com.ktk.workhuservice.data.goals.Goal;
+import com.ktk.workhuservice.data.paceuserround.PaceUserRoundService;
 import com.ktk.workhuservice.data.seasons.Season;
 import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.dto.GoalDto;
@@ -26,12 +27,14 @@ public class GoalController {
     private UserService userService;
     private SeasonService seasonService;
     private GoalMapper goalMapper;
+    private PaceUserRoundService userRoundService;
 
-    public GoalController(GoalService goalService, UserService userService, SeasonService seasonService, GoalMapper goalMapper) {
+    public GoalController(GoalService goalService, UserService userService, SeasonService seasonService, GoalMapper goalMapper, PaceUserRoundService userRoundService) {
         this.goalService = goalService;
         this.userService = userService;
         this.seasonService = seasonService;
         this.goalMapper = goalMapper;
+        this.userRoundService = userRoundService;
     }
 
     @GetMapping("/userSeasonGoal")
@@ -76,11 +79,12 @@ public class GoalController {
     @PostMapping()
     public ResponseEntity saveGoal(@Valid @RequestBody GoalDto goalDto) {
         Optional<User> user = userService.findById(goalDto.getUser().getId());
-        if (user.isEmpty()) {
-            return ResponseEntity.status(404).body("No user found with id: " + goalDto.getUser().getId());
+        if (user.isEmpty() || goalService.findByUserAndSeasonYear(user.get(), goalDto.getSeason().getSeasonYear()).isPresent()) {
+            return ResponseEntity.status(404).body("No user found with id: " + goalDto.getUser().getId() + ". Or User already has a goal.");
         }
         Goal goal = new Goal();
         goal.setUser(user.get());
+        userRoundService.createPaceUserRound(user.get());
         return ResponseEntity.status(200).body(goalMapper.entityToDto(goalService.save(goalMapper.dtoToEntity(goalDto, goal))));
     }
 
@@ -112,6 +116,7 @@ public class GoalController {
         }
         if (goalService.existsById(id)) {
             goalService.deleteById(id);
+            userRoundService.calculateUserRoundStatus(user.get());
             return ResponseEntity.status(200).body("Delete successful");
         }
         return ResponseEntity.status(403).body("No goal found with id:" + id);

@@ -44,8 +44,9 @@ public class ActivityController {
                                         @Nullable @RequestParam("registeredInApp") Boolean registeredInApp,
                                         @Nullable @RequestParam("registeredInMyShare") Boolean registeredInMyShare,
                                         @Nullable @RequestParam("createUserId") Long createUserId,
+                                        @Nullable @RequestParam("referenceDate") String referenceMonth,
                                         @Nullable @RequestParam("searchText") String searchText) {
-        return ResponseEntity.status(200).body(activityService.fetchByQuery(responsibleId, employerId, registeredInApp, registeredInMyShare, createUserId, searchText));
+        return ResponseEntity.status(200).body(activityService.fetchByQuery(responsibleId, employerId, registeredInApp, registeredInMyShare, createUserId, referenceMonth, searchText).stream().map((activity -> activityMapper.entityToDto(activity))));
     }
 
     @GetMapping("/{id}")
@@ -130,9 +131,10 @@ public class ActivityController {
             return ResponseEntity.status(400).body("Activity already registered!");
         }
 
-        activityService.registerActivity(activity.get(), user.get());
-        paceTeamRoundService.calculateAllTeamRoundPoints();
+        Long transactionId = activityService.registerActivity(activity.get(), user.get());
+
         try {
+            paceTeamRoundService.calculateAllTeamRoundPoints();
             microsoftService.sendActivityToSharePointListItem(activity.get());
             activity.get().setRegisteredInTeams(true);
         } catch (Exception e) {
@@ -140,6 +142,7 @@ public class ActivityController {
                 ((ODataError) e).getError().getCode();
                 ((ODataError) e).getError().getMessage();
             }
+            activityService.rollbackTransactions(transactionId);
             return ResponseEntity.status(500).body(e.toString());
         }
         activityService.save(activity.get());

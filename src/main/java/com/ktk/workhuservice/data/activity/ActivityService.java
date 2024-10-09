@@ -11,7 +11,10 @@ import com.ktk.workhuservice.service.BaseService;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,11 +34,28 @@ public class ActivityService extends BaseService<Activity, Long> {
     }
 
     public List<Activity> fetchByQuery(Long responsible, Long employer, Boolean registeredInApp, Boolean registeredInMyShare, Long createUser, String searchText) {
-        return fetchByQuery(responsible, employer, registeredInApp, registeredInMyShare, createUser, LocalDateTime.now().minusMonths(1), searchText);
+        return fetchByQuery(responsible, employer, registeredInApp, registeredInMyShare, createUser, null, searchText);
     }
 
-    public List<Activity> fetchByQuery(Long responsible, Long employer, Boolean registeredInApp, Boolean registeredInMyShare, Long createUser, LocalDateTime dateFrom, String searchText) {
-        return repository.fetchByQuery(responsible, employer, registeredInApp, registeredInMyShare, createUser, dateFrom, searchText);
+    public List<Activity> fetchByQuery(Long responsible, Long employer, Boolean registeredInApp, Boolean registeredInMyShare, Long createUser, String referenceDate, String searchText) {
+        return repository.fetchByQuery(responsible, employer, registeredInApp, registeredInMyShare, createUser, getDateFrom(referenceDate), getDateTo(referenceDate), searchText);
+    }
+
+    private LocalDateTime getDateTo(String dateString) {
+        if (dateString == null || dateString.isEmpty()) {
+            return LocalDateTime.now();
+        }
+        LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
+        return LocalDateTime.of(date.getYear(), date.getMonth(), YearMonth.of(date.getYear(), date.getMonth()).atEndOfMonth().getDayOfMonth(), 0, 0);
+    }
+
+    private LocalDateTime getDateFrom(String dateString) {
+        if (dateString == null || dateString.isEmpty()) {
+            return LocalDateTime.of(2024, 1,1,0,0);
+        }
+
+        LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
+        return LocalDateTime.of(date.getYear(), date.getMonth(), 1, 0, 0);
     }
 
     public Optional<Activity> findById(Long id) {
@@ -57,13 +77,19 @@ public class ActivityService extends BaseService<Activity, Long> {
         return new Activity();
     }
 
-    public void registerActivity(Activity activity, User createUser) {
+    public void rollbackTransactions(Long id) {
+        transactionItemService.deleteByTransactionId(id);
+        transactionService.deleteById(id);
+    }
+
+    public Long registerActivity(Activity activity, User createUser) {
         Transaction transaction = createTransaction(activity, createUser);
 
         for (var item : activityItemService.findByActivity(activity.getId())) {
             createTransactionItem(transaction, createUser, item);
         }
         activity.setRegisteredInApp(true);
+        return transaction.getId();
     }
 
     private void createTransactionItem(Transaction transaction, User createUser, ActivityItem item) {
