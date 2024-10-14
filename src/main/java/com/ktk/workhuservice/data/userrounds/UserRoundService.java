@@ -18,7 +18,6 @@ import com.ktk.workhuservice.service.BaseService;
 import com.ktk.workhuservice.service.microsoft.MicrosoftService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -227,25 +226,6 @@ public class UserRoundService extends BaseService<UserRound, Long> {
         return new UserRound();
     }
 
-    @Scheduled(cron = "0 0 17 ? * TUE")
-    private void sendOnTrackEmails() {
-        Round currentRound = roundService.getLastRound();
-        for (User u : userService.getYouth()) {
-            Optional<UserRound> ur = userRoundRepository.findByUserAndRound(u, currentRound);
-            Optional<Goal> goal = goalService.findByUserAndSeasonYear(u, LocalDate.now().getYear());
-            if (goal.isPresent() && ur.isPresent()) {
-                double currentUserGoal = goal.get().getGoal() * (currentRound.getMyShareGoal() / 100.0);
-                if (u.getCurrentMyShareCredit() < currentUserGoal) {
-                    try {
-                        //                        if (u.getId() == 255) {
-                        microsoftService.sendStatusUpdate(u.getCurrentMyShareCredit(), (double) u.getCurrentMyShareCredit() / goal.get().getGoal() * 100, (int) currentUserGoal - u.getCurrentMyShareCredit(), u, currentRound);
-                        //                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
+
 
 }

@@ -56,11 +56,7 @@ public class CampService extends BaseService<Camp, Long> {
         paskeCamp.setU18LocalFee(100000);
         Optional<Season> season = seasonService.findBySeasonYear(2025);
         if (season.isEmpty()) {
-            Season s2025 = new Season();
-            s2025.setEndDate(LocalDate.of(2025, 12, 31));
-            s2025.setSeasonYear(2025);
-            s2025.setStartDate(LocalDate.of(2025, 1, 1));
-            paskeCamp.setSeason(seasonService.save(s2025));
+            paskeCamp.setSeason(seasonService.createSeasonForYear(LocalDate.now().getYear()+1));
         } else {
             season.ifPresent(paskeCamp::setSeason);
         }

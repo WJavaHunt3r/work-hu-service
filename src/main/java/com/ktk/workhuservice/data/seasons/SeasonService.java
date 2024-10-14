@@ -38,4 +38,16 @@ public class SeasonService extends BaseService<Season, Long> {
     public Season createEntity() {
         return new Season();
     }
+
+    public Season createSeasonForYear(Integer year) {
+        Optional<Season> season = findBySeasonYear(year);
+        if (season.isEmpty()) {
+            Season s = new Season();
+            s.setEndDate(LocalDate.of(year, 12, 31));
+            s.setSeasonYear(year);
+            s.setStartDate(LocalDate.of(year, 1, 1));
+            return save(s);
+        }
+        return season.get();
+    }
 }

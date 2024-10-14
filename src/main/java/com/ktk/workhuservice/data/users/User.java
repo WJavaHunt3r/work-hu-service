@@ -104,6 +104,10 @@ public class User extends BaseEntity<User, Long> {
         return this.role == Role.ADMIN;
     }
 
+    public boolean isTeamLeader() {
+        return this.role == Role.TEAM_LEADER;
+    }
+
     public int getAge() {
         return getAgeAtDate(LocalDate.now());
     }

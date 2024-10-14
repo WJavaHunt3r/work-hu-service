@@ -14,7 +14,9 @@ import com.ktk.workhuservice.data.usercamps.UserCampService;
 import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.service.BaseService;
+import com.ktk.workhuservice.service.microsoft.MicrosoftService;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,8 +33,9 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
     private SeasonService seasonService;
     private TransactionItemService transactionItemService;
     private RoundService roundService;
+    private MicrosoftService microsoftService;
 
-    public PaceUserRoundService(PaceUserRoundRepository repository, UserService userService, GoalService goalService, UserCampService userCampService, SeasonService seasonService, TransactionItemService transactionItemService, RoundService roundService) {
+    public PaceUserRoundService(PaceUserRoundRepository repository, UserService userService, GoalService goalService, UserCampService userCampService, SeasonService seasonService, TransactionItemService transactionItemService, RoundService roundService, MicrosoftService microsoftService) {
         this.repository = repository;
         this.userService = userService;
         this.goalService = goalService;
@@ -40,6 +43,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         this.seasonService = seasonService;
         this.transactionItemService = transactionItemService;
         this.roundService = roundService;
+        this.microsoftService = microsoftService;
     }
 
     public List<PaceUserRound> findByQuery(Long userId, Long roundId, Integer seasonYear, Long paceTeamId) {
@@ -68,6 +72,8 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
                 save(createPaceUserRound(u, round));
             }
         }
+        round.setUserRoundsCreated(true);
+        roundService.save(round);
     }
 
     public void calculateAllUserRoundStatus(Round round) {
@@ -139,7 +145,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         Integer sumCredits = transactionItemService.sumCreditByUserAndRound(pur.getUser(), pur.getRound());
         pur.setRoundCredits(sumCredits != null ? sumCredits : 0);
         if (pur.getRoundCredits() >= pur.getRoundMyShareGoal()) {
-            pur.setRoundCoins(100);
+            pur.setRoundCoins(pur.getRoundCoins() + 50);
         }
     }
 
@@ -160,5 +166,26 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
 
     public List<PaceUserRound> findByUserAndSeasonYear(User user, Integer seasonYear) {
         return repository.findByUserAndSeason(user, seasonYear);
+    }
+
+    @Scheduled(cron = "0 0 17 * * TUE")
+    private void sendOnTrackEmails() {
+        Round currentRound = roundService.getLastRound();
+        for (User u : userService.getYouth()) {
+            Optional<PaceUserRound> ur = repository.findByUserAndRound(u, currentRound);
+            Optional<Goal> goal = goalService.findByUserAndSeasonYear(u, LocalDate.now().getYear());
+            if (goal.isPresent() && ur.isPresent()) {
+                double currentUserGoal = goal.get().getGoal() * (currentRound.getMyShareGoal() / 100.0);
+                if (u.getCurrentMyShareCredit() < currentUserGoal || !u.getEmail().isEmpty()) {
+                    try {
+//                        if (u.getId() == 255) {
+                        microsoftService.sendStatusUpdate(u.getCurrentMyShareCredit(), (double) u.getCurrentMyShareCredit() / goal.get().getGoal() * 100, (int) currentUserGoal - u.getCurrentMyShareCredit(), u, currentRound);
+//                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 }

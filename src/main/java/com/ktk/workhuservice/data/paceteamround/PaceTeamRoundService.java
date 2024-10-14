@@ -5,11 +5,14 @@ import com.ktk.workhuservice.data.paceteam.PaceTeamService;
 import com.ktk.workhuservice.data.paceuserround.PaceUserRoundService;
 import com.ktk.workhuservice.data.rounds.Round;
 import com.ktk.workhuservice.data.rounds.RoundService;
+import com.ktk.workhuservice.data.seasons.Season;
+import com.ktk.workhuservice.data.seasons.SeasonService;
 import com.ktk.workhuservice.service.BaseService;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -19,12 +22,14 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
     private PaceTeamService paceTeamService;
     private RoundService roundService;
     private PaceUserRoundService paceUserRoundService;
+    private SeasonService seasonService;
 
-    public PaceTeamRoundService(PaceTeamRoundRepository repository, PaceTeamService paceTeamService, RoundService roundService, PaceUserRoundService paceUserRoundService) {
+    public PaceTeamRoundService(PaceTeamRoundRepository repository, PaceTeamService paceTeamService, RoundService roundService, PaceUserRoundService paceUserRoundService, SeasonService seasonService) {
         this.repository = repository;
         this.paceTeamService = paceTeamService;
         this.roundService = roundService;
         this.paceUserRoundService = paceUserRoundService;
+        this.seasonService = seasonService;
     }
 
     public Iterable<PaceTeamRound> findAll(int seasonYear) {
@@ -51,9 +56,10 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
         save(ptr);
     }
 
-    public void createAllTeamRounds(){
+    public void createAllTeamRounds() {
         createTeamRounds();
     }
+
     private PaceTeamRound createTeamRound(PaceTeam t, Round r) {
         PaceTeamRound teamRound = new PaceTeamRound();
         teamRound.setTeam(t);
@@ -81,13 +87,14 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
     }
 
     @Scheduled(cron = "0 1 0 1 * ?")
+//    @Scheduled(cron = "0 6 11 * * FRI")
     public void createTeamRounds() {
-        Optional<Round> currRound = roundService.findRoundByDate(LocalDateTime.now());
-        currRound.ifPresent(round -> paceTeamService.findAll().forEach(paceTeam -> {
-            paceUserRoundService.createAllPaceUserRounds(currRound.get());
-            calculateRoundCoinsForTeam(repository.findByTeamAndRound(paceTeam, round).orElse(createTeamRound(paceTeam, round)));
-
-        }));
+        Season season = seasonService.findBySeasonYear(LocalDate.now().getYear()).orElseGet(() -> seasonService.createSeasonForYear(LocalDate.now().getYear()));
+        Round currRound = roundService.findRoundByDate(LocalDateTime.now()).orElseGet(() -> roundService.createNextRound(season));
+        paceTeamService.findAll().forEach(paceTeam -> {
+            paceUserRoundService.createAllPaceUserRounds(currRound);
+            calculateRoundCoinsForTeam(repository.findByTeamAndRound(paceTeam, currRound).orElseGet(() -> createTeamRound(paceTeam, currRound)));
+        });
     }
 
 }
