@@ -137,6 +137,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
     }
 
     private void calculateUserRoundStatus(PaceUserRound pur) {
+        pur.setRoundMyShareGoal(calculateCurrRoundMyShareGoal(pur.getRound(), pur.getUser()));
         pur.setRoundCoins(0);
         Optional<Goal> goal = goalService.findByUserAndSeasonYear(pur.getUser(), pur.getRound().getSeason().getSeasonYear());
         if (goal.isPresent() && (double) pur.getUser().getCurrentMyShareCredit() / (double) goal.get().getGoal() * 100 >= pur.getRound().getMyShareGoal()) {
@@ -176,10 +177,10 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
             Optional<Goal> goal = goalService.findByUserAndSeasonYear(u, LocalDate.now().getYear());
             if (goal.isPresent() && ur.isPresent()) {
                 double currentUserGoal = goal.get().getGoal() * (currentRound.getMyShareGoal() / 100.0);
-                if (u.getCurrentMyShareCredit() < currentUserGoal || !u.getEmail().isEmpty()) {
+                if (u.getCurrentMyShareCredit() < currentUserGoal && !u.getEmail().isEmpty()) {
                     try {
 //                        if (u.getId() == 255) {
-                        microsoftService.sendStatusUpdate(u.getCurrentMyShareCredit(), (double) u.getCurrentMyShareCredit() / goal.get().getGoal() * 100, (int) currentUserGoal - u.getCurrentMyShareCredit(), u, currentRound);
+                            microsoftService.sendStatusUpdate(u.getCurrentMyShareCredit(), (double) u.getCurrentMyShareCredit() / goal.get().getGoal() * 100, (int) currentUserGoal - u.getCurrentMyShareCredit(), u, currentRound);
 //                        }
                     } catch (Exception e) {
                         e.printStackTrace();

@@ -99,7 +99,10 @@ public class GoalController {
             if (goal.isEmpty() || !goalDto.getId().equals(id)) {
                 return ResponseEntity.status(404).body("Goal not found with id: " + id);
             }
-            return saveGoal(goalDto);
+
+            Goal entity = goalService.save(goalMapper.dtoToEntity(goalDto, goal.get()));
+            userRoundService.calculateUserRoundStatus(entity.getUser());
+            return ResponseEntity.status(200).body(goalMapper.entityToDto(entity));
         }
         return ResponseEntity.status(404).body("User not allowed to change this goal");
 

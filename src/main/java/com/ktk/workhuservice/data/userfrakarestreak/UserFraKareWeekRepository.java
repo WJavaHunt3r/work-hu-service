@@ -8,10 +8,10 @@ import java.util.List;
 
 @Repository
 public interface UserFraKareWeekRepository extends JpaRepository<UserFraKareWeek, Long> {
-    @Query(" SELECT fks from UserFraKareWeek fks where ( ?1 is null or fks.user.id = ?1 ) " +
-            " and ( ?2 is null or fks.fraKareWeek.weekNumber = ?2 ) " +
-            " and ( ?3 is null or fks.listened = ?3 ) " +
-            " and ( ?4 is null or fks.user.paceTeam is null or fks.user.paceTeam.id = ?4 ) " +
+    @Query(" SELECT fks from UserFraKareWeek fks where ( fks.user.id = ?1 or  ?1 is null ) " +
+            " and (fks.fraKareWeek.weekNumber = ?2 or ?2 is null) " +
+            " and (fks.listened = ?3 OR ?3 IS NULL) " +
+            " and (fks.user.paceTeam.id = ?4 or ?4 is null or fks.user.paceTeam is null) " +
             " order by fks.user.lastname, fks.user.firstname ")
     List<UserFraKareWeek> fetchByQuery(Long userId, Integer weekNumber, Boolean listened, Long teamId);
 

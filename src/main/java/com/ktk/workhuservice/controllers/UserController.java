@@ -9,6 +9,7 @@ import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.dto.UserDto;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.mapper.UserMapper;
+import com.ktk.workhuservice.service.UserFamilyImportService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -27,13 +28,15 @@ public class UserController {
     private UserMapper userMapper;
     private SeasonService seasonService;
     private PaceTeamRoundService paceTeamRoundService;
+    private UserFamilyImportService userFamilyImportService;
 
-    public UserController(UserService userService, PaceTeamService paceTeamService, UserMapper modelMapper, SeasonService seasonService, PaceTeamRoundService paceTeamRoundService) {
+    public UserController(UserService userService, PaceTeamService paceTeamService, UserMapper modelMapper, SeasonService seasonService, PaceTeamRoundService paceTeamRoundService, UserFamilyImportService userFamilyImportService) {
         this.userService = userService;
         this.paceTeamService = paceTeamService;
         this.userMapper = modelMapper;
         this.seasonService = seasonService;
         this.paceTeamRoundService = paceTeamRoundService;
+        this.userFamilyImportService = userFamilyImportService;
     }
 
     @GetMapping("/{id}")
@@ -61,6 +64,16 @@ public class UserController {
         Optional<User> userByMyShareId = userService.findByUsername(username);
         if (userByMyShareId.isPresent()) {
             return ResponseEntity.status(200).body(userMapper.entityToDto(userByMyShareId.get()));
+        }
+
+        return ResponseEntity.status(404).body("User not found");
+    }
+
+    @GetMapping("/{id}/children")
+    public ResponseEntity<?> getUserByFamilyId(@PathVariable Long id) {
+        Optional<User> user = userService.findById(id);
+        if (user.isPresent()) {
+            return ResponseEntity.status(200).body(userService.findChildren(id).stream().map((e) -> userMapper.entityToDto(e)));
         }
 
         return ResponseEntity.status(404).body("User not found");
@@ -102,6 +115,16 @@ public class UserController {
         userService.setPaceTeams(createBUKTeam(), createSamvirkTeam());
         paceTeamRoundService.createTeamRounds();
         return ResponseEntity.status(200).body("Pace Teams set");
+    }
+
+    @GetMapping("/importFamilyIds")
+    public ResponseEntity<?> impostFamilyIds() {
+        boolean succeeded = userFamilyImportService.importUserFamilyIds();
+        if (succeeded) {
+            return ResponseEntity.status(200).body("User family ids imported");
+        } else {
+            return ResponseEntity.status(500).body("Failed to import user family ids!");
+        }
     }
 
     private PaceTeam createSamvirkTeam() {

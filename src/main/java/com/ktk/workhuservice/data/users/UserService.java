@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -53,6 +54,10 @@ public class UserService extends BaseService<User, Long> {
 
     public Iterable<User> findAllByRole(Role role) {
         return userRepository.findAllByRole(role);
+    }
+
+    public List<User> findChildren(Long familyId) {
+        return userRepository.findChildren(familyId);
     }
 
     public Iterable<User> findAllByTeam(Team t, Season s) {
@@ -109,7 +114,7 @@ public class UserService extends BaseService<User, Long> {
     public void setPaceTeams(PaceTeam bukTeam, PaceTeam samvirkTeam) {
         Camp paskeCamp = campService.createPaskeCamp();
         getYouth().forEach(u -> {
-            if(u.getTeam() == null) {
+            if (u.getTeam() == null) {
                 int age = u.getAgeAtDate(LocalDate.of(2024, 12, 31));
                 if (18 <= age && age < 26) {
                     u.setPaceTeam(samvirkTeam);

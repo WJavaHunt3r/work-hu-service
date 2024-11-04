@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -20,6 +21,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByMyShareID(Long id);
 
     Iterable<User> findAllByRole(Role role);
+
+    @Query("SELECT u FROM User u where u.familyId = ?1 and u.id <> ?1 and u.spouseId is null")
+    List<User> findChildren(Long familyId);
 
     @Query("SELECT u FROM Goal g JOIN g.user u JOIN g.season s where s = ?2 and u.paceTeam = ?1")
     Iterable<User> findAllByPaceTeamAndSeasonAndGoal(PaceTeam t, Season s);

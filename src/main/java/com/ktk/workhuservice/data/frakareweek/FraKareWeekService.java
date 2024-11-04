@@ -42,8 +42,8 @@ public class FraKareWeekService extends BaseService<FraKareWeek, Long> {
         return repository.fetchByQuery(year, weekNumber);
     }
 
-//    @Scheduled(cron = "0 0 7 * * MON")
-    @Scheduled(cron = "0 30 17 * * MON")
+    @Scheduled(cron = "0 0 7 * * MON")
+//    @Scheduled(cron = "0 9 21 * * MON")
     public void createFraKareWeek() {
         LocalDate date = LocalDate.now();
         int weekNumber = date.get(WeekFields.ISO.weekOfWeekBasedYear());
@@ -60,16 +60,21 @@ public class FraKareWeekService extends BaseService<FraKareWeek, Long> {
             week.setWeekStartDate(monday);
             week.setWeekEndDate(monday.plusDays(4));
             userFraKareWeekService.createUserFraKareWeeks(save(week));
+        } else {
+            userFraKareWeekService.createUserFraKareWeeks(fetchByQuery(date.getYear(), weekNumber).get(0));
         }
     }
 
-    @Scheduled(cron = "0 0 18 * * FRI")
+    @Scheduled(cron = "0 33 10 * * FRI")
     public void unlockFraKareWeek() {
         LocalDate date = LocalDate.now();
         int week = date.get(WeekFields.ISO.weekOfWeekBasedYear());
-        List<FraKareWeek> currentWeek = fetchByQuery(date.getYear(), week);
-        if (currentWeek.size() == 1 && currentWeek.get(0).isActiveWeek()) {
-            currentWeek.get(0).setLocked(false);
-        }
+        List<FraKareWeek> currentWeeks = fetchByQuery(date.getYear(), week);
+        currentWeeks.forEach(curr -> {
+            if (curr.isActiveWeek()) {
+                curr.setLocked(false);
+                save(curr);
+            }
+        });
     }
 }

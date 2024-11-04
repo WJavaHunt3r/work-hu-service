@@ -96,6 +96,9 @@ public class User extends BaseEntity<User, Long> {
     @Column(name = "EMAIL", length = 200)
     private String email;
 
+    @Column(name = "BUFE_ID")
+    private Long bufeId;
+
     public String getFullName() {
         return lastname + " " + firstname;
     }

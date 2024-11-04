@@ -36,7 +36,7 @@ public class UserFraKareWeekService extends BaseService<UserFraKareWeek, Long> {
     }
 
     public List<UserFraKareWeek> fetchByQuery(Long userId, Integer weekNumber, Boolean listened, Long teamId) {
-        return repository.fetchByQuery(userId, weekNumber, listened, teamId);
+            return repository.fetchByQuery(userId, weekNumber, listened, teamId);
     }
 
     public void createUserFraKareWeeks(FraKareWeek week) {
