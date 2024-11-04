@@ -21,6 +21,9 @@ public class UserMapper extends BaseMapper<User, UserDto> {
         user.setBaseMyShareCredit(dto.getBaseMyShareCredit());
         user.setEmail(dto.getEmail());
         user.setPhoneNumber(dto.getPhoneNumber());
+        user.setBufeId(dto.getBufeId());
+        user.setFamilyId(dto.getFamilyId());
+        user.setSpouseId(dto.getSpouseId());
         return user;
     }
 

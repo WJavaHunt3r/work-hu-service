@@ -40,5 +40,5 @@ public class UserDto {
 
     private String email;
 
-
+    private Long bufeId;
 }
