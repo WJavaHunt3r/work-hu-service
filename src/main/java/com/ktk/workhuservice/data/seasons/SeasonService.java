@@ -20,8 +20,8 @@ public class SeasonService extends BaseService<Season, Long> {
         return seasonRepository.findBySeasonYear(year);
     }
 
-    public Optional<Season> findCurrentSeason() {
-        return seasonRepository.findCurrentSeason(LocalDate.now());
+    public Season findCurrentSeason() {
+        return seasonRepository.findCurrentSeason(LocalDate.now()).orElse(createSeasonForYear(LocalDate.now().getYear()));
     }
 
     @Override

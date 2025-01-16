@@ -14,15 +14,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
-    private PaceTeamRoundRepository repository;
-    private PaceTeamService paceTeamService;
-    private RoundService roundService;
-    private PaceUserRoundService paceUserRoundService;
-    private SeasonService seasonService;
+    private final PaceTeamRoundRepository repository;
+    private final PaceTeamService paceTeamService;
+    private final RoundService roundService;
+    private final PaceUserRoundService paceUserRoundService;
+    private final SeasonService seasonService;
 
     public PaceTeamRoundService(PaceTeamRoundRepository repository, PaceTeamService paceTeamService, RoundService roundService, PaceUserRoundService paceUserRoundService, SeasonService seasonService) {
         this.repository = repository;
@@ -42,7 +41,7 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
 
     public void calculateAllTeamRoundPoints(Round round) {
         for (PaceTeamRound pct : repository.findAllByRound(round)) {
-            paceUserRoundService.calculateAllUserRoundStatus(round);
+//            paceUserRoundService.calculateAllUserRoundStatus(round);
             calculateRoundCoinsForTeam(pct);
         }
     }
@@ -56,19 +55,11 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
         save(ptr);
     }
 
-    public void createAllTeamRounds() {
-        createTeamRounds();
-    }
-
     private PaceTeamRound createTeamRound(PaceTeam t, Round r) {
         PaceTeamRound teamRound = new PaceTeamRound();
         teamRound.setTeam(t);
         teamRound.setRound(r);
         return save(teamRound);
-    }
-
-    private Optional<PaceTeamRound> findByTeamAndRound(PaceTeam team, Round round) {
-        return repository.findByTeamAndRound(team, round);
     }
 
     @Override
@@ -94,6 +85,7 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
         paceTeamService.findAll().forEach(paceTeam -> {
             paceUserRoundService.createAllPaceUserRounds(currRound);
             calculateRoundCoinsForTeam(repository.findByTeamAndRound(paceTeam, currRound).orElseGet(() -> createTeamRound(paceTeam, currRound)));
+            roundService.save(currRound);
         });
     }
 

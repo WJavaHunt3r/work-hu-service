@@ -7,6 +7,7 @@ import com.ktk.workhuservice.service.BaseService;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -35,8 +36,12 @@ public class UserFraKareWeekService extends BaseService<UserFraKareWeek, Long> {
         return new UserFraKareWeek();
     }
 
+    public List<UserFraKareWeek> fetchByQuery(Long userId, Integer weekNumber, Boolean listened, Long teamId, Integer seasonYear) {
+        return repository.fetchByQuery(userId, weekNumber, listened, teamId, seasonYear);
+    }
+
     public List<UserFraKareWeek> fetchByQuery(Long userId, Integer weekNumber, Boolean listened, Long teamId) {
-            return repository.fetchByQuery(userId, weekNumber, listened, teamId);
+        return repository.fetchByQuery(userId, weekNumber, listened, teamId, LocalDate.now().getYear());
     }
 
     public void createUserFraKareWeeks(FraKareWeek week) {

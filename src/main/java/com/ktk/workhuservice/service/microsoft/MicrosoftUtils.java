@@ -1,4 +1,4 @@
-package com.ktk.workhuservice.service;
+package com.ktk.workhuservice.service.microsoft;
 
 import com.ktk.workhuservice.data.activity.Activity;
 import com.ktk.workhuservice.data.activityitems.ActivityItem;
@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Utils {
+public class MicrosoftUtils {
 
     public static String changeSpecChars(String text) {
         for (String entry : getEngChar().keySet()) {

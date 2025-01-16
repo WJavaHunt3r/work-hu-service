@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public class UserCampService extends BaseService<UserCamp, Long> {
 
-    private UserCampRepository userCampRepository;
+    private final UserCampRepository userCampRepository;
 
     public UserCampService(UserCampRepository userCampRepository) {
         this.userCampRepository = userCampRepository;

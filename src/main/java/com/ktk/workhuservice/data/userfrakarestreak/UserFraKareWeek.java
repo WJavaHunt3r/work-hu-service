@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Entity
 @Table(name = "USER_FRA_KARE_WEEK", uniqueConstraints =
-        {@UniqueConstraint(name = "UniqueWeekAndUser", columnNames = {"FRA_KARE_WEEK", "USERS"})})
+        {@UniqueConstraint(name = "UniqueFraKareWeekAndUser", columnNames = {"FRA_KARE_WEEK", "USERS"})})
 @FieldNameConstants
 public class UserFraKareWeek extends BaseEntity<UserFraKareWeek, Long> {
 

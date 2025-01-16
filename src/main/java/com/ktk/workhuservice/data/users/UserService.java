@@ -1,14 +1,10 @@
 package com.ktk.workhuservice.data.users;
 
-import com.ktk.workhuservice.data.camps.Camp;
-import com.ktk.workhuservice.data.camps.CampService;
 import com.ktk.workhuservice.data.paceteam.PaceTeam;
 import com.ktk.workhuservice.data.seasons.Season;
 import com.ktk.workhuservice.data.teams.Team;
 import com.ktk.workhuservice.data.transactionitems.TransactionItem;
 import com.ktk.workhuservice.data.transactionitems.TransactionItemService;
-import com.ktk.workhuservice.data.usercamps.UserCamp;
-import com.ktk.workhuservice.data.usercamps.UserCampService;
 import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.service.BaseService;
@@ -22,16 +18,12 @@ import java.util.Optional;
 @Service
 public class UserService extends BaseService<User, Long> {
 
-    private UserRepository userRepository;
-    private TransactionItemService transactionItemService;
-    private UserCampService userCampService;
-    private CampService campService;
+    private final UserRepository userRepository;
+    private final TransactionItemService transactionItemService;
 
-    public UserService(UserRepository userRepository, TransactionItemService transactionService, UserCampService userCampService, CampService campService) {
+    public UserService(UserRepository userRepository, TransactionItemService transactionService) {
         this.userRepository = userRepository;
         this.transactionItemService = transactionService;
-        this.userCampService = userCampService;
-        this.campService = campService;
     }
 
     public Optional<User> findByUsername(String username) {
@@ -58,10 +50,6 @@ public class UserService extends BaseService<User, Long> {
 
     public List<User> findChildren(Long familyId) {
         return userRepository.findChildren(familyId);
-    }
-
-    public Iterable<User> findAllByTeam(Team t, Season s) {
-        return userRepository.findAllByTeamAndSeasonAndGoal(t, s);
     }
 
     public Iterable<User> findAllByPaceTeam(PaceTeam t, Season s) {
@@ -111,31 +99,16 @@ public class UserService extends BaseService<User, Long> {
         return new User();
     }
 
-    public void setPaceTeams(PaceTeam bukTeam, PaceTeam samvirkTeam) {
-        Camp paskeCamp = campService.createPaskeCamp();
+    public void setTeams(PaceTeam bukTeam, PaceTeam samvirkTeam) {
         getYouth().forEach(u -> {
             if (u.getTeam() == null) {
-                int age = u.getAgeAtDate(LocalDate.of(2024, 12, 31));
+                int age = u.getAgeAtDate(LocalDate.of(LocalDate.now().getYear(), 12, 31));
                 if (18 <= age && age < 26) {
                     u.setPaceTeam(samvirkTeam);
                 } else {
                     u.setPaceTeam(bukTeam);
                 }
 
-                if (userCampService.fetchByQuery(u, paskeCamp, paskeCamp.getSeason(), null).isEmpty()) {
-
-                    UserCamp paskeUserCamp = userCampService.createEntity();
-                    paskeUserCamp.setUser(u);
-                    paskeUserCamp.setCamp(paskeCamp);
-                    paskeUserCamp.setParticipates(true);
-                    if (age < 18) {
-                        paskeUserCamp.setPrice(paskeCamp.getU18BrunstadFee() + paskeCamp.getU18LocalFee());
-                    } else {
-                        paskeUserCamp.setPrice(paskeCamp.getO18BrunstadFee() + paskeCamp.getO18LocalFee());
-                    }
-
-                    userCampService.save(paskeUserCamp);
-                }
                 save(u);
             }
         });

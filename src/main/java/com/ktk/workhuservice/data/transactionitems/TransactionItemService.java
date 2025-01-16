@@ -43,6 +43,10 @@ public class TransactionItemService {
         return transactionItemRepository.sumCreditByUserAndRound(user, s);
     }
 
+    public Integer sumCreditByUserAndSeasonYear(User user, Integer year) {
+        return transactionItemRepository.sumCreditByUserAndSeasonYear(user, year);
+    }
+
     public Iterable<TransactionItem> findAllByTransactionId(Long id) {
         return transactionItemRepository.findAllByTransactionId(id);
     }

@@ -2,11 +2,10 @@ package com.ktk.workhuservice.service.microsoft;
 
 import com.ktk.workhuservice.config.MicrosoftConfig;
 import com.ktk.workhuservice.data.activity.Activity;
+import com.ktk.workhuservice.data.activityitems.ActivityItemService;
 import com.ktk.workhuservice.data.rounds.Round;
 import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.enums.TransactionType;
-import com.ktk.workhuservice.data.activityitems.ActivityItemService;
-import com.ktk.workhuservice.service.Utils;
 import com.microsoft.aad.msal4j.ClientCredentialFactory;
 import com.microsoft.aad.msal4j.ClientCredentialParameters;
 import com.microsoft.aad.msal4j.ConfidentialClientApplication;
@@ -49,7 +48,7 @@ public class MicrosoftService {
         HashMap<String, Object> additionalData = new HashMap<>();
 
         var items = activityItemService.findByActivity(activity.getId());
-        String xlsx = Utils.createXlsxFromActivity(activity, items, sumHours, new ClassPathResource("imports/docs/munkalap_sablon_uj.xlsx").getInputStream());
+        String xlsx = MicrosoftUtils.createXlsxFromActivity(activity, items, sumHours, new ClassPathResource("imports/docs/munkalap_sablon_uj.xlsx").getInputStream());
 
         if (activity.getTransactionType().equals(TransactionType.HOURS)) {
             createPaidListItem(activity, additionalData, graphClient, sumHours);
@@ -83,7 +82,7 @@ public class MicrosoftService {
     }
 
     private String createContent(Activity activity, double sumHours) {
-        String date = Utils.formatDate(activity.getActivityDateTime().toLocalDate());
+        String date = MicrosoftUtils.formatDate(activity.getActivityDateTime().toLocalDate());
         return "Kedves " + activity.getEmployer().getFullName() + "!\n\n" + date +
                 " dátummal egy munka került rögzítésre rendszerünkbe. A munka részleteit a csatolt munkalapon láthatod.\n\nAz elvégzett munka utáni befizetendő összeg: " + (int) (sumHours * 2000) +
                 "Ft\n\nKérjük, a befizetendő összeget a MyShare számlára utald el!\nSzámlaszám: 10700323-43750203-52000001\nKözlemény: " + date.replace(".", "") + " " + activity.getDescription()
@@ -103,7 +102,7 @@ public class MicrosoftService {
     }
 
     private String buildFilename(Activity activity) {
-        return Utils.formatDate(activity.getActivityDateTime().toLocalDate()).replace(".", "") + "_" + Utils.changeSpecChars(activity.getDescription().trim()) + ".xlsx";
+        return MicrosoftUtils.formatDate(activity.getActivityDateTime().toLocalDate()).replace(".", "") + "_" + MicrosoftUtils.changeSpecChars(activity.getDescription().trim()) + ".xlsx";
     }
 
     private String buildUri(String driveId, String filename) {
@@ -199,15 +198,15 @@ public class MicrosoftService {
 
     private void buildConfidentialClientObject() throws Exception {
         app = ConfidentialClientApplication.builder(
-                config.getClientId(),
-                ClientCredentialFactory.createFromSecret(config.getClientSecret()))
+                        config.getClientId(),
+                        ClientCredentialFactory.createFromSecret(config.getClientSecret()))
                 .authority(config.getRealm())
                 .build();
     }
 
     private IAuthenticationResult getAccessTokenByClientCredentialGrant() throws Exception {
         ClientCredentialParameters clientCredentialParam = ClientCredentialParameters.builder(
-                Collections.singleton(config.getScope()))
+                        Collections.singleton(config.getScope()))
                 .build();
 
         return app.acquireToken(clientCredentialParam).get();

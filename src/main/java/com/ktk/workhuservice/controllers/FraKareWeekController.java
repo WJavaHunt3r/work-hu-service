@@ -1,12 +1,14 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.userfrakarestreak.UserFraKareWeekService;
 import com.ktk.workhuservice.data.frakareweek.FraKareWeek;
 import com.ktk.workhuservice.data.frakareweek.FraKareWeekService;
+import com.ktk.workhuservice.data.userfrakarestreak.UserFraKareWeekService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.temporal.WeekFields;
 import java.util.Optional;
 
 @RestController
@@ -34,5 +36,15 @@ public class FraKareWeekController {
             return ResponseEntity.status(404).body("No fraKareWeek with id: " + id);
         }
         return ResponseEntity.status(200).body(fraKareStreak.get());
+    }
+
+    @PostMapping("/createCurrentFrakareWeek")
+    public ResponseEntity createFraKareWeek() {
+        if (userFraKareWeekService.fetchByQuery(null, LocalDate.now().get(WeekFields.ISO.weekOfWeekBasedYear()), null, null).isEmpty()) {
+            fraKareWeekService.createFraKareWeek();
+            return ResponseEntity.status(200).body("Fra Kare week successfully created!");
+        }
+        return ResponseEntity.status(404).body("A FraKareWeek already exists for this week!");
+
     }
 }

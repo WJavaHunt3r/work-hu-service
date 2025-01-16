@@ -8,6 +8,7 @@ import com.ktk.workhuservice.data.transactions.Transaction;
 import com.ktk.workhuservice.data.transactions.TransactionService;
 import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.service.BaseService;
+import com.ktk.workhuservice.service.TransactionServiceUtils;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,16 +22,18 @@ import java.util.Optional;
 @Service
 public class ActivityService extends BaseService<Activity, Long> {
 
-    private ActivityRepository repository;
-    private TransactionItemService transactionItemService;
-    private TransactionService transactionService;
-    private ActivityItemService activityItemService;
+    private final ActivityRepository repository;
+    private final TransactionItemService transactionItemService;
+    private final TransactionService transactionService;
+    private final ActivityItemService activityItemService;
+    private final TransactionServiceUtils transactionServiceUtils;
 
-    public ActivityService(ActivityRepository repository, TransactionItemService transactionItemService, TransactionService transactionService, ActivityItemService activityItemService) {
+    public ActivityService(ActivityRepository repository, TransactionItemService transactionItemService, TransactionService transactionService, ActivityItemService activityItemService, TransactionServiceUtils transactionServiceUtils) {
         this.repository = repository;
         this.transactionItemService = transactionItemService;
         this.transactionService = transactionService;
         this.activityItemService = activityItemService;
+        this.transactionServiceUtils = transactionServiceUtils;
     }
 
     public List<Activity> fetchByQuery(Long responsible, Long employer, Boolean registeredInApp, Boolean registeredInMyShare, Long createUser, String searchText) {
@@ -46,7 +49,7 @@ public class ActivityService extends BaseService<Activity, Long> {
             return LocalDateTime.now();
         }
         LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
-        return LocalDateTime.of(date.getYear(), date.getMonth(), YearMonth.of(date.getYear(), date.getMonth()).atEndOfMonth().getDayOfMonth(), 0, 0);
+        return LocalDateTime.of(date.getYear(), date.getMonth(), YearMonth.of(date.getYear(), date.getMonth()).atEndOfMonth().getDayOfMonth(), 0, 0).plusDays(1);
     }
 
     private LocalDateTime getDateFrom(String dateString) {
@@ -88,6 +91,7 @@ public class ActivityService extends BaseService<Activity, Long> {
         for (var item : activityItemService.findByActivity(activity.getId())) {
             createTransactionItem(transaction, createUser, item);
         }
+        transactionServiceUtils.calculateAllTeamStatus();
         activity.setRegisteredInApp(true);
         return transaction.getId();
     }
@@ -106,6 +110,7 @@ public class ActivityService extends BaseService<Activity, Long> {
         transactionItem.setTransactionType(item.getTransactionType());
 
         transactionItemService.save(transactionItem);
+        transactionServiceUtils.updateUserStatus(transactionItem.getUser());
     }
 
     private Transaction createTransaction(Activity activity, User createUser) {

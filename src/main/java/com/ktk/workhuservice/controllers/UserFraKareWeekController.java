@@ -28,8 +28,9 @@ public class UserFraKareWeekController {
     public ResponseEntity getUserFraKareWeeks(@Nullable @RequestParam("userId") Long userId,
                                               @Nullable @RequestParam("weekNumber") Integer weekNumber,
                                               @Nullable @RequestParam("teamId") Long teamId,
-                                              @Nullable @RequestParam("listened") Boolean listened) {
-        return ResponseEntity.status(200).body(userFraKareWeekService.fetchByQuery(userId, weekNumber, listened, teamId).stream().map((fraKareStreak -> fraKareStreakMapper.entityToDto(fraKareStreak))));
+                                              @Nullable @RequestParam("listened") Boolean listened,
+                                              @Nullable @RequestParam("seasonYear") Integer seasonYear) {
+        return ResponseEntity.status(200).body(userFraKareWeekService.fetchByQuery(userId, weekNumber, listened, teamId, seasonYear).stream().map((fraKareStreak -> fraKareStreakMapper.entityToDto(fraKareStreak))));
     }
 
     @GetMapping("/{id}")

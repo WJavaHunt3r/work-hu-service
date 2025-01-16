@@ -12,7 +12,8 @@ public interface UserFraKareWeekRepository extends JpaRepository<UserFraKareWeek
             " and (fks.fraKareWeek.weekNumber = ?2 or ?2 is null) " +
             " and (fks.listened = ?3 OR ?3 IS NULL) " +
             " and (fks.user.paceTeam.id = ?4 or ?4 is null or fks.user.paceTeam is null) " +
+            " and (fks.fraKareWeek.year = ?5 OR ?5 IS NULL) " +
             " order by fks.user.lastname, fks.user.firstname ")
-    List<UserFraKareWeek> fetchByQuery(Long userId, Integer weekNumber, Boolean listened, Long teamId);
+    List<UserFraKareWeek> fetchByQuery(Long userId, Integer weekNumber, Boolean listened, Long teamId, Integer seasonYear );
 
 }

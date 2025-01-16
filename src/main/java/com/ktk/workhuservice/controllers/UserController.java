@@ -112,7 +112,7 @@ public class UserController {
 
     @GetMapping("/setPaceTeams")
     public ResponseEntity<?> setPaceTeams() {
-        userService.setPaceTeams(createBUKTeam(), createSamvirkTeam());
+//        userService.setPaceTeams(createBUKTeam(), createSamvirkTeam());
         paceTeamRoundService.createTeamRounds();
         return ResponseEntity.status(200).body("Pace Teams set");
     }

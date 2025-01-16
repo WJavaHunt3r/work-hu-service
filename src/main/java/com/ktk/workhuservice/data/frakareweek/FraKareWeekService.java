@@ -52,13 +52,14 @@ public class FraKareWeekService extends BaseService<FraKareWeek, Long> {
             FraKareWeek week = createEntity();
             week.setWeekNumber(weekNumber);
             week.setYear(date.getYear());
-            week.setLocked(true);
+            week.setLocked(false);
             week.setActiveWeek(true);
 
             TemporalField dayOfWeek = WeekFields.ISO.dayOfWeek();
             LocalDate monday = date.with(dayOfWeek, dayOfWeek.range().getMinimum());
             week.setWeekStartDate(monday);
             week.setWeekEndDate(monday.plusDays(4));
+            week.setLocked(false);
             userFraKareWeekService.createUserFraKareWeeks(save(week));
         } else {
             userFraKareWeekService.createUserFraKareWeeks(fetchByQuery(date.getYear(), weekNumber).get(0));

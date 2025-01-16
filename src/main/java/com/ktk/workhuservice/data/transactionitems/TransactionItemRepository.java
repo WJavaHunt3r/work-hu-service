@@ -22,6 +22,9 @@ public interface TransactionItemRepository extends JpaRepository<TransactionItem
     @Query("SELECT SUM(ti.credit) FROM TransactionItem ti where ti.round = ?2 and ti.user = ?1 ")
     Integer sumCreditByUserAndRound(User user, Round round);
 
+    @Query("SELECT SUM(ti.credit) FROM TransactionItem ti where ti.round.season.seasonYear = ?2 and ti.user = ?1 ")
+    Integer sumCreditByUserAndSeasonYear(User user, Integer seasonYear);
+
     Iterable<TransactionItem> findAllByTransactionId(Long id);
 
     Iterable<TransactionItem> findAllByUserAndRoundAndAccount(User u, Round round, Account account);
