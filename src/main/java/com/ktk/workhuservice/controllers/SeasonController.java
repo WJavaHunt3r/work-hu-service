@@ -1,13 +1,13 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.service.SeasonService;
+import com.ktk.workhuservice.data.seasons.SeasonService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/season")
 public class SeasonController {
     private SeasonService seasonService;
 
@@ -15,7 +15,7 @@ public class SeasonController {
         this.seasonService = seasonService;
     }
 
-    @GetMapping("/seasons")
+    @GetMapping
     public ResponseEntity getSeasons(){
         return ResponseEntity.status(200).body(seasonService.findAll());
     }

@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.dto;
 
-import com.ktk.workhuservice.data.Round;
+import com.ktk.workhuservice.data.rounds.Round;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

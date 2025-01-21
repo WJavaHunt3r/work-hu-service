@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.service.TeamRoundService;
+import com.ktk.workhuservice.data.teamrounds.TeamRoundService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

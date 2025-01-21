@@ -1,14 +1,17 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Round;
-import com.ktk.workhuservice.data.Transaction;
-import com.ktk.workhuservice.data.TransactionItem;
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.rounds.Round;
+import com.ktk.workhuservice.data.rounds.RoundService;
+import com.ktk.workhuservice.data.transactionitems.TransactionItem;
+import com.ktk.workhuservice.data.transactionitems.TransactionItemService;
+import com.ktk.workhuservice.data.transactions.Transaction;
+import com.ktk.workhuservice.data.transactions.TransactionService;
+import com.ktk.workhuservice.data.users.User;
+import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.dto.TransactionItemDto;
-import com.ktk.workhuservice.dto.UserDto;
 import com.ktk.workhuservice.enums.Role;
-import com.ktk.workhuservice.service.*;
-import org.modelmapper.ModelMapper;
+import com.ktk.workhuservice.mapper.TransactionItemMapper;
+import com.ktk.workhuservice.service.TransactionServiceUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -19,25 +22,25 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/transactionItem")
 public class TransactionItemsController {
-    private TransactionItemService transactionItemService;
-    private UserService userService;
-    private RoundService roundService;
-    private ModelMapper modelMapper;
-    private TransactionService transactionService;
-    private UserRoundService userRoundService;
+    private final TransactionItemService transactionItemService;
+    private final UserService userService;
+    private final RoundService roundService;
+    private final TransactionItemMapper modelMapper;
+    private final TransactionService transactionService;
+    private final TransactionServiceUtils transactionServiceUtils;
 
-    public TransactionItemsController(TransactionItemService transactionItemService, UserService userService, RoundService roundService, ModelMapper modelMapper, TransactionService transactionService, UserRoundService userRoundService) {
+    public TransactionItemsController(TransactionItemService transactionItemService, UserService userService, RoundService roundService, TransactionItemMapper modelMapper, TransactionService transactionService, TransactionServiceUtils transactionServiceUtils) {
         this.transactionItemService = transactionItemService;
         this.userService = userService;
         this.roundService = roundService;
         this.modelMapper = modelMapper;
         this.transactionService = transactionService;
-        this.userRoundService = userRoundService;
+        this.transactionServiceUtils = transactionServiceUtils;
     }
 
-    @PostMapping("/transactionItem")
+    @PostMapping
     public ResponseEntity<?> addTransaction(@Valid @RequestBody TransactionItemDto transactionItem) {
         Optional<Transaction> transaction = transactionService.findById(transactionItem.getTransactionId());
         if (transaction.isEmpty()) {
@@ -61,20 +64,24 @@ public class TransactionItemsController {
             return ResponseEntity.status(403).body("User is not allowed to create transactions");
         }
 
-        transactionItemService.save(convertToEntity(transactionItem, user.get(), createUser.get()));
+        TransactionItem entity = new TransactionItem();
+        entity.setCreateUser(createUser.get());
+        entity.setUser(user.get());
+        transactionItemService.save(modelMapper.dtoToEntity(transactionItem, entity));
+        transactionServiceUtils.updateUserStatus(transactionItem.getRound(), user.get());
         return ResponseEntity.status(200).build();
     }
 
-    @PostMapping("/transactionItems")
+    @PostMapping("/items")
     public ResponseEntity<?> addTransactions(@Valid @RequestBody List<TransactionItemDto> transactionItems) {
         transactionItems.forEach(this::addTransaction);
-        userRoundService.findAll().forEach(userRoundService::calculateCurrentRoundPoints);
+        transactionServiceUtils.calculateAllTeamStatus();
         return ResponseEntity.ok().body("Successfully added");
 
     }
 
-    @DeleteMapping("/transactionItem")
-    public ResponseEntity<?> deleteTransaction(@RequestParam("transactionItemId") Long transactionItemId, @RequestParam("userId") Long userId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTransaction(@PathVariable Long id, @RequestParam("userId") Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userId);
@@ -82,18 +89,19 @@ public class TransactionItemsController {
         if (user.get().getRole().equals(Role.USER)) {
             return ResponseEntity.status(403).body("Permission denied!");
         }
-        Optional<TransactionItem> item = transactionItemService.findById(transactionItemId);
+        Optional<TransactionItem> item = transactionItemService.findById(id);
         if (item.isPresent()) {
-            transactionItemService.deleteById(transactionItemId);
-            userRoundService.calculateCurrentRoundPoints(userRoundService.findByUserAndRound(item.get().getUser(), item.get().getRound()));
+            transactionItemService.deleteById(id);
+            transactionServiceUtils.updateUserStatus(item.get().getRound(), user.get());
+            transactionServiceUtils.calculateAllTeamStatus(item.get().getRound());
             return ResponseEntity.status(200).body("Delete successful");
         }
 
-        return ResponseEntity.status(403).body("No transaction item found with id:" + transactionItemId);
+        return ResponseEntity.status(403).body("No transaction item found with id:" + id);
 
     }
 
-    @GetMapping("/transactionItems")
+    @GetMapping
     public ResponseEntity<?> getTransactionItems(@Nullable @RequestParam("userId") Long userId, @Nullable @RequestParam("transactionId") Long transactionId, @Nullable @RequestParam("roundId") Long roundId) {
         if (userId != null) {
             Optional<User> user = userService.findById(userId);
@@ -105,29 +113,15 @@ public class TransactionItemsController {
                 if (round.isEmpty()) {
                     return ResponseEntity.status(404).body("No round with id:" + roundId);
                 }
-                return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByUserAndRound(user.get(), round.get()).spliterator(), false).map(this::convertToDto));
+                return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByUserAndRound(user.get(), round.get()).spliterator(), false).map(modelMapper::entityToDto));
             }
-            return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByUser(user.get()).spliterator(), false).map(this::convertToDto));
+            return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByUser(user.get()).spliterator(), false).map(modelMapper::entityToDto));
         }
         if (transactionId != null) {
-            return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByTransactionId(transactionId).spliterator(), false).map(this::convertToDto));
+            return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByTransactionId(transactionId).spliterator(), false).map(modelMapper::entityToDto));
         }
 
         return ResponseEntity.status(400).body("Empty parameters");
 
-    }
-
-    private TransactionItem convertToEntity(TransactionItemDto dto, User user, User createUser) {
-        TransactionItem transaction = modelMapper.map(dto, TransactionItem.class);
-        transaction.setUser(user);
-        transaction.setCreateUser(createUser);
-        return transaction;
-    }
-
-    private TransactionItemDto convertToDto(TransactionItem transaction) {
-        TransactionItemDto dto = modelMapper.map(transaction, TransactionItemDto.class);
-        dto.setUser(modelMapper.map(transaction.getUser(), UserDto.class));
-        dto.setCreateUserId(transaction.getCreateUser().getId());
-        return dto;
     }
 }

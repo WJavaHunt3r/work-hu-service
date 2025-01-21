@@ -1,11 +1,11 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Camp;
-import com.ktk.workhuservice.data.Season;
-import com.ktk.workhuservice.data.User;
-import com.ktk.workhuservice.service.CampService;
-import com.ktk.workhuservice.service.SeasonService;
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.data.camps.Camp;
+import com.ktk.workhuservice.data.camps.CampService;
+import com.ktk.workhuservice.data.seasons.Season;
+import com.ktk.workhuservice.data.seasons.SeasonService;
+import com.ktk.workhuservice.data.users.User;
+import com.ktk.workhuservice.data.users.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/api")
+@RequestMapping("/api/camp")
 public class CampController {
 
     private CampService campService;
@@ -29,7 +29,7 @@ public class CampController {
         this.seasonService = seasonService;
     }
 
-    @GetMapping("/camps")
+    @GetMapping()
     public ResponseEntity getCamps(@Nullable @RequestParam("seasonId") Long seasonId) {
         if (seasonId == null) {
             return ResponseEntity.status(200).body(campService.findAll());
@@ -42,16 +42,16 @@ public class CampController {
         return ResponseEntity.status(200).body(goals);
     }
 
-    @GetMapping("/camp")
-    public ResponseEntity getCamp(@Nullable @RequestParam("campId") Long campId) {
-        var camp = campService.findById(campId);
+    @GetMapping("/{id}")
+    public ResponseEntity getCamp(@PathVariable Long id) {
+        var camp = campService.findById(id);
         if (camp.isEmpty()) {
-            return ResponseEntity.status(404).body("No camp with id: " + campId);
+            return ResponseEntity.status(404).body("No camp with id: " + id);
         }
         return ResponseEntity.status(200).body(camp.get());
     }
 
-    @PostMapping("/camp")
+    @PostMapping()
     public ResponseEntity postCamp(@Valid @RequestBody Camp camp, @RequestParam Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
@@ -63,11 +63,20 @@ public class CampController {
         return ResponseEntity.status(200).body(campService.save(camp));
     }
 
-    @PutMapping("/camp")
-    public ResponseEntity putCamp(@Valid @RequestBody Camp camp, @RequestParam("campId") Long campId) {
+    @PutMapping("/{campId}")
+    public ResponseEntity putCamp(@Valid @RequestBody Camp camp, @PathVariable Long campId) {
         if (campService.findById(campId).isEmpty() || !camp.getId().equals(campId)) {
             return ResponseEntity.status(400).body("Invalid campId");
         }
         return ResponseEntity.status(200).body(campService.save(camp));
+    }
+
+    @DeleteMapping("/{campId}")
+    public ResponseEntity deleteCamp(@PathVariable Long campId) {
+        if (campService.findById(campId).isPresent()) {
+            return ResponseEntity.status(400).body("Invalid campId");
+        }
+        campService.deleteById(campId);
+        return ResponseEntity.status(200).body("Delete Successful");
     }
 }

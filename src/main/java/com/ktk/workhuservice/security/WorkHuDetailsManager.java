@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.security;
 
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.data.users.UserService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;

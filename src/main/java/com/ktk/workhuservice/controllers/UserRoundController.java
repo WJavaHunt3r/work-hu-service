@@ -1,11 +1,11 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Round;
-import com.ktk.workhuservice.data.UserRound;
+import com.ktk.workhuservice.data.rounds.Round;
+import com.ktk.workhuservice.data.rounds.RoundService;
+import com.ktk.workhuservice.data.userrounds.UserRound;
+import com.ktk.workhuservice.data.userrounds.UserRoundService;
+import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.dto.UserRoundDto;
-import com.ktk.workhuservice.service.RoundService;
-import com.ktk.workhuservice.service.UserRoundService;
-import com.ktk.workhuservice.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;

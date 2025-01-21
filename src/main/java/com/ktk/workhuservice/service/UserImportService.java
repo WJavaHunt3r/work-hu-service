@@ -1,8 +1,11 @@
 package com.ktk.workhuservice.service;
 
-import com.ktk.workhuservice.data.Round;
-import com.ktk.workhuservice.data.Team;
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.rounds.Round;
+import com.ktk.workhuservice.data.rounds.RoundService;
+import com.ktk.workhuservice.data.teams.Team;
+import com.ktk.workhuservice.data.teams.TeamService;
+import com.ktk.workhuservice.data.users.User;
+import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.enums.TeamColor;
 import com.ktk.workhuservice.security.SecurityUtils;

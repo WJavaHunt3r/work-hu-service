@@ -1,14 +1,15 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Goal;
-import com.ktk.workhuservice.data.Season;
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.goals.Goal;
+import com.ktk.workhuservice.data.paceuserround.PaceUserRoundService;
+import com.ktk.workhuservice.data.seasons.Season;
+import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.dto.GoalDto;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.mapper.GoalMapper;
-import com.ktk.workhuservice.service.GoalService;
-import com.ktk.workhuservice.service.SeasonService;
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.data.goals.GoalService;
+import com.ktk.workhuservice.data.seasons.SeasonService;
+import com.ktk.workhuservice.data.users.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -19,23 +20,25 @@ import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/goal")
 public class GoalController {
 
-    private GoalService goalService;
-    private UserService userService;
-    private SeasonService seasonService;
-    private GoalMapper goalMapper;
+    private final GoalService goalService;
+    private final UserService userService;
+    private final SeasonService seasonService;
+    private final GoalMapper goalMapper;
+    private final PaceUserRoundService userRoundService;
 
-    public GoalController(GoalService goalService, UserService userService, SeasonService seasonService, GoalMapper goalMapper) {
+    public GoalController(GoalService goalService, UserService userService, SeasonService seasonService, GoalMapper goalMapper, PaceUserRoundService userRoundService) {
         this.goalService = goalService;
         this.userService = userService;
         this.seasonService = seasonService;
         this.goalMapper = goalMapper;
+        this.userRoundService = userRoundService;
     }
 
     @GetMapping("/userSeasonGoal")
-    public ResponseEntity getUserSeasonGoal(@RequestParam("userId") Long userId, @RequestParam("seasonYear") Integer seasonYear) {
+    public ResponseEntity<?> getUserSeasonGoal(@RequestParam("userId") Long userId, @RequestParam("seasonYear") Integer seasonYear) {
         var user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(404).body("No user with given id: " + userId);
@@ -44,24 +47,24 @@ public class GoalController {
         if (season.isEmpty()) {
             return ResponseEntity.status(404).body("No season with given id: " + seasonYear);
         }
-        Optional<Goal> goal = goalService.findByUserAndSeason(user.get(), seasonYear);
+        Optional<Goal> goal = goalService.findByUserAndSeasonYear(user.get(), seasonYear);
         if (goal.isEmpty()) {
             return ResponseEntity.status(404).body("No goal found with userId: " + userId + " in season: " + seasonYear);
         }
         return ResponseEntity.status(200).body(goalMapper.entityToDto(goal.get()));
     }
 
-    @GetMapping("/goal")
-    public ResponseEntity getGoalById(@RequestParam("goalId") Long goalId) {
-        Optional<Goal> goal = goalService.findById(goalId);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getGoalById(@PathVariable Long id) {
+        Optional<Goal> goal = goalService.findById(id);
         if (goal.isEmpty()) {
             return ResponseEntity.status(404).body("No goal found with id: " + goal);
         }
         return ResponseEntity.status(200).body(goalMapper.entityToDto(goal.get()));
     }
 
-    @GetMapping("/goals")
-    public ResponseEntity getAllGoals(@Nullable @RequestParam("seasonYear") Integer seasonYear) {
+    @GetMapping()
+    public ResponseEntity<?> getAllGoals(@Nullable @RequestParam("seasonYear") Integer seasonYear) {
         if (seasonYear == null) {
             return ResponseEntity.status(200).body(StreamSupport.stream(goalService.findAll().spliterator(), false).map(goalMapper::entityToDto));
         }
@@ -73,36 +76,39 @@ public class GoalController {
         return ResponseEntity.status(200).body(goals.stream().map(goalMapper::entityToDto));
     }
 
-    @PostMapping("/goal")
-    public ResponseEntity saveGoal(@Valid @RequestBody GoalDto goalDto) {
+    @PostMapping()
+    public ResponseEntity<?> saveGoal(@Valid @RequestBody GoalDto goalDto) {
         Optional<User> user = userService.findById(goalDto.getUser().getId());
-        if (user.isEmpty()) {
-            return ResponseEntity.status(404).body("No user found with id: " + goalDto.getUser().getId());
+        if (user.isEmpty() || goalService.findByUserAndSeasonYear(user.get(), goalDto.getSeason().getSeasonYear()).isPresent()) {
+            return ResponseEntity.status(404).body("No user found with id: " + goalDto.getUser().getId() + ". Or User already has a goal.");
         }
         Goal goal = new Goal();
         goal.setUser(user.get());
+        userRoundService.createPaceUserRound(user.get());
         return ResponseEntity.status(200).body(goalMapper.entityToDto(goalService.save(goalMapper.dtoToEntity(goalDto, goal))));
     }
 
-    @PutMapping("/goal")
-    public ResponseEntity editGoal(@Valid @RequestBody GoalDto goalDto, @RequestParam("userId") Long userId) {
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editGoal(@Valid @RequestBody GoalDto goalDto, @RequestParam("userId") Long userId, @PathVariable Long id) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(404).body("No user found with id: " + userId);
         }
-        if (userId.equals(goalDto.getUser().getId()) || user.get().getRole() == Role.ADMIN) {
-            Optional<Goal> goal = goalService.findById(goalDto.getId());
-            if (goal.isEmpty()) {
-                return ResponseEntity.status(404).body("Goal not found with id: " + goalDto.getId());
+        if (user.get().getRole() == Role.ADMIN) {
+            Optional<Goal> goal = goalService.findById(id);
+            if (goal.isEmpty() || !goalDto.getId().equals(id)) {
+                return ResponseEntity.status(404).body("Goal not found with id: " + id);
             }
-            return saveGoal(goalDto);
+
+            Goal entity = goalService.save(goalMapper.dtoToEntity(goalDto, goal.get()));
+            userRoundService.calculateUserRoundStatus(entity.getUser());
+            return ResponseEntity.status(200).body(goalMapper.entityToDto(entity));
         }
         return ResponseEntity.status(404).body("User not allowed to change this goal");
-
     }
 
-    @DeleteMapping("/goal")
-    public ResponseEntity<?> deleteTransaction(@RequestParam("goalId") Long goalId, @RequestParam("userId") Long userId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteGoal(@PathVariable Long id, @RequestParam("userId") Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userId);
@@ -110,11 +116,12 @@ public class GoalController {
         if (user.get().getRole().equals(Role.USER)) {
             return ResponseEntity.status(403).body("Permission denied!");
         }
-        if (goalService.existsById(goalId)) {
-            goalService.deleteById(goalId);
+        if (goalService.existsById(id)) {
+            goalService.deleteById(id);
+            userRoundService.calculateUserRoundStatus(user.get());
             return ResponseEntity.status(200).body("Delete successful");
         }
-        return ResponseEntity.status(403).body("No goal found with id:" + goalId);
+        return ResponseEntity.status(403).body("No goal found with id:" + id);
 
     }
 

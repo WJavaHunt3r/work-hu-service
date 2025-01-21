@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.security;
 
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.data.users.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

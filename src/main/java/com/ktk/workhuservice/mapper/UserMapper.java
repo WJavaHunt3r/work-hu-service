@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.mapper;
 
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.dto.UserDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -14,13 +14,16 @@ public class UserMapper extends BaseMapper<User, UserDto> {
 
     public User dtoToEntity(UserDto dto, User user) {
         user.setRole(dto.getRole());
-        user.setTeam(dto.getTeam());
+        user.setPaceTeam(dto.getPaceTeam());
         user.setBirthDate(dto.getBirthDate());
         user.setLastname(dto.getLastname());
         user.setFirstname(dto.getFirstname());
         user.setBaseMyShareCredit(dto.getBaseMyShareCredit());
         user.setEmail(dto.getEmail());
         user.setPhoneNumber(dto.getPhoneNumber());
+        user.setBufeId(dto.getBufeId());
+        user.setFamilyId(dto.getFamilyId());
+        user.setSpouseId(dto.getSpouseId());
         return user;
     }
 

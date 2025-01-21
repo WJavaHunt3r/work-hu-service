@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.mapper;
 
-import com.ktk.workhuservice.data.Goal;
+import com.ktk.workhuservice.data.goals.Goal;
 import com.ktk.workhuservice.dto.GoalDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

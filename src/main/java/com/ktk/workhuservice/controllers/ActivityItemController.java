@@ -1,16 +1,16 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.Activity;
-import com.ktk.workhuservice.data.ActivityItem;
-import com.ktk.workhuservice.data.Round;
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.activity.Activity;
+import com.ktk.workhuservice.data.activityitems.ActivityItem;
+import com.ktk.workhuservice.data.rounds.Round;
+import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.dto.ActivityItemDto;
 import com.ktk.workhuservice.dto.UserDto;
 import com.ktk.workhuservice.enums.Role;
-import com.ktk.workhuservice.service.ActivityItemService;
-import com.ktk.workhuservice.service.ActivityService;
-import com.ktk.workhuservice.service.RoundService;
-import com.ktk.workhuservice.service.UserService;
+import com.ktk.workhuservice.data.activityitems.ActivityItemService;
+import com.ktk.workhuservice.data.activity.ActivityService;
+import com.ktk.workhuservice.data.rounds.RoundService;
+import com.ktk.workhuservice.data.users.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller()
-@RequestMapping("/api")
+@RequestMapping("/api/activityItem")
 public class ActivityItemController {
     private ActivityService activityService;
     private ActivityItemService activityItemService;
@@ -39,7 +39,7 @@ public class ActivityItemController {
         this.modelMapper = modelMapper;
     }
 
-    @PostMapping("/activityItem")
+    @PostMapping()
     public ResponseEntity<?> addActivityItem(@Valid @RequestBody ActivityItemDto activityItem) {
         Optional<Activity> activity = activityService.findById(activityItem.getActivity().getId());
         if (activity.isEmpty()) {
@@ -65,15 +65,15 @@ public class ActivityItemController {
         return ResponseEntity.status(200).build();
     }
 
-    @PostMapping("/activityItems")
+    @PostMapping("/items")
     public ResponseEntity<?> addActivityItems(@Valid @RequestBody List<ActivityItemDto> activityItems) {
         activityItems.forEach(this::addActivityItem);
         return ResponseEntity.ok().body("Successfully added");
 
     }
 
-    @DeleteMapping("/activityItem")
-    public ResponseEntity<?> deleteActivityItem(@RequestParam("activityItemId") Long activityItemId, @RequestParam("userId") Long userId) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteActivityItem(@PathVariable Long id, @RequestParam("userId") Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userId);
@@ -81,29 +81,30 @@ public class ActivityItemController {
         if (user.get().getRole().equals(Role.USER)) {
             return ResponseEntity.status(403).body("Permission denied!");
         }
-        Optional<ActivityItem> item = activityItemService.findById(activityItemId);
+        Optional<ActivityItem> item = activityItemService.findById(id);
         if (item.isPresent()) {
             if (item.get().getActivity().isRegisteredInApp()) {
                 return ResponseEntity.status(400).body("Activity already registered. Can't modify.");
             }
-            activityItemService.deleteById(activityItemId);
+            activityItemService.deleteById(id);
             return ResponseEntity.status(200).body("Delete successful");
         }
 
-        return ResponseEntity.status(403).body("No activity item found with id:" + activityItemId);
+        return ResponseEntity.status(403).body("No activity item found with id:" + id);
 
     }
 
-    @GetMapping("/activityItems")
+    @GetMapping()
     public ResponseEntity<?> getActivityItems(@Nullable @RequestParam("activityId") Long activityId,
                                               @Nullable @RequestParam("userId") Long userId,
                                               @Nullable @RequestParam("registeredInApp") Boolean registeredInApp,
-                                              @Nullable @RequestParam("roundId") Long roundId) {
+                                              @Nullable @RequestParam("roundId") Long roundId,
+                                              @Nullable @RequestParam("searchText") String searchText) {
         if (activityId != null) {
             return ResponseEntity.ok(activityItemService.findByActivity(activityId).stream().map(this::convertToDto));
         }
 
-        return ResponseEntity.ok(activityItemService.fetchByQuery(userId, registeredInApp, roundId).stream().map(this::convertToDto));
+        return ResponseEntity.ok(activityItemService.fetchByQuery(userId, registeredInApp, roundId, searchText).stream().map(this::convertToDto));
 
     }
 

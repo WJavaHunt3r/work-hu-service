@@ -1,7 +1,7 @@
 package com.ktk.workhuservice.mapper;
 
-import com.ktk.workhuservice.data.Activity;
-import com.ktk.workhuservice.data.User;
+import com.ktk.workhuservice.data.activity.Activity;
+import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.dto.ActivityDto;
 import com.ktk.workhuservice.dto.UserDto;
 import org.modelmapper.Converter;

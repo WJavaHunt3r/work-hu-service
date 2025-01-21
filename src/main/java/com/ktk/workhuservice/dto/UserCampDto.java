@@ -1,6 +1,6 @@
 package com.ktk.workhuservice.dto;
 
-import com.ktk.workhuservice.data.Camp;
+import com.ktk.workhuservice.data.camps.Camp;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 public class UserCampDto {
 
-    private long id;
+    private Long id;
 
     private UserDto user;
 
