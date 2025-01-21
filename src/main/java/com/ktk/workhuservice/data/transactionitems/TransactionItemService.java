@@ -1,7 +1,6 @@
 package com.ktk.workhuservice.data.transactionitems;
 
 import com.ktk.workhuservice.data.rounds.Round;
-import com.ktk.workhuservice.data.rounds.RoundService;
 import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.enums.TransactionType;
@@ -15,12 +14,10 @@ import java.util.Optional;
 @Service
 public class TransactionItemService {
 
-    private TransactionItemRepository transactionItemRepository;
-    private RoundService roundService;
+    private final TransactionItemRepository transactionItemRepository;
 
-    public TransactionItemService(TransactionItemRepository transactionItemRepository, RoundService roundService) {
+    public TransactionItemService(TransactionItemRepository transactionItemRepository) {
         this.transactionItemRepository = transactionItemRepository;
-        this.roundService = roundService;
     }
 
     public Optional<TransactionItem> findById(Long id) {
@@ -65,12 +62,7 @@ public class TransactionItemService {
 
     public void save(TransactionItem t) {
         if (t.getPoints() != 0.0 || t.getHours() != 0.0 || t.getCredit() != 0) {
-            Round transactionRound = t.getRound();//roundService.findRoundByDate(t.getTransactionDate().atStartOfDay());
-//            Optional<Round> currentRound = roundService.findRoundByDate(LocalDateTime.now());
-//            if (currentRound.isEmpty() && transactionRound.isEmpty()) {
-//                return;
-//            }
-//            t.setRound(transactionRound.isEmpty() ? currentRound.get() : transactionRound.get());
+            Round transactionRound = t.getRound();
             if (t.getAccount().equals(Account.MYSHARE)) {
                 if (t.getTransactionType().equals(TransactionType.CREDIT) && t.getCredit() != 0) {
                     double creditPoints = (double) t.getCredit() / 1000.0;
@@ -117,7 +109,4 @@ public class TransactionItemService {
         transactions.iterator().forEachRemaining(this::save);
     }
 
-    public boolean existsById(Long transactionItemId) {
-        return transactionItemRepository.existsById(transactionItemId);
-    }
 }

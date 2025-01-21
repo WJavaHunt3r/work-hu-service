@@ -14,9 +14,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/userFraKareWeek")
 public class UserFraKareWeekController {
-    private UserService userService;
-    private UserFraKareWeekService userFraKareWeekService;
-    private FraKareStreakMapper fraKareStreakMapper;
+    private final UserService userService;
+    private final UserFraKareWeekService userFraKareWeekService;
+    private final FraKareStreakMapper fraKareStreakMapper;
 
     public UserFraKareWeekController(UserService userService, UserFraKareWeekService userFraKareWeekService, FraKareStreakMapper fraKareStreakMapper) {
         this.userService = userService;

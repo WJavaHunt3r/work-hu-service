@@ -62,22 +62,19 @@ public class UserStatusService extends BaseService<UserStatus, Long> {
     public void calculateUserStatus(User u) {
         findByUserId(u.getId()).ifPresent(this::calculateUserStatus);
     }
+
     public void calculateUserStatus(UserStatus us) {
         Integer transactions = transactionItemService.sumCreditByUserAndSeasonYear(us.getUser(), us.getSeason().getSeasonYear());
         Optional<UserStatus> lastYearStatus = findByUserId(us.getId(), us.getSeason().getSeasonYear() - 1);
         if (lastYearStatus.isPresent()) {
-            transactions += lastYearStatus.get().getTransition();
+            int transition = Math.max(lastYearStatus.get().getTransition(), 0);
+            transactions += transition;
         } else {
             transactions += us.getUser().getBaseMyShareCredit();
         }
         us.setStatus((double) transactions / us.getGoal());
         us.setTransactions(transactions);
-        calculateTransition(us);
-    }
-
-    public void calculateTransition(UserStatus userStatus) {
-        int dif = userStatus.getTransactions() - userStatus.getGoal();
-        userStatus.setTransition(Math.max(dif, 0));
+        us.setTransition(Math.max(us.getTransactions() - us.getGoal(), 0));
     }
 
     @Override

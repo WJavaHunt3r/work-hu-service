@@ -25,8 +25,8 @@ public class TransactionServiceUtils {
         this.goalService = goalService;
     }
 
-    public void updateUserStatus(User user) {
-        paceUserRoundService.calculateUserRoundStatus(user);
+    public void updateUserStatus(Round round, User user) {
+        paceUserRoundService.calculateUserRoundStatus(round, user);
         goalService.findByUserAndSeasonYear(user, LocalDate.now().getYear()).ifPresent(g -> userStatusService.calculateUserStatus(user));
     }
 

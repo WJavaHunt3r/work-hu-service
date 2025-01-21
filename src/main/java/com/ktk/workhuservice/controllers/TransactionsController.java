@@ -1,6 +1,5 @@
 package com.ktk.workhuservice.controllers;
 
-import com.ktk.workhuservice.data.paceuserround.PaceUserRoundService;
 import com.ktk.workhuservice.data.rounds.Round;
 import com.ktk.workhuservice.data.rounds.RoundService;
 import com.ktk.workhuservice.data.transactionitems.TransactionItem;
@@ -11,6 +10,7 @@ import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.dto.TransactionDto;
 import com.ktk.workhuservice.enums.Role;
+import com.ktk.workhuservice.service.TransactionServiceUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -24,20 +24,20 @@ import java.util.stream.StreamSupport;
 @RequestMapping("/api/transaction")
 public class TransactionsController {
 
-    private TransactionService transactionService;
-    private ModelMapper modelMapper;
-    private TransactionItemService transactionItemService;
-    private UserService userService;
-    private RoundService roundService;
-    private PaceUserRoundService userRoundService;
+    private final TransactionService transactionService;
+    private final ModelMapper modelMapper;
+    private final TransactionItemService transactionItemService;
+    private final UserService userService;
+    private final RoundService roundService;
+    private final TransactionServiceUtils transactionServiceUtils;
 
-    public TransactionsController(TransactionService transactionService, ModelMapper modelMapper, TransactionItemService transactionItemService, UserService userService, RoundService roundService, PaceUserRoundService userRoundService) {
+    public TransactionsController(TransactionService transactionService, ModelMapper modelMapper, TransactionItemService transactionItemService, UserService userService, RoundService roundService, TransactionServiceUtils transactionServiceUtils) {
         this.transactionService = transactionService;
         this.modelMapper = modelMapper;
         this.transactionItemService = transactionItemService;
         this.userService = userService;
         this.roundService = roundService;
-        this.userRoundService = userRoundService;
+        this.transactionServiceUtils = transactionServiceUtils;
     }
 
     @PostMapping
@@ -54,7 +54,7 @@ public class TransactionsController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTransaction(@PathVariable Long id, @RequestParam("userId") Long userId) {
-        Optional<User> user = userService.findById(userId);
+        Optional<User> user = findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(400).body("No user with id:" + userId);
         }
@@ -66,7 +66,7 @@ public class TransactionsController {
             transactionService.deleteById(id);
             transactionItemService.deleteByTransactionId(id);
             for (var item : items) {
-                userRoundService.calculateUserRoundStatus(item.getRound(), item.getUser());
+                transactionServiceUtils.updateUserStatus(item.getRound(),item.getUser());
             }
 
             return ResponseEntity.status(200).body("Delete successful");
@@ -78,7 +78,7 @@ public class TransactionsController {
     @GetMapping
     public ResponseEntity<?> getTransactions(@Nullable @RequestParam("createUserId") Long createUserId, @Nullable @RequestParam("roundId") Long roundId) {
         if (createUserId != null) {
-            Optional<User> createUser = userService.findById(createUserId);
+            Optional<User> createUser = findById(createUserId);
             if (createUser.isPresent()) {
                 return ResponseEntity.status(200).body(StreamSupport.stream(transactionService.findAllByCreateUser(createUser.get()).spliterator(), false).map(this::convertToDto));
             }

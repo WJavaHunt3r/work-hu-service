@@ -21,11 +21,11 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/api/userCamp")
 public class UserCampController {
-    private UserCampService userCampService;
-    private UserService userService;
-    private UserCampMapper userCampMapper;
-    private CampService campService;
-    private SeasonService seasonService;
+    private final UserCampService userCampService;
+    private final UserService userService;
+    private final UserCampMapper userCampMapper;
+    private final CampService campService;
+    private final SeasonService seasonService;
 
     public UserCampController(UserCampService userCampService, UserService userService, UserCampMapper userCampMapper, CampService campService, SeasonService seasonService) {
         this.userCampService = userCampService;
@@ -36,7 +36,7 @@ public class UserCampController {
     }
 
     @GetMapping()
-    public ResponseEntity getUserCamps(@Nullable @RequestParam("userId") Long userId,
+    public ResponseEntity<?> getUserCamps(@Nullable @RequestParam("userId") Long userId,
                                        @Nullable @RequestParam("campId") Long campId,
                                        @Nullable @RequestParam("seasonYear") Integer seasonYear,
                                        @Nullable @RequestParam("participates") Boolean participates) {
@@ -68,7 +68,7 @@ public class UserCampController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity getUserCamp(@PathVariable Long id) {
+    public ResponseEntity<?> getUserCamp(@PathVariable Long id) {
         var userCamp = userCampService.findById(id);
         if (userCamp.isEmpty()) {
             return ResponseEntity.status(404).body("No userCamp with id: " + id);
@@ -77,7 +77,7 @@ public class UserCampController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity getUserCampByUser(@PathVariable Long userId) {
+    public ResponseEntity<?> getUserCampByUser(@PathVariable Long userId) {
         var user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(404).body("No user with id: " + userId);
@@ -88,7 +88,7 @@ public class UserCampController {
     }
 
     @PostMapping()
-    public ResponseEntity postUserCamp(@Valid @RequestBody UserCampDto userCamp, @RequestParam Long userId) {
+    public ResponseEntity<?> postUserCamp(@Valid @RequestBody UserCampDto userCamp, @RequestParam Long userId) {
         Optional<User> user = userService.findById(userId);
         if (user.isEmpty()) {
             return ResponseEntity.status(404).body("No user found with id: " + userId);
@@ -102,7 +102,7 @@ public class UserCampController {
     }
 
     @PutMapping("/{userCampId}")
-    public ResponseEntity putUserCamp(@Valid @RequestBody UserCampDto userCampDto, @PathVariable Long userCampId) {
+    public ResponseEntity<?> putUserCamp(@Valid @RequestBody UserCampDto userCampDto, @PathVariable Long userCampId) {
         Optional<UserCamp> userCamp = userCampService.findById(userCampId);
         if (userCamp.isEmpty() || !userCampDto.getId().equals(userCampId)) {
             return ResponseEntity.status(400).body("Invalid userCampId");

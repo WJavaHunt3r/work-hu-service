@@ -68,7 +68,7 @@ public class TransactionItemsController {
         entity.setCreateUser(createUser.get());
         entity.setUser(user.get());
         transactionItemService.save(modelMapper.dtoToEntity(transactionItem, entity));
-        transactionServiceUtils.updateUserStatus(user.get());
+        transactionServiceUtils.updateUserStatus(transactionItem.getRound(), user.get());
         return ResponseEntity.status(200).build();
     }
 
@@ -92,7 +92,7 @@ public class TransactionItemsController {
         Optional<TransactionItem> item = transactionItemService.findById(id);
         if (item.isPresent()) {
             transactionItemService.deleteById(id);
-            transactionServiceUtils.updateUserStatus(user.get());
+            transactionServiceUtils.updateUserStatus(item.get().getRound(), user.get());
             transactionServiceUtils.calculateAllTeamStatus(item.get().getRound());
             return ResponseEntity.status(200).body("Delete successful");
         }

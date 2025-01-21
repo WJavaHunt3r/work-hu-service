@@ -41,7 +41,6 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
 
     public void calculateAllTeamRoundPoints(Round round) {
         for (PaceTeamRound pct : repository.findAllByRound(round)) {
-//            paceUserRoundService.calculateAllUserRoundStatus(round);
             calculateRoundCoinsForTeam(pct);
         }
     }

@@ -54,7 +54,7 @@ public class ActivityService extends BaseService<Activity, Long> {
 
     private LocalDateTime getDateFrom(String dateString) {
         if (dateString == null || dateString.isEmpty()) {
-            return LocalDateTime.of(2024, 1,1,0,0);
+            return LocalDateTime.of(2024, 1, 1, 0, 0);
         }
 
         LocalDate date = LocalDate.parse(dateString, DateTimeFormatter.ISO_DATE);
@@ -110,7 +110,7 @@ public class ActivityService extends BaseService<Activity, Long> {
         transactionItem.setTransactionType(item.getTransactionType());
 
         transactionItemService.save(transactionItem);
-        transactionServiceUtils.updateUserStatus(transactionItem.getUser());
+        transactionServiceUtils.updateUserStatus(item.getRound(), transactionItem.getUser());
     }
 
     private Transaction createTransaction(Activity activity, User createUser) {
