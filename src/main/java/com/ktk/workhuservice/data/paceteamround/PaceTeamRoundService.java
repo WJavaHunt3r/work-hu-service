@@ -76,8 +76,8 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
         return new PaceTeamRound();
     }
 
-    @Scheduled(cron = "0 1 0 1 * ?")
-//    @Scheduled(cron = "0 6 11 * * FRI")
+//    @Scheduled(cron = "0 1 0 1 * ?")
+    @Scheduled(cron = "0 1 0 * * MON")
     public void createTeamRounds() {
         Season season = seasonService.findBySeasonYear(LocalDate.now().getYear()).orElseGet(() -> seasonService.createSeasonForYear(LocalDate.now().getYear()));
         Round currRound = roundService.findRoundByDate(LocalDateTime.now()).orElseGet(() -> roundService.createNextRound(season));

@@ -31,8 +31,8 @@ public class PaceUserRound extends BaseEntity<PaceUserRound, Long> {
     @Column(name = "SAMVIRK_PAYMENTS", columnDefinition = "integer default 0")
     private Integer samvirkPayments = 0;
 
-    @Column(name = "ROUND_COINS", columnDefinition = "integer default 0")
-    private Integer roundCoins;
+    @Column(name = "ROUND_COINS", columnDefinition = "float8 default 0")
+    private Double roundCoins;
 
     @Column(name = "ROUND_CREDITS", columnDefinition = "integer default 0")
     private Integer roundCredits;
@@ -43,11 +43,14 @@ public class PaceUserRound extends BaseEntity<PaceUserRound, Long> {
     @Column(name = "ROUND_MYSHARE_GOAL", columnDefinition = "integer default 0")
     private Integer roundMyShareGoal;
 
+    @Column(name = "ON_TRACK", columnDefinition = "boolean default false")
+    private Boolean onTrack;
+
     public void addSamvirkPayment(Integer payment) {
         samvirkPayments += payment;
     }
 
-    public void addRoundPoints(int coins) {
+    public void addRoundCoins(double coins) {
         roundCoins += coins;
     }
 

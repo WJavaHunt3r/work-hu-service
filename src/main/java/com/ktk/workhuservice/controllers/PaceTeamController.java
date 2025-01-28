@@ -19,6 +19,6 @@ public class PaceTeamController {
 
     @GetMapping
     public ResponseEntity<?> getTeams() {
-        return ResponseEntity.status(200).body(paceTeamService.findAll());
+        return ResponseEntity.status(200).body(paceTeamService.findActiveTeams());
     }
 }

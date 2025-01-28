@@ -59,14 +59,13 @@ public class FraKareWeekService extends BaseService<FraKareWeek, Long> {
             LocalDate monday = date.with(dayOfWeek, dayOfWeek.range().getMinimum());
             week.setWeekStartDate(monday);
             week.setWeekEndDate(monday.plusDays(4));
-            week.setLocked(false);
             userFraKareWeekService.createUserFraKareWeeks(save(week));
         } else {
             userFraKareWeekService.createUserFraKareWeeks(fetchByQuery(date.getYear(), weekNumber).get(0));
         }
     }
 
-    @Scheduled(cron = "0 33 10 * * FRI")
+//    @Scheduled(cron = "0 33 10 * * FRI")
     public void unlockFraKareWeek() {
         LocalDate date = LocalDate.now();
         int week = date.get(WeekFields.ISO.weekOfWeekBasedYear());

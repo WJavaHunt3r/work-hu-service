@@ -34,7 +34,7 @@ public class UserRoundController {
     }
 
     @GetMapping("/userRounds")
-    public ResponseEntity getUserRounds(@Nullable @RequestParam("userId") Long userId,
+    public ResponseEntity<?> getUserRounds(@Nullable @RequestParam("userId") Long userId,
                                         @Nullable @RequestParam("roundId") Long roundId,
                                         @Nullable @RequestParam("seasonYear") Integer seasonYear) {
         if (userId != null) {
@@ -59,7 +59,7 @@ public class UserRoundController {
     }
 
     @GetMapping("/resetUserRounds")
-    public ResponseEntity resetUserRounds(@RequestParam("roundId") Long roundId) {
+    public ResponseEntity<?> resetUserRounds(@RequestParam("roundId") Long roundId) {
         Optional<Round> round = roundService.findById(roundId);
         if (round.isEmpty()) {
             return ResponseEntity.status(400).body("No round with id: " + roundId);

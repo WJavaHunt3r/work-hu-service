@@ -31,4 +31,7 @@ public class PaceTeam extends BaseEntity<PaceTeam, Long> {
     @NotEmpty
     private String teamName;
 
+    @Column(name = "ACTIVE", columnDefinition = "boolean default true")
+    private Boolean active;
+
 }

@@ -28,7 +28,7 @@ public class Round extends BaseEntity<Round, Long> {
 
     @Column(name = "MYSHARE_GOAL")
     @NotNull
-    private Integer myShareGoal;
+    private Double myShareGoal;
 
     @Column(name = "SAMVIRK_GOAL")
     @NotNull

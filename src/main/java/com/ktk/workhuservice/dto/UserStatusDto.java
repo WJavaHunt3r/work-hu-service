@@ -9,6 +9,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class UserStatusDto {
+    private Long id;
 
     private UserDto user;
 

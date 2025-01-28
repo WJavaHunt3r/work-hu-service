@@ -3,10 +3,17 @@ package com.ktk.workhuservice.data.paceuserround;
 import com.ktk.workhuservice.data.paceteam.PaceTeam;
 import com.ktk.workhuservice.data.rounds.Round;
 import com.ktk.workhuservice.data.rounds.RoundService;
+import com.ktk.workhuservice.data.transactionitems.TransactionItem;
 import com.ktk.workhuservice.data.transactionitems.TransactionItemService;
+import com.ktk.workhuservice.data.transactions.Transaction;
+import com.ktk.workhuservice.data.transactions.TransactionService;
 import com.ktk.workhuservice.data.users.User;
+import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.data.userstatus.UserStatus;
 import com.ktk.workhuservice.data.userstatus.UserStatusService;
+import com.ktk.workhuservice.enums.Account;
+import com.ktk.workhuservice.enums.Role;
+import com.ktk.workhuservice.enums.TransactionType;
 import com.ktk.workhuservice.service.BaseService;
 import com.ktk.workhuservice.service.microsoft.MicrosoftService;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,6 +21,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,12 +33,17 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
     private final MicrosoftService microsoftService;
     private final UserStatusService userStatusService;
 
-    public PaceUserRoundService(PaceUserRoundRepository repository, TransactionItemService transactionItemService, RoundService roundService, MicrosoftService microsoftService, UserStatusService userStatusService) {
+    private final UserService userService;
+    private final TransactionService transactionService;
+
+    public PaceUserRoundService(PaceUserRoundRepository repository, TransactionItemService transactionItemService, RoundService roundService, MicrosoftService microsoftService, UserStatusService userStatusService, UserService userService, TransactionService transactionService) {
         this.repository = repository;
         this.transactionItemService = transactionItemService;
         this.roundService = roundService;
         this.microsoftService = microsoftService;
         this.userStatusService = userStatusService;
+        this.userService = userService;
+        this.transactionService = transactionService;
     }
 
     public List<PaceUserRound> findByQuery(Long userId, Long roundId, Integer seasonYear, Long paceTeamId) {
@@ -50,7 +63,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
     }
 
     public void createAllPaceUserRounds(Round round) {
-        for (UserStatus us : userStatusService.fetchByQuery(LocalDate.now().getYear())) {
+        for (UserStatus us : userStatusService.fetchByQuery(LocalDate.now().getYear(), null)) {
             Optional<PaceUserRound> pur = findByUserAndRound(us.getUser(), round);
             if (pur.isPresent()) {
                 pur.get().setRoundMyShareGoal(calculateCurrRoundMyShareGoal(round, us.getUser()));
@@ -82,7 +95,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         pur.setUser(u);
         pur.setRoundMyShareGoal(calculateCurrRoundMyShareGoal(round, u));
         pur.setRoundCredits(0);
-        pur.setRoundCoins(0);
+        pur.setRoundCoins(0.0);
         calculateUserRoundStatus(pur);
 
         return pur;
@@ -90,21 +103,18 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
 
     private int calculateCurrRoundMyShareGoal(Round round, User u) {
         Optional<UserStatus> us = userStatusService.findByUserId(u.getId(), round.getSeason().getSeasonYear());
-        return us.map(userStatus -> userStatus.getGoal() * (round.getMyShareGoal() / 100)).orElse(0);
+        return us.map(userStatus -> Math.max(0, (int) Math.round(userStatus.getGoal() * (round.getMyShareGoal() / 100)) - userStatus.getTransactions())).orElse(0);
     }
 
     private void calculateUserRoundStatus(PaceUserRound pur) {
         pur.setRoundMyShareGoal(calculateCurrRoundMyShareGoal(pur.getRound(), pur.getUser()));
-        pur.setRoundCoins(0);
+        pur.setRoundCoins(0.0);
         Optional<UserStatus> us = userStatusService.findByUserId(pur.getUser().getId(), pur.getRound().getSeason().getSeasonYear());
-        if (us.isPresent() && (double) us.get().getTransactions() / (double) us.get().getGoal() * 100 >= pur.getRound().getMyShareGoal()) {
-            pur.setRoundCoins(50);
+        if (us.isPresent() && us.get().getStatus() >= pur.getRound().getMyShareGoal()) {
+            pur.setRoundCoins(10.0);
         }
-        Integer sumCredits = transactionItemService.sumCreditByUserAndRound(pur.getUser(), pur.getRound());
-        pur.setRoundCredits(sumCredits != null ? sumCredits : 0);
-        if (pur.getRoundCredits() >= pur.getRoundMyShareGoal()) {
-            pur.setRoundCoins(pur.getRoundCoins() + 50);
-        }
+        double sumPoints = transactionItemService.sumPointsByUserAndRound(pur.getUser(), pur.getRound());
+        pur.addRoundCoins(sumPoints);
     }
 
     @Override
@@ -125,7 +135,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
     @Scheduled(cron = "0 0 17 * * TUE")
     private void sendOnTrackEmails() {
         Round currentRound = roundService.getLastRound();
-        for (UserStatus u : userStatusService.fetchByQuery(LocalDate.now().getYear())) {
+        for (UserStatus u : userStatusService.fetchByQuery(LocalDate.now().getYear(), null)) {
             Optional<PaceUserRound> ur = repository.findByUserAndRound(u.getUser(), currentRound);
             Integer goal = u.getGoal();
             if (ur.isPresent()) {
@@ -141,5 +151,39 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
                 }
             }
         }
+    }
+
+    private void saveOnTrackItems(List<TransactionItem> transactionItems, String description) {
+        Optional<Transaction> onTrackTransaction = transactionService.findByName(description);
+        if (onTrackTransaction.isEmpty()) {
+            Transaction newTransaction = new Transaction();
+            newTransaction.setName(description);
+            newTransaction.setAccount(Account.OTHER);
+            newTransaction.setCreateDateTime(LocalDateTime.now());
+            newTransaction.setCreateUser(userService.findAllByRole(Role.ADMIN).iterator().next());
+            Transaction savedTransaction = transactionService.save(newTransaction);
+
+            transactionItems.forEach(t -> t.setTransactionId(savedTransaction.getId()));
+        } else {
+            transactionItems.forEach(t -> t.setTransactionId(onTrackTransaction.get().getId()));
+        }
+
+        transactionItemService.saveAll(transactionItems);
+    }
+
+    private TransactionItem createOnTrackTransactionItem(User u, Round r, String description, double points) {
+        TransactionItem item = new TransactionItem();
+        item.setAccount(Account.OTHER);
+        item.setCredit(0);
+        item.setHours(0);
+        item.setUser(u);
+        item.setRound(r);
+        item.setPoints(points);
+        item.setTransactionDate(LocalDate.now());
+        item.setCreateDateTime(LocalDateTime.now());
+        item.setTransactionType(TransactionType.POINT);
+        item.setDescription(description);
+        item.setCreateUser(userService.findAllByRole(Role.ADMIN).iterator().next());
+        return item;
     }
 }

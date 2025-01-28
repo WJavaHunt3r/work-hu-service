@@ -4,7 +4,7 @@ import com.ktk.workhuservice.service.BaseService;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.List;
 
 @Service
 public class PaceTeamService extends BaseService<PaceTeam, Long> {
@@ -14,8 +14,12 @@ public class PaceTeamService extends BaseService<PaceTeam, Long> {
         this.repository = repository;
     }
 
-    public Optional<PaceTeam> findByTeamName(String teamName){
-        return repository.findByTeamName(teamName);
+    public List<PaceTeam> findActiveTeams(boolean isActive){
+        return repository.findByActive(isActive);
+    }
+
+    public List<PaceTeam> findActiveTeams(){
+        return findActiveTeams(true);
     }
 
     @Override

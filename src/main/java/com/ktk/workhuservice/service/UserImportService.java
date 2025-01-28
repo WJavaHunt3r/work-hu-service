@@ -101,7 +101,7 @@ public class UserImportService {
 
     private void createRound1() {
         Round round1 = new Round();
-        round1.setMyShareGoal(70);
+        round1.setMyShareGoal(70.0);
         round1.setSamvirkGoal(12000);
         round1.setRoundNumber(1);
         round1.setSamvirkChurchGoal(100000);

@@ -6,6 +6,7 @@ import com.ktk.workhuservice.data.seasons.Season;
 import com.ktk.workhuservice.data.seasons.SeasonService;
 import com.ktk.workhuservice.data.transactionitems.TransactionItemService;
 import com.ktk.workhuservice.data.users.User;
+import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.service.BaseService;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -36,8 +37,8 @@ public class UserStatusService extends BaseService<UserStatus, Long> {
         return repository.findByUserIdAndSeasonYear(userId, seasonService.findCurrentSeason().getSeasonYear());
     }
 
-    public List<UserStatus> fetchByQuery(Integer seasonYear) {
-        return repository.fetchByQuery(seasonYear);
+    public List<UserStatus> fetchByQuery(Integer seasonYear, Long teamId) {
+        return repository.fetchByQuery(seasonYear,teamId);
     }
 
     public void createUserStatusForAllUsers(Integer seasonYear) {
@@ -64,8 +65,12 @@ public class UserStatusService extends BaseService<UserStatus, Long> {
     }
 
     public void calculateUserStatus(UserStatus us) {
-        Integer transactions = transactionItemService.sumCreditByUserAndSeasonYear(us.getUser(), us.getSeason().getSeasonYear());
-        Optional<UserStatus> lastYearStatus = findByUserId(us.getId(), us.getSeason().getSeasonYear() - 1);
+        Integer transactions = 0;
+        Integer sumCredit = transactionItemService.sumCreditByUserAndSeasonYear(us.getUser(), us.getSeason().getSeasonYear(), Account.MYSHARE);
+        if(sumCredit != null){
+            transactions += sumCredit;
+        }
+        Optional<UserStatus> lastYearStatus = findByUserId(us.getUser().getId(), us.getSeason().getSeasonYear() - 1);
         if (lastYearStatus.isPresent()) {
             int transition = Math.max(lastYearStatus.get().getTransition(), 0);
             transactions += transition;

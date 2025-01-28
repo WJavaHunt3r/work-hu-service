@@ -73,7 +73,7 @@ public class UserController {
     public ResponseEntity<?> getUserByFamilyId(@PathVariable Long id) {
         Optional<User> user = userService.findById(id);
         if (user.isPresent()) {
-            return ResponseEntity.status(200).body(userService.findChildren(id).stream().map((e) -> userMapper.entityToDto(e)));
+            return ResponseEntity.status(200).body(userService.findChildren(user.get().getFamilyId()).stream().map((e) -> userMapper.entityToDto(e)));
         }
 
         return ResponseEntity.status(404).body("User not found");
@@ -125,29 +125,5 @@ public class UserController {
         } else {
             return ResponseEntity.status(500).body("Failed to import user family ids!");
         }
-    }
-
-    private PaceTeam createSamvirkTeam() {
-        Optional<PaceTeam> team = paceTeamService.findByTeamName("Team Samvirk");
-        if (team.isEmpty()) {
-            PaceTeam samvirk = new PaceTeam();
-            samvirk.setTeamLeaderId(120L);
-            samvirk.setCoins(0);
-            samvirk.setTeamName("Team Samvirk");
-            return paceTeamService.save(samvirk);
-        }
-        return team.get();
-    }
-
-    private PaceTeam createBUKTeam() {
-        Optional<PaceTeam> team = paceTeamService.findByTeamName("Team BUK");
-        if (team.isEmpty()) {
-            PaceTeam buk = new PaceTeam();
-            buk.setTeamLeaderId(134L);
-            buk.setCoins(0);
-            buk.setTeamName("Team BUK");
-            return paceTeamService.save(buk);
-        }
-        return team.get();
     }
 }

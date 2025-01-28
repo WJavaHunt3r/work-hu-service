@@ -40,8 +40,12 @@ public class TransactionItemService {
         return transactionItemRepository.sumCreditByUserAndRound(user, s);
     }
 
-    public Integer sumCreditByUserAndSeasonYear(User user, Integer year) {
-        return transactionItemRepository.sumCreditByUserAndSeasonYear(user, year);
+    public Double sumPointsByUserAndRound(User user, Round s) {
+        return transactionItemRepository.sumPointsByUserAndRound(user, s);
+    }
+
+    public Integer sumCreditByUserAndSeasonYear(User user, Integer year, Account account) {
+        return transactionItemRepository.sumCreditByUserAndSeasonYear(user, year, account);
     }
 
     public Iterable<TransactionItem> findAllByTransactionId(Long id) {
@@ -66,12 +70,12 @@ public class TransactionItemService {
             if (t.getAccount().equals(Account.MYSHARE)) {
                 if (t.getTransactionType().equals(TransactionType.CREDIT) && t.getCredit() != 0) {
                     double creditPoints = (double) t.getCredit() / 1000.0;
-//                    t.setPoints(creditPoints);
+                    t.setPoints(creditPoints);
                 } else if (Arrays.asList(TransactionType.DUKA_MUNKA_2000, TransactionType.HOURS).contains(t.getTransactionType()) && t.getHours() != 0) {
-//                    t.setPoints(t.getHours() * 4.0);
+                    t.setPoints(t.getHours() * 6.0);
                     t.setCredit((int) (t.getHours() * 2000));
                 } else if (t.getTransactionType().equals(TransactionType.DUKA_MUNKA) && t.getHours() != 0) {
-//                    t.setPoints(t.getHours() * 4.0);
+                    t.setPoints(t.getHours() * 6.0);
                     t.setCredit((int) (t.getHours() * 1000));
                 }
 
@@ -88,11 +92,10 @@ public class TransactionItemService {
 //                }
 
             } else if (t.getAccount().equals(Account.OTHER)) {
-                if (t.getPoints() == 0) {
-                    t.setPoints(t.getHours() * 4);
-                } else {
-                    t.setHours(0);
+                if (t.getTransactionType().equals(TransactionType.BMM_PERFECT_WEEK)) {
+                    t.setPoints(10);
                 }
+                t.setHours(0);
                 t.setCredit(0);
 
             }

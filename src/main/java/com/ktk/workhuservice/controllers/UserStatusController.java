@@ -4,6 +4,7 @@ import com.ktk.workhuservice.data.userstatus.UserStatusService;
 import com.ktk.workhuservice.mapper.UserStatusMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.util.annotation.Nullable;
 
 @RestController
 @RequestMapping("/api/userStatus")
@@ -18,8 +19,8 @@ public class UserStatusController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> getAllUserStatus(@RequestParam("seasonYear") Integer seasonYear) {
-        return ResponseEntity.status(200).body(service.fetchByQuery(seasonYear).stream().map(userStatusMapper::entityToDto));
+    public ResponseEntity<?> getAllUserStatus(@RequestParam("seasonYear") Integer seasonYear, @Nullable @RequestParam("teamId") Long teamId) {
+        return ResponseEntity.status(200).body(service.fetchByQuery(seasonYear, teamId).stream().map(userStatusMapper::entityToDto));
     }
 
     @GetMapping("/{id}")
@@ -32,13 +33,13 @@ public class UserStatusController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getUserStatusByUser(@PathVariable Long userId) {
-        var userStatus = service.findByUserId(userId);
+    public ResponseEntity<?> getUserStatusByUser(@PathVariable Long userId, @RequestParam("seasonYear") Integer seasonYear) {
+        var userStatus = service.findByUserId(userId, seasonYear);
         if (userStatus.isEmpty()) {
             return ResponseEntity.status(404).body("No userStatus with userId: " + userId);
         }
 
-        return ResponseEntity.status(200).body(userStatus.stream().map(userStatusMapper::entityToDto));
+        return ResponseEntity.status(200).body(userStatus.map(userStatusMapper::entityToDto));
     }
 
     @PostMapping("/setUserStatus")

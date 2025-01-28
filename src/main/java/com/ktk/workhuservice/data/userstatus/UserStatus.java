@@ -17,7 +17,7 @@ import javax.validation.constraints.NotNull;
 @FieldNameConstants
 public class UserStatus extends BaseEntity<UserStatus, Long> {
 
-    @JoinColumn(name = "USER")
+    @JoinColumn(name = "USERS")
     @ManyToOne
     @NotNull
     private User user;

@@ -98,20 +98,4 @@ public class UserService extends BaseService<User, Long> {
     public User createEntity() {
         return new User();
     }
-
-    public void setTeams(PaceTeam bukTeam, PaceTeam samvirkTeam) {
-        getYouth().forEach(u -> {
-            if (u.getTeam() == null) {
-                int age = u.getAgeAtDate(LocalDate.of(LocalDate.now().getYear(), 12, 31));
-                if (18 <= age && age < 26) {
-                    u.setPaceTeam(samvirkTeam);
-                } else {
-                    u.setPaceTeam(bukTeam);
-                }
-
-                save(u);
-            }
-        });
-
-    }
 }
