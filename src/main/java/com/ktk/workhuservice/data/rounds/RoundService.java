@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.time.temporal.WeekFields;
 import java.util.Optional;
 
@@ -56,15 +55,15 @@ public class RoundService extends BaseService<Round, Long> {
             Optional<Round> previousRound = findRoundByDate(LocalDateTime.now().minusDays(29));
             Round r = new Round();
             int weekNumber = date.get(WeekFields.ISO.weekOfWeekBasedYear());
-
-            r.setEndDateTime(LocalDateTime.of(date.getYear(), date.getMonth(), YearMonth.of(date.getYear(), date.getMonth()).atEndOfMonth().getDayOfMonth(), 23, 59));
-            r.setStartDateTime(LocalDateTime.of(date.getYear(), date.getMonth(), 1, 0, 0));
-            r.setFreezeDateTime(r.getEndDateTime().plusDays(7));
+            LocalDate endOfWeek = date.plusDays(6);
+            r.setEndDateTime(LocalDateTime.of(date.getYear(), date.getMonth(), endOfWeek.getDayOfMonth(), 23, 59));
+            r.setStartDateTime(LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 0, 0));
+            r.setFreezeDateTime(r.getEndDateTime().minusDays(1));
             r.setSamvirkChurchGoal(0);
             r.setActiveRound(true);
             r.setSamvirkOnTrackPoints(0);
             r.setSamvirkMaxPoints(0);
-            r.setMyShareGoal(previousRound.get().getMyShareGoal() + 3);
+            r.setMyShareGoal(previousRound.get().getMyShareGoal() + 3.5);
             r.setRoundNumber(weekNumber);
             r.setSeason(season);
             r.setUserRoundsCreated(false);

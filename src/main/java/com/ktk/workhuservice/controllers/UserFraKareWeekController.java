@@ -48,8 +48,8 @@ public class UserFraKareWeekController {
         if (fraKareStreak.isEmpty()) {
             return ResponseEntity.status(400).body("Invalid fraKareStreakId");
         }
-        fraKareStreak.get().setListened(listened);
-        return ResponseEntity.status(200).body(fraKareStreakMapper.entityToDto(userFraKareWeekService.save(fraKareStreak.get())));
+
+        return ResponseEntity.status(200).body(fraKareStreakMapper.entityToDto(userFraKareWeekService.setListened(fraKareStreak.get(), listened)));
     }
 
     @DeleteMapping("/{id}")

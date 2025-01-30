@@ -44,7 +44,10 @@ public class PaceUserRound extends BaseEntity<PaceUserRound, Long> {
     private Integer roundMyShareGoal;
 
     @Column(name = "ON_TRACK", columnDefinition = "boolean default false")
-    private Boolean onTrack;
+    private boolean onTrack;
+
+    @Column(name = "MYSHARE_ON_TRACK_POINTS", columnDefinition = "boolean default false")
+    private boolean myShareOnTrackPoints;
 
     public void addSamvirkPayment(Integer payment) {
         samvirkPayments += payment;

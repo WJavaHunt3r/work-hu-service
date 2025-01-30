@@ -1,13 +1,21 @@
 package com.ktk.workhuservice.data.userfrakarestreak;
 
 import com.ktk.workhuservice.data.frakareweek.FraKareWeek;
+import com.ktk.workhuservice.data.rounds.RoundService;
+import com.ktk.workhuservice.data.transactionitems.TransactionItem;
+import com.ktk.workhuservice.data.transactionitems.TransactionItemService;
 import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.data.users.UserService;
+import com.ktk.workhuservice.enums.Account;
+import com.ktk.workhuservice.enums.Role;
+import com.ktk.workhuservice.enums.TransactionType;
 import com.ktk.workhuservice.service.BaseService;
+import com.ktk.workhuservice.service.TransactionServiceUtils;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -15,10 +23,16 @@ public class UserFraKareWeekService extends BaseService<UserFraKareWeek, Long> {
 
     private UserFraKareWeekRepository repository;
     private UserService userService;
+    private TransactionItemService transactionItemService;
+    private final RoundService roundService;
+    private final TransactionServiceUtils transactionServiceUtils;
 
-    public UserFraKareWeekService(UserFraKareWeekRepository repository, UserService userService) {
+    public UserFraKareWeekService(UserFraKareWeekRepository repository, UserService userService, TransactionItemService transactionItemService, RoundService roundService, TransactionServiceUtils transactionServiceUtils) {
         this.repository = repository;
         this.userService = userService;
+        this.transactionItemService = transactionItemService;
+        this.roundService = roundService;
+        this.transactionServiceUtils = transactionServiceUtils;
     }
 
     @Override
@@ -38,6 +52,39 @@ public class UserFraKareWeekService extends BaseService<UserFraKareWeek, Long> {
 
     public List<UserFraKareWeek> fetchByQuery(Long userId, Integer weekNumber, Boolean listened, Long teamId, Integer seasonYear) {
         return repository.fetchByQuery(userId, weekNumber, listened, teamId, seasonYear);
+    }
+
+    public UserFraKareWeek setListened(UserFraKareWeek userFraKareWeek, boolean listened) {
+        if (listened && !userFraKareWeek.isListened()) {
+            userFraKareWeek.setListened(true);
+            userFraKareWeek.setTransactionItemId(createTransactionItem(userFraKareWeek.getFraKareWeek().getTransactionId(), userFraKareWeek));
+
+        } else if (!listened && userFraKareWeek.isListened()) {
+            userFraKareWeek.setListened(false);
+            transactionItemService.deleteById(userFraKareWeek.getTransactionItemId());
+            userFraKareWeek.setTransactionItemId(null);
+        }
+        transactionServiceUtils.updateUserStatus(roundService.getLastRound(), userFraKareWeek.getUser());
+        transactionServiceUtils.calculateAllTeamStatus();
+
+        return save(userFraKareWeek);
+    }
+
+    private Long createTransactionItem(Long transactionId, UserFraKareWeek userFraKareWeek) {
+        TransactionItem transactionItem = new TransactionItem();
+        transactionItem.setHours(0);
+        transactionItem.setPoints(10);
+        transactionItem.setTransactionDate(LocalDate.now());
+        transactionItem.setRound(roundService.getLastRound());
+        transactionItem.setTransactionId(transactionId);
+        transactionItem.setCreateDateTime(LocalDateTime.now());
+        transactionItem.setCreateUser(userService.findAllByRole(Role.ADMIN).iterator().next());
+        transactionItem.setUser(userFraKareWeek.getUser());
+        transactionItem.setDescription(userFraKareWeek.getFraKareWeek().getWeekNumber() + ". hét Fra Kare Streak");
+        transactionItem.setAccount(Account.OTHER);
+        transactionItem.setTransactionType(TransactionType.BMM_PERFECT_WEEK);
+
+        return transactionItemService.save(transactionItem).getId();
     }
 
     public List<UserFraKareWeek> fetchByQuery(Long userId, Integer weekNumber, Boolean listened, Long teamId) {

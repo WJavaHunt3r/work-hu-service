@@ -34,4 +34,12 @@ public class PaceTeam extends BaseEntity<PaceTeam, Long> {
     @Column(name = "ACTIVE", columnDefinition = "boolean default true")
     private Boolean active;
 
+    @Column(name = "COLOR", length = 10)
+    @Size(max = 10)
+    private String color;
+
+    @Column(name = "ICON_ASSET_PATH")
+    @Size(max = 50)
+    private String iconAssetPath;
+
 }

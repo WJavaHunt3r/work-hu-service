@@ -26,12 +26,12 @@ public class PaceTeamRound extends BaseEntity<PaceTeamRound, Long> {
     @NotNull
     private Round round;
 
-    @Column(name = "TEAM_ROUND_COINS", columnDefinition = "integer default 0")
-    private Integer teamRoundCoins;
+    @Column(name = "TEAM_ROUND_COINS", columnDefinition = "float8 default 0")
+    private double teamRoundCoins;
 
     @Column(name = "MAX_TEAM_ROUND_COINS", columnDefinition = "integer default 0")
     private Integer maxTeamRoundCoins;
 
-    @Column(name = "TEAM_ROUND_STATUS", columnDefinition = "float default 0")
+    @Column(name = "TEAM_ROUND_STATUS", columnDefinition = "float8 default 0")
     private double teamRoundStatus;
 }

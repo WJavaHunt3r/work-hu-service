@@ -64,7 +64,7 @@ public class TransactionItemService {
         transactionItemRepository.deleteById(transactionItemId);
     }
 
-    public void save(TransactionItem t) {
+    public TransactionItem save(TransactionItem t) {
         if (t.getPoints() != 0.0 || t.getHours() != 0.0 || t.getCredit() != 0) {
             Round transactionRound = t.getRound();
             if (t.getAccount().equals(Account.MYSHARE)) {
@@ -92,20 +92,17 @@ public class TransactionItemService {
 //                }
 
             } else if (t.getAccount().equals(Account.OTHER)) {
-                if (t.getTransactionType().equals(TransactionType.BMM_PERFECT_WEEK)) {
-                    t.setPoints(10);
-                }
                 t.setHours(0);
                 t.setCredit(0);
-
             }
 
             t.setCreateDateTime(LocalDateTime.now());
             if (t.getTransactionDate() == null) {
                 t.setTransactionDate(t.getCreateDateTime().toLocalDate());
             }
-            transactionItemRepository.save(t);
+            return  transactionItemRepository.save(t);
         }
+        return t;
     }
 
     public void saveAll(Iterable<TransactionItem> transactions) {

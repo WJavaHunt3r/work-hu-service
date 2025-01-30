@@ -31,4 +31,7 @@ public class UserFraKareWeek extends BaseEntity<UserFraKareWeek, Long> {
     @Column(name = "LISTENED", columnDefinition = "boolean default false")
     @NotNull
     private boolean listened;
+
+    @Column(name = "TRANSACTION_ITEM_ID")
+    private Long transactionItemId;
 }

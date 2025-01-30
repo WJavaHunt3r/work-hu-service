@@ -51,7 +51,7 @@ public class UserStatusService extends BaseService<UserStatus, Long> {
         }
     }
 
-    void createUserStatus(User u, Integer goal, Season season) {
+    public void createUserStatus(User u, Integer goal, Season season) {
         UserStatus status = createEntity();
         status.setUser(u);
         status.setGoal(goal);

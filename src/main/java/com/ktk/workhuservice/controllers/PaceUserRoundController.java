@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/paceUserRound")
 public class PaceUserRoundController {
 
-    private PaceUserRoundService paceUserRoundService;
-    private PaceUserRoundMapper modelMapper;
+    private final PaceUserRoundService paceUserRoundService;
+    private final PaceUserRoundMapper modelMapper;
 
     public PaceUserRoundController(PaceUserRoundService paceUserRoundService, PaceUserRoundMapper modelMapper) {
         this.paceUserRoundService = paceUserRoundService;
@@ -24,7 +24,7 @@ public class PaceUserRoundController {
     }
 
     @GetMapping()
-    public ResponseEntity getPaceUserRounds(@Nullable @RequestParam("userId") Long userId,
+    public ResponseEntity<?> getPaceUserRounds(@Nullable @RequestParam("userId") Long userId,
                                             @Nullable @RequestParam("roundId") Long roundId,
                                             @Nullable @RequestParam("seasonYear") Integer seasonYear,
                                             @Nullable @RequestParam("paceTeamId") Long paceTeamId) {

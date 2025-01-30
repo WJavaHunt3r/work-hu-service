@@ -14,12 +14,13 @@ public class PaceTeamService extends BaseService<PaceTeam, Long> {
         this.repository = repository;
     }
 
-    public List<PaceTeam> findActiveTeams(boolean isActive){
+    public List<PaceTeam> findActiveTeams(boolean isActive) {
         return repository.findByActive(isActive);
     }
 
-    public List<PaceTeam> findActiveTeams(){
+    public List<PaceTeam> findActiveTeams() {
         return findActiveTeams(true);
+
     }
 
     @Override

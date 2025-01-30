@@ -23,4 +23,6 @@ public class UserStatusDto {
 
     private Season season;
 
+    private boolean onTrack;
+
 }

@@ -24,4 +24,6 @@ public class PaceUserRoundDto {
     private double bMMPerfectWeekPoints;
 
     private Integer roundMyShareGoal;
+
+    private boolean onTrack;
 }

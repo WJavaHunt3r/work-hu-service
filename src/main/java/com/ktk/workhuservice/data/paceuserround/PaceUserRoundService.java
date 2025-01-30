@@ -58,15 +58,20 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         return repository.countByRoundAndTeam(r, t);
     }
 
-    public int calculatePaceTeamRoundCoins(PaceTeam t, Round round) {
+    public Integer calculatePaceTeamRoundCoins(PaceTeam t, Round round) {
         return repository.calculatePaceTeamRoundCoins(t, round);
     }
 
+    public double sumByUserAndSeason(User u, Integer seasonYear) {
+        return repository.sumByUserAndSeason(u, seasonYear);
+    }
+
     public void createAllPaceUserRounds(Round round) {
-        for (UserStatus us : userStatusService.fetchByQuery(LocalDate.now().getYear(), null)) {
+        for (UserStatus us : userStatusService.fetchByQuery(round.getSeason().getSeasonYear(), null)) {
+            userStatusService.calculateUserStatus(us);
             Optional<PaceUserRound> pur = findByUserAndRound(us.getUser(), round);
             if (pur.isPresent()) {
-                pur.get().setRoundMyShareGoal(calculateCurrRoundMyShareGoal(round, us.getUser()));
+                calculateUserRoundStatus(round, us.getUser());
             } else {
                 save(createPaceUserRound(us.getUser(), round));
             }
@@ -96,6 +101,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         pur.setRoundMyShareGoal(calculateCurrRoundMyShareGoal(round, u));
         pur.setRoundCredits(0);
         pur.setRoundCoins(0.0);
+        pur.setOnTrack(false);
         calculateUserRoundStatus(pur);
 
         return pur;
@@ -110,11 +116,24 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         pur.setRoundMyShareGoal(calculateCurrRoundMyShareGoal(pur.getRound(), pur.getUser()));
         pur.setRoundCoins(0.0);
         Optional<UserStatus> us = userStatusService.findByUserId(pur.getUser().getId(), pur.getRound().getSeason().getSeasonYear());
-        if (us.isPresent() && us.get().getStatus() >= pur.getRound().getMyShareGoal()) {
-            pur.setRoundCoins(10.0);
+        String myShareOnTrackName = "MyShare On Track Round " + pur.getRound().getRoundNumber() + "(" + pur.getRound().getSeason().getSeasonYear() + ")";
+        if (us.isPresent() && us.get().getStatus() * 100 >= pur.getRound().getMyShareGoal() && !pur.isMyShareOnTrackPoints()) {
+            pur.setOnTrack(true);
+            if (!pur.isMyShareOnTrackPoints()) {
+                saveOnTrackItems(createOnTrackTransactionItem(pur.getUser(), pur.getRound(), myShareOnTrackName, 10), myShareOnTrackName);
+                pur.setMyShareOnTrackPoints(true);
+            }
+        } else if (us.isPresent() && us.get().getStatus() * 100 < pur.getRound().getMyShareGoal() && pur.isMyShareOnTrackPoints()) {
+            pur.setOnTrack(false);
+            saveOnTrackItems(createOnTrackTransactionItem(pur.getUser(), pur.getRound(), myShareOnTrackName + "  revert", -10), myShareOnTrackName + "  revert");
+            pur.setMyShareOnTrackPoints(false);
         }
-        double sumPoints = transactionItemService.sumPointsByUserAndRound(pur.getUser(), pur.getRound());
-        pur.addRoundCoins(sumPoints);
+        Double sumPoints = transactionItemService.sumPointsByUserAndRound(pur.getUser(), pur.getRound());
+        pur.addRoundCoins(sumPoints == null ? 0 : sumPoints);
+
+        pur.getUser().setPoints(sumByUserAndSeason(pur.getUser(), pur.getRound().getSeason().getSeasonYear()));
+        userService.save(pur.getUser());
+
     }
 
     @Override
@@ -140,10 +159,10 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
             Integer goal = u.getGoal();
             if (ur.isPresent()) {
                 double currentUserGoal = goal * (currentRound.getMyShareGoal() / 100.0);
-                if (u.getTransactions() < currentUserGoal && !u.getUser().getEmail().isEmpty()) {
+                if (!ur.get().isOnTrack() && !u.getUser().getEmail().isEmpty()) {
                     try {
 //                        if (u.getId() == 255) {
-                        microsoftService.sendStatusUpdate(u.getTransactions(), (double) u.getTransactions() / goal * 100, (int) currentUserGoal - u.getTransactions(), u.getUser(), currentRound);
+                        microsoftService.sendStatusUpdate(u.getTransactions(), u.getStatus() * 100, (int) currentUserGoal - u.getTransactions(), u.getUser(), currentRound);
 //                        }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -153,7 +172,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         }
     }
 
-    private void saveOnTrackItems(List<TransactionItem> transactionItems, String description) {
+    private void saveOnTrackItems(TransactionItem transactionItem, String description) {
         Optional<Transaction> onTrackTransaction = transactionService.findByName(description);
         if (onTrackTransaction.isEmpty()) {
             Transaction newTransaction = new Transaction();
@@ -163,12 +182,12 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
             newTransaction.setCreateUser(userService.findAllByRole(Role.ADMIN).iterator().next());
             Transaction savedTransaction = transactionService.save(newTransaction);
 
-            transactionItems.forEach(t -> t.setTransactionId(savedTransaction.getId()));
+            transactionItem.setTransactionId(savedTransaction.getId());
         } else {
-            transactionItems.forEach(t -> t.setTransactionId(onTrackTransaction.get().getId()));
+            transactionItem.setTransactionId(onTrackTransaction.get().getId());
         }
 
-        transactionItemService.saveAll(transactionItems);
+        transactionItemService.save(transactionItem);
     }
 
     private TransactionItem createOnTrackTransactionItem(User u, Round r, String description, double points) {

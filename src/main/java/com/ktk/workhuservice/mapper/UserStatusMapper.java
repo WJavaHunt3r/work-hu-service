@@ -1,19 +1,25 @@
 package com.ktk.workhuservice.mapper;
 
+import com.ktk.workhuservice.data.rounds.RoundService;
 import com.ktk.workhuservice.data.userstatus.UserStatus;
 import com.ktk.workhuservice.dto.UserStatusDto;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserStatusMapper  extends BaseMapper<UserStatus, UserStatusDto> {
-    public UserStatusMapper(ModelMapper modelMapper) {
+public class UserStatusMapper extends BaseMapper<UserStatus, UserStatusDto> {
+    private final RoundService roundService;
+
+    public UserStatusMapper(ModelMapper modelMapper, RoundService roundService) {
         super(modelMapper);
+        this.roundService = roundService;
     }
 
     @Override
     public UserStatusDto entityToDto(UserStatus entity) {
-        return modelMapper.map(entity, UserStatusDto.class);
+        UserStatusDto dto = modelMapper.map(entity, UserStatusDto.class);
+        dto.setOnTrack(entity.getStatus() * 100 >= roundService.getLastRound().getMyShareGoal());
+        return dto;
     }
 
     @Override

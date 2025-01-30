@@ -31,26 +31,40 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
         this.seasonService = seasonService;
     }
 
-    public Iterable<PaceTeamRound> findAll(int seasonYear) {
-        return repository.findAllBySeasonYear(seasonYear);
+    public Iterable<PaceTeamRound> findAllActiveTeamRounds(int seasonYear) {
+        return findAllActiveTeamRounds(seasonYear, null);
+    }
+
+    public Iterable<PaceTeamRound> findAllActiveTeamRounds(int seasonYear, PaceTeam team) {
+        return repository.findAllActiveBySeasonYear(seasonYear, team);
     }
 
     public void calculateAllTeamRoundPoints() {
         calculateAllTeamRoundPoints(roundService.getLastRound());
     }
 
+    private Double sumTeamPoints(PaceTeam team) {
+        return repository.sumTeamPoints(LocalDate.now().getYear(), team);
+    }
+
     public void calculateAllTeamRoundPoints(Round round) {
         for (PaceTeamRound pct : repository.findAllByRound(round)) {
-            calculateRoundCoinsForTeam(pct);
+            calculateRoundPointsForTeam(pct);
+        }
+        for (PaceTeam team : paceTeamService.findActiveTeams(true)) {
+            Double points = sumTeamPoints(team);
+            team.setCoins(points == null ? 0 : points);
+            paceTeamService.save(team);
         }
     }
 
-    private void calculateRoundCoinsForTeam(PaceTeamRound ptr) {
-        int sumCoins = paceUserRoundService.calculatePaceTeamRoundCoins(ptr.getTeam(), ptr.getRound());
-        int maxCoins = paceUserRoundService.countByRoundAndTeam(ptr.getRound(), ptr.getTeam()) * 100;
-        ptr.setMaxTeamRoundCoins(maxCoins);
-        ptr.setTeamRoundCoins(sumCoins);
-        ptr.setTeamRoundStatus((double) sumCoins / (double) maxCoins);
+    private void calculateRoundPointsForTeam(PaceTeamRound ptr) {
+        paceUserRoundService.createAllPaceUserRounds(ptr.getRound());
+        Integer sumCoins = paceUserRoundService.calculatePaceTeamRoundCoins(ptr.getTeam(), ptr.getRound());
+        int teamMemberCount = paceUserRoundService.countByRoundAndTeam(ptr.getRound(), ptr.getTeam());
+        ptr.setMaxTeamRoundCoins(teamMemberCount);
+        ptr.setTeamRoundCoins(sumCoins == null ? 0 : sumCoins);
+        ptr.setTeamRoundStatus(sumCoins == null ? 0 : (double) sumCoins / (double) teamMemberCount);
         save(ptr);
     }
 
@@ -76,14 +90,14 @@ public class PaceTeamRoundService extends BaseService<PaceTeamRound, Long> {
         return new PaceTeamRound();
     }
 
-//    @Scheduled(cron = "0 1 0 1 * ?")
+    //    @Scheduled(cron = "0 1 0 1 * ?")
     @Scheduled(cron = "0 1 0 * * MON")
     public void createTeamRounds() {
         Season season = seasonService.findBySeasonYear(LocalDate.now().getYear()).orElseGet(() -> seasonService.createSeasonForYear(LocalDate.now().getYear()));
         Round currRound = roundService.findRoundByDate(LocalDateTime.now()).orElseGet(() -> roundService.createNextRound(season));
-        paceTeamService.findAll().forEach(paceTeam -> {
+        paceTeamService.findActiveTeams().forEach(paceTeam -> {
             paceUserRoundService.createAllPaceUserRounds(currRound);
-            calculateRoundCoinsForTeam(repository.findByTeamAndRound(paceTeam, currRound).orElseGet(() -> createTeamRound(paceTeam, currRound)));
+            calculateRoundPointsForTeam(repository.findByTeamAndRound(paceTeam, currRound).orElseGet(() -> createTeamRound(paceTeam, currRound)));
             roundService.save(currRound);
         });
     }

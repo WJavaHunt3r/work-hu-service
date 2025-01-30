@@ -41,4 +41,6 @@ public class UserDto {
     private String email;
 
     private Long bufeId;
+
+    private double points;
 }

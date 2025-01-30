@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/paceTeamRounds")
 public class PaceTeamRoundController {
 
-    private PaceTeamRoundService service;
+    private final PaceTeamRoundService service;
+
 
     public PaceTeamRoundController(PaceTeamRoundService service) {
         this.service = service;
@@ -16,7 +17,7 @@ public class PaceTeamRoundController {
 
     @GetMapping
     public ResponseEntity getAllPaceTeamRounds(@RequestParam("seasonYear") int seasonYear) {
-        return ResponseEntity.status(200).body(service.findAll(seasonYear));
+        return ResponseEntity.status(200).body(service.findAllActiveTeamRounds(seasonYear));
     }
 
     @PostMapping("/recalculate")

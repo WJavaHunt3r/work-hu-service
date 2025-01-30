@@ -14,21 +14,21 @@ import java.util.Optional;
 public interface PaceUserRoundRepository extends JpaRepository<PaceUserRound, Long> {
     Optional<PaceUserRound> findByUserAndRound(User u, Round r);
 
-    List<PaceUserRound> findByUser(User u);
+    @Query("SELECT sum(ur.roundCoins) FROM PaceUserRound ur WHERE ur.round.activeRound = true and ur.user = ?1 AND ur.round.season.seasonYear = ?2 ")
+    double sumByUserAndSeason(User u, Integer seasonYear);
 
-    @Query("SELECT ur FROM PaceUserRound ur WHERE ur.user = ?1 AND ur.round.season.seasonYear = ?2 ")
-    List<PaceUserRound> findByUserAndSeason(User u, Integer seasonYear);
-
-    Iterable<PaceUserRound> findByRound(Round r);
-
-    @Query("SELECT ur FROM PaceUserRound ur WHERE ur.round = ?1 AND ur.user.paceTeam = ?2 ")
-    Iterable<PaceUserRound> findByRoundAndTeam(Round r, PaceTeam t);
-
-    @Query("SELECT COUNT(ur) FROM PaceUserRound ur WHERE ur.round = ?1 AND ur.user.paceTeam = ?2 ")
+    @Query(value = "SELECT COUNT(ur.id) FROM user_status us "
+            + "RIGHT JOIN public.pace_user_rounds ur ON ur.id = us.users "
+            + "LEFT JOIN public.users u ON u.id = ur.users "
+            + "WHERE u.pace_teams = ?2 AND ur.rounds = ?1 ",
+            nativeQuery = true)
     int countByRoundAndTeam(Round r, PaceTeam t);
 
-    @Query("SELECT sum(ur.roundCoins) FROM PaceUserRound  ur where ur.user.paceTeam = ?1 " +
-            " and ur.round = ?2 ")
+    @Query(value = "SELECT sum(ur.round_coins) FROM user_status us "
+            + "RIGHT JOIN public.pace_user_rounds ur ON ur.id = us.users "
+            + "LEFT JOIN public.users u ON u.id = ur.users "
+            + "WHERE u.pace_teams = ?1 AND ur.rounds = ?2 ",
+            nativeQuery = true)
     Integer calculatePaceTeamRoundCoins(PaceTeam t, Round round);
 
     @Query("SELECT sum(ur.samvirkPayments) FROM PaceUserRound  ur where ur.user.paceTeam = ?1 " +

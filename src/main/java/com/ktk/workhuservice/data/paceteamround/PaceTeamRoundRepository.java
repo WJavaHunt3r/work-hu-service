@@ -17,6 +17,11 @@ public interface PaceTeamRoundRepository extends JpaRepository<PaceTeamRound, Lo
 
     Iterable<PaceTeamRound> findAllByRound(Round round);
 
-    @Query("SELECT tr from PaceTeamRound tr where round.season.seasonYear = ?1")
-    List<PaceTeamRound> findAllBySeasonYear(Integer SeasonYear);
+    @Query("SELECT tr from PaceTeamRound tr where tr.round.season.seasonYear = ?1 and tr.team.active = true " +
+            " and (tr.team = ?2 or ?2 is null)")
+    List<PaceTeamRound> findAllActiveBySeasonYear(Integer SeasonYear, PaceTeam team);
+
+    @Query(" SELECT sum(tr.teamRoundStatus) from PaceTeamRound tr where tr.round.season.seasonYear = ?1 and tr.team.active = true " +
+            " and (tr.team = ?2 or ?2 is null)" )
+    Double sumTeamPoints(Integer SeasonYear,PaceTeam team);
 }

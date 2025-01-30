@@ -1,13 +1,20 @@
 
 package com.ktk.workhuservice.data.frakareweek;
 
+import com.ktk.workhuservice.data.transactions.Transaction;
+import com.ktk.workhuservice.data.transactions.TransactionService;
 import com.ktk.workhuservice.data.userfrakarestreak.UserFraKareWeekService;
+import com.ktk.workhuservice.data.users.UserService;
+import com.ktk.workhuservice.enums.Account;
+import com.ktk.workhuservice.enums.Role;
+import com.ktk.workhuservice.enums.TransactionType;
 import com.ktk.workhuservice.service.BaseService;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.List;
@@ -15,12 +22,16 @@ import java.util.List;
 @Service
 public class FraKareWeekService extends BaseService<FraKareWeek, Long> {
 
-    private FraKareWeekRepository repository;
-    private UserFraKareWeekService userFraKareWeekService;
+    private final FraKareWeekRepository repository;
+    private final UserFraKareWeekService userFraKareWeekService;
+    private final TransactionService transactionService;
+    private final UserService userService;
 
-    public FraKareWeekService(FraKareWeekRepository repository, UserFraKareWeekService userFraKareWeekService) {
+    public FraKareWeekService(FraKareWeekRepository repository, UserFraKareWeekService userFraKareWeekService, TransactionService transactionService, UserService userService) {
         this.repository = repository;
         this.userFraKareWeekService = userFraKareWeekService;
+        this.transactionService = transactionService;
+        this.userService = userService;
     }
 
     @Override
@@ -59,6 +70,15 @@ public class FraKareWeekService extends BaseService<FraKareWeek, Long> {
             LocalDate monday = date.with(dayOfWeek, dayOfWeek.range().getMinimum());
             week.setWeekStartDate(monday);
             week.setWeekEndDate(monday.plusDays(4));
+
+            Transaction transaction = new Transaction();
+            transaction.setTransactionType(TransactionType.BMM_PERFECT_WEEK);
+            transaction.setAccount(Account.OTHER);
+            transaction.setCreateDateTime(LocalDateTime.now());
+            transaction.setCreateUser(userService.findAllByRole(Role.ADMIN).iterator().next());
+            Transaction savedTransaction = transactionService.save(transaction);
+            week.setTransactionId(savedTransaction.getId());
+
             userFraKareWeekService.createUserFraKareWeeks(save(week));
         } else {
             userFraKareWeekService.createUserFraKareWeeks(fetchByQuery(date.getYear(), weekNumber).get(0));

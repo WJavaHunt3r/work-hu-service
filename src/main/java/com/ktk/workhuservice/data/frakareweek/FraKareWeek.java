@@ -45,4 +45,7 @@ public class FraKareWeek extends BaseEntity<FraKareWeek, Long> {
     @NotNull
     private boolean locked;
 
+    @Column(name = "TRANSACTION_ID")
+    private Long transactionId;
+
 }
