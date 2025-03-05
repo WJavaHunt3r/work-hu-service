@@ -12,8 +12,8 @@ import java.util.Optional;
 @Repository
 public interface GoalRepository extends JpaRepository<Goal, Long> {
 
-    @Query(" SELECT g from Goal g where g.user = ?1 and g.season.seasonYear = ?2 or g.user.spouseId = ?1 and g.season.seasonYear = ?2")
-    Optional<Goal> findByUserAndSeasonSeasonYearOrUserSpouse(User user, Integer season, Long spouseId);
+    @Query(" SELECT g from Goal g where g.user = ?1 and g.season.seasonYear = ?2 ")
+    Optional<Goal> findByUserAndSeasonSeasonYearOrUserSpouse(User user, Integer season);
 
     List<Goal> findBySeason(Season season);
 }

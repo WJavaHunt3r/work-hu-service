@@ -74,7 +74,7 @@ public class UserService extends BaseService<User, Long> {
 
     public void calculateUserPoints(User u) {
         u.setCurrentMyShareCredit(u.getBaseMyShareCredit());
-        transactionItemService.findAllByUserAndSeasonYear(u, LocalDate.now().getYear()).forEach(t -> addTransaction(t, u));
+        transactionItemService.fetchByQuery(null, null, null, null, null, u.getId(), LocalDate.now().getYear()).forEach(t -> addTransaction(t, u));
         save(u);
     }
 

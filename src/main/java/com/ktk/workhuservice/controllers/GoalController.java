@@ -1,15 +1,17 @@
 package com.ktk.workhuservice.controllers;
 
 import com.ktk.workhuservice.data.goals.Goal;
+import com.ktk.workhuservice.data.goals.GoalService;
 import com.ktk.workhuservice.data.paceuserround.PaceUserRoundService;
 import com.ktk.workhuservice.data.seasons.Season;
+import com.ktk.workhuservice.data.seasons.SeasonService;
 import com.ktk.workhuservice.data.users.User;
+import com.ktk.workhuservice.data.users.UserService;
+import com.ktk.workhuservice.data.userstatus.UserStatus;
+import com.ktk.workhuservice.data.userstatus.UserStatusService;
 import com.ktk.workhuservice.dto.GoalDto;
 import com.ktk.workhuservice.enums.Role;
 import com.ktk.workhuservice.mapper.GoalMapper;
-import com.ktk.workhuservice.data.goals.GoalService;
-import com.ktk.workhuservice.data.seasons.SeasonService;
-import com.ktk.workhuservice.data.users.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +30,15 @@ public class GoalController {
     private final SeasonService seasonService;
     private final GoalMapper goalMapper;
     private final PaceUserRoundService userRoundService;
+    private final UserStatusService userStatusService;
 
-    public GoalController(GoalService goalService, UserService userService, SeasonService seasonService, GoalMapper goalMapper, PaceUserRoundService userRoundService) {
+    public GoalController(GoalService goalService, UserService userService, SeasonService seasonService, GoalMapper goalMapper, PaceUserRoundService userRoundService, UserStatusService userStatusService) {
         this.goalService = goalService;
         this.userService = userService;
         this.seasonService = seasonService;
         this.goalMapper = goalMapper;
         this.userRoundService = userRoundService;
+        this.userStatusService = userStatusService;
     }
 
     @GetMapping("/userSeasonGoal")
@@ -85,6 +89,7 @@ public class GoalController {
         Goal goal = new Goal();
         goal.setUser(user.get());
         userRoundService.createPaceUserRound(user.get());
+        userStatusService.createUserStatus(user.get(), goalDto.getGoal(), goalDto.getSeason());
         return ResponseEntity.status(200).body(goalMapper.entityToDto(goalService.save(goalMapper.dtoToEntity(goalDto, goal))));
     }
 
@@ -102,6 +107,7 @@ public class GoalController {
 
             Goal entity = goalService.save(goalMapper.dtoToEntity(goalDto, goal.get()));
             userRoundService.calculateUserRoundStatus(entity.getUser());
+            userStatusService.calculateUserStatus(goal.get().getUser());
             return ResponseEntity.status(200).body(goalMapper.entityToDto(entity));
         }
         return ResponseEntity.status(404).body("User not allowed to change this goal");
@@ -117,8 +123,10 @@ public class GoalController {
             return ResponseEntity.status(403).body("Permission denied!");
         }
         if (goalService.existsById(id)) {
+            Optional<Goal> g = goalService.findById(id);
+            Optional<UserStatus> us = userStatusService.findByUserId(g.get().getUser().getId(), g.get().getSeason().getSeasonYear());
+            us.ifPresent(u -> userStatusService.deleteById(u.getId()));
             goalService.deleteById(id);
-            userRoundService.calculateUserRoundStatus(user.get());
             return ResponseEntity.status(200).body("Delete successful");
         }
         return ResponseEntity.status(403).body("No goal found with id:" + id);

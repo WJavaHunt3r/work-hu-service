@@ -62,11 +62,11 @@ public class TransactionsController {
             return ResponseEntity.status(403).body("Permission denied!");
         }
         if (transactionService.existsById(id)) {
-            Iterable<TransactionItem> items = transactionItemService.findAllByTransactionId(id);
+            Iterable<TransactionItem> items = transactionItemService.fetchByQuery(null, null, null, id, null, null, null);
             transactionService.deleteById(id);
             transactionItemService.deleteByTransactionId(id);
             for (var item : items) {
-                transactionServiceUtils.updateUserStatus(item.getRound(),item.getUser());
+                transactionServiceUtils.updateUserStatus(item.getRound(), item.getUser());
             }
 
             return ResponseEntity.status(200).body("Delete successful");

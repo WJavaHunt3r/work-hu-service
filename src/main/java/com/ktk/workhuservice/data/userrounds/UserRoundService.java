@@ -25,8 +25,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 public class UserRoundService extends BaseService<UserRound, Long> {
@@ -104,7 +102,7 @@ public class UserRoundService extends BaseService<UserRound, Long> {
             if (userGoal.isEmpty()) {
                 return;
             }
-            List<TransactionItem> transactions = StreamSupport.stream(transactionItemService.findAllByUserAndRound(user, round).spliterator(), false).collect(Collectors.toList());
+            List<TransactionItem> transactions = transactionItemService.fetchByQuery(null, null, null, null, round.getId(), user.getId(), null);
             transactions.forEach(t -> addTransaction(t, userRound));
 
             Integer goal = userGoal.get().getGoal();
@@ -225,7 +223,5 @@ public class UserRoundService extends BaseService<UserRound, Long> {
     public UserRound createEntity() {
         return new UserRound();
     }
-
-
 
 }

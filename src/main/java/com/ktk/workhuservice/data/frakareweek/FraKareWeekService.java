@@ -72,6 +72,7 @@ public class FraKareWeekService extends BaseService<FraKareWeek, Long> {
             week.setWeekEndDate(monday.plusDays(4));
 
             Transaction transaction = new Transaction();
+            transaction.setName(week.getWeekNumber() + ". hét Fra Kare Streak");
             transaction.setTransactionType(TransactionType.BMM_PERFECT_WEEK);
             transaction.setAccount(Account.OTHER);
             transaction.setCreateDateTime(LocalDateTime.now());

@@ -23,12 +23,12 @@ import java.util.stream.StreamSupport;
 @RequestMapping("/api/user")
 public class UserController {
 
-    private UserService userService;
-    private PaceTeamService paceTeamService;
-    private UserMapper userMapper;
-    private SeasonService seasonService;
-    private PaceTeamRoundService paceTeamRoundService;
-    private UserFamilyImportService userFamilyImportService;
+    private final UserService userService;
+    private final PaceTeamService paceTeamService;
+    private final UserMapper userMapper;
+    private final SeasonService seasonService;
+    private final PaceTeamRoundService paceTeamRoundService;
+    private final UserFamilyImportService userFamilyImportService;
 
     public UserController(UserService userService, PaceTeamService paceTeamService, UserMapper modelMapper, SeasonService seasonService, PaceTeamRoundService paceTeamRoundService, UserFamilyImportService userFamilyImportService) {
         this.userService = userService;
@@ -73,6 +73,9 @@ public class UserController {
     public ResponseEntity<?> getUserByFamilyId(@PathVariable Long id) {
         Optional<User> user = userService.findById(id);
         if (user.isPresent()) {
+            if (user.get().getAge() <= 18) {
+                return ResponseEntity.status(404).body("No kids");
+            }
             return ResponseEntity.status(200).body(userService.findChildren(user.get().getFamilyId()).stream().map((e) -> userMapper.entityToDto(e)));
         }
 

@@ -38,7 +38,7 @@ public class UserStatusService extends BaseService<UserStatus, Long> {
     }
 
     public List<UserStatus> fetchByQuery(Integer seasonYear, Long teamId) {
-        return repository.fetchByQuery(seasonYear,teamId);
+        return repository.fetchByQuery(seasonYear, teamId);
     }
 
     public void createUserStatusForAllUsers(Integer seasonYear) {
@@ -52,12 +52,14 @@ public class UserStatusService extends BaseService<UserStatus, Long> {
     }
 
     public void createUserStatus(User u, Integer goal, Season season) {
-        UserStatus status = createEntity();
-        status.setUser(u);
-        status.setGoal(goal);
-        status.setSeason(season);
-        calculateUserStatus(status);
-        save(status);
+        if (findByUserId(u.getId(), season.getSeasonYear()).isEmpty()) {
+            UserStatus status = createEntity();
+            status.setUser(u);
+            status.setGoal(goal);
+            status.setSeason(season);
+            calculateUserStatus(status);
+            save(status);
+        }
     }
 
     public void calculateUserStatus(User u) {
@@ -67,7 +69,7 @@ public class UserStatusService extends BaseService<UserStatus, Long> {
     public void calculateUserStatus(UserStatus us) {
         Integer transactions = 0;
         Integer sumCredit = transactionItemService.sumCreditByUserAndSeasonYear(us.getUser(), us.getSeason().getSeasonYear(), Account.MYSHARE);
-        if(sumCredit != null){
+        if (sumCredit != null) {
             transactions += sumCredit;
         }
         Optional<UserStatus> lastYearStatus = findByUserId(us.getUser().getId(), us.getSeason().getSeasonYear() - 1);

@@ -88,11 +88,15 @@ public class ActivityService extends BaseService<Activity, Long> {
     public Long registerActivity(Activity activity, User createUser) {
         Transaction transaction = createTransaction(activity, createUser);
 
-        for (var item : activityItemService.findByActivity(activity.getId())) {
-            createTransactionItem(transaction, createUser, item);
+        try {
+            for (var item : activityItemService.findByActivity(activity.getId())) {
+                createTransactionItem(transaction, createUser, item);
+            }
+            transactionServiceUtils.calculateAllTeamStatus();
+            activity.setRegisteredInApp(true);
+        } catch (Exception ignored){
+
         }
-        transactionServiceUtils.calculateAllTeamStatus();
-        activity.setRegisteredInApp(true);
         return transaction.getId();
     }
 

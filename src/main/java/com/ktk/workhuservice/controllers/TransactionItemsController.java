@@ -10,6 +10,7 @@ import com.ktk.workhuservice.data.users.User;
 import com.ktk.workhuservice.data.users.UserService;
 import com.ktk.workhuservice.dto.TransactionItemDto;
 import com.ktk.workhuservice.enums.Role;
+import com.ktk.workhuservice.enums.TransactionType;
 import com.ktk.workhuservice.mapper.TransactionItemMapper;
 import com.ktk.workhuservice.service.TransactionServiceUtils;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 @RestController
 @RequestMapping("/api/transactionItem")
@@ -102,26 +103,33 @@ public class TransactionItemsController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getTransactionItems(@Nullable @RequestParam("userId") Long userId, @Nullable @RequestParam("transactionId") Long transactionId, @Nullable @RequestParam("roundId") Long roundId) {
-        if (userId != null) {
-            Optional<User> user = userService.findById(userId);
-            if (user.isEmpty()) {
-                return ResponseEntity.status(400).body("No user found with id: " + userId);
-            }
-            if (roundId != null) {
-                Optional<Round> round = roundService.findById(roundId);
-                if (round.isEmpty()) {
-                    return ResponseEntity.status(404).body("No round with id:" + roundId);
-                }
-                return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByUserAndRound(user.get(), round.get()).spliterator(), false).map(modelMapper::entityToDto));
-            }
-            return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByUser(user.get()).spliterator(), false).map(modelMapper::entityToDto));
-        }
-        if (transactionId != null) {
-            return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByTransactionId(transactionId).spliterator(), false).map(modelMapper::entityToDto));
-        }
+    public ResponseEntity<?> getTransactionItems(@Nullable @RequestParam("userId") Long userId,
+                                                 @Nullable @RequestParam("transactionId") Long transactionId,
+                                                 @Nullable @RequestParam("roundId") Long roundId,
+                                                 @Nullable @RequestParam("transactionType") TransactionType transactionType,
+                                                 @Nullable @RequestParam("seasonYear") Integer seasonYear,
+                                                 @Nullable @RequestParam("startDate") LocalDate startDate,
+                                                 @Nullable @RequestParam("endDate") LocalDate endDate) {
+//        if (userId != null) {
+//            Optional<User> user = userService.findById(userId);
+//            if (user.isEmpty()) {
+//                return ResponseEntity.status(404).body("No user found with id: " + userId);
+//            }
+//            if (roundId != null) {
+//                Optional<Round> round = roundService.findById(roundId);
+//                if (round.isEmpty()) {
+//                    return ResponseEntity.status(404).body("No round with id:" + roundId);
+//                }
+//                return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByUserAndRound(user.get(), round.get()).spliterator(), false).map(modelMapper::entityToDto));
+//            }
+//            return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByUser(user.get()).spliterator(), false).map(modelMapper::entityToDto));
+//        }
+//        if (transactionId != null) {
+//            return ResponseEntity.ok(StreamSupport.stream(transactionItemService.findAllByTransactionId(transactionId).spliterator(), false).map(modelMapper::entityToDto));
+//        }
+        return ResponseEntity.ok(transactionItemService.fetchByQuery(transactionType, startDate, endDate, transactionId, roundId, userId, seasonYear).stream().map(modelMapper::entityToDto));
 
-        return ResponseEntity.status(400).body("Empty parameters");
+//        return ResponseEntity.status(400).body("Empty parameters");
 
     }
 }

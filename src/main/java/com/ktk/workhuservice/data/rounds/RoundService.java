@@ -52,19 +52,20 @@ public class RoundService extends BaseService<Round, Long> {
         if (round.isEmpty()) {
 
             LocalDate date = LocalDate.now();
-            Optional<Round> previousRound = findRoundByDate(LocalDateTime.now().minusDays(29));
+            Optional<Round> previousRound = findRoundByDate(LocalDateTime.now().minusDays(1));
             Round r = new Round();
             int weekNumber = date.get(WeekFields.ISO.weekOfWeekBasedYear());
-            LocalDate endOfWeek = date.plusDays(6);
-            r.setEndDateTime(LocalDateTime.of(date.getYear(), date.getMonth(), endOfWeek.getDayOfMonth(), 23, 59));
             r.setStartDateTime(LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 0, 0));
+            LocalDateTime sat = r.getStartDateTime().plusDays(6);
+            r.setEndDateTime(LocalDateTime.of(sat.getYear(), sat.getMonth(), sat.getDayOfMonth(), 23, 59));
+
             r.setFreezeDateTime(r.getEndDateTime().minusDays(1));
             r.setSamvirkChurchGoal(0);
             r.setActiveRound(true);
             r.setSamvirkOnTrackPoints(0);
             r.setSamvirkMaxPoints(0);
-            r.setMyShareGoal(previousRound.get().getMyShareGoal() + 3.5);
-            r.setRoundNumber(weekNumber);
+            r.setMyShareGoal(previousRound.get().getMyShareGoal() + 3.35);
+            r.setRoundNumber(weekNumber+1);
             r.setSeason(season);
             r.setUserRoundsCreated(false);
             r.setSamvirkGoal(0);

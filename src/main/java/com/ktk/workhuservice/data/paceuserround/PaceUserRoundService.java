@@ -62,7 +62,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         return repository.calculatePaceTeamRoundCoins(t, round);
     }
 
-    public double sumByUserAndSeason(User u, Integer seasonYear) {
+    public Double sumByUserAndSeason(User u, Integer seasonYear) {
         return repository.sumByUserAndSeason(u, seasonYear);
     }
 
@@ -98,7 +98,6 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         PaceUserRound pur = new PaceUserRound();
         pur.setRound(round);
         pur.setUser(u);
-        pur.setRoundMyShareGoal(calculateCurrRoundMyShareGoal(round, u));
         pur.setRoundCredits(0);
         pur.setRoundCoins(0.0);
         pur.setOnTrack(false);
@@ -116,7 +115,7 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         pur.setRoundMyShareGoal(calculateCurrRoundMyShareGoal(pur.getRound(), pur.getUser()));
         pur.setRoundCoins(0.0);
         Optional<UserStatus> us = userStatusService.findByUserId(pur.getUser().getId(), pur.getRound().getSeason().getSeasonYear());
-        String myShareOnTrackName = "MyShare On Track Round " + pur.getRound().getRoundNumber() + "(" + pur.getRound().getSeason().getSeasonYear() + ")";
+        String myShareOnTrackName = "MyShare On Track " + pur.getRound().getRoundNumber() + ". hét (" + pur.getRound().getSeason().getSeasonYear() + ")";
         if (us.isPresent() && us.get().getStatus() * 100 >= pur.getRound().getMyShareGoal() && !pur.isMyShareOnTrackPoints()) {
             pur.setOnTrack(true);
             if (!pur.isMyShareOnTrackPoints()) {
@@ -131,7 +130,9 @@ public class PaceUserRoundService extends BaseService<PaceUserRound, Long> {
         Double sumPoints = transactionItemService.sumPointsByUserAndRound(pur.getUser(), pur.getRound());
         pur.addRoundCoins(sumPoints == null ? 0 : sumPoints);
 
-        pur.getUser().setPoints(sumByUserAndSeason(pur.getUser(), pur.getRound().getSeason().getSeasonYear()));
+        Double userPoints = sumByUserAndSeason(pur.getUser(), pur.getRound().getSeason().getSeasonYear());
+
+        pur.getUser().setPoints(userPoints == null ? 0 : userPoints);
         userService.save(pur.getUser());
 
     }

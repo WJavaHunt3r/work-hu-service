@@ -37,7 +37,7 @@ public class ActivityController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> getActivities(@Nullable @RequestParam("responsibleUserId") Long responsibleId,
+    public ResponseEntity<?> getActivities(@Nullable @RequestParam("responsibleId") Long responsibleId,
                                            @Nullable @RequestParam("employerId") Long employerId,
                                            @Nullable @RequestParam("registeredInApp") Boolean registeredInApp,
                                            @Nullable @RequestParam("registeredInMyShare") Boolean registeredInMyShare,
@@ -126,9 +126,9 @@ public class ActivityController {
             return ResponseEntity.status(400).body("Activity already registered!");
         }
 
-        Long transactionId = activityService.registerActivity(activity.get(), user.get());
-
+        Long transactionId = null;
         try {
+            transactionId = activityService.registerActivity(activity.get(), user.get());
             microsoftService.sendActivityToSharePointListItem(activity.get());
             activity.get().setRegisteredInTeams(true);
         } catch (Exception e) {

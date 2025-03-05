@@ -6,6 +6,7 @@ import com.ktk.workhuservice.enums.Account;
 import com.ktk.workhuservice.enums.TransactionType;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +23,10 @@ public class TransactionItemService {
 
     public Optional<TransactionItem> findById(Long id) {
         return transactionItemRepository.findById(id);
+    }
+
+    public List<TransactionItem> fetchByQuery(TransactionType transactionType, LocalDate startDate, LocalDate endDate, Long transactionId, Long roundId, Long userId, Integer seasonYear) {
+        return transactionItemRepository.fetchByQuery(transactionType, startDate, endDate, transactionId, roundId, userId, seasonYear);
     }
 
     public Iterable<TransactionItem> findAllByUser(User user) {
@@ -57,7 +62,7 @@ public class TransactionItemService {
     }
 
     public void deleteByTransactionId(Long transactionId) {
-        findAllByTransactionId(transactionId).forEach(t -> transactionItemRepository.deleteById(t.getId()));
+        fetchByQuery(null, null, null, transactionId, null, null, null).forEach(t -> transactionItemRepository.deleteById(t.getId()));
     }
 
     public void deleteById(Long transactionItemId) {
@@ -100,7 +105,7 @@ public class TransactionItemService {
             if (t.getTransactionDate() == null) {
                 t.setTransactionDate(t.getCreateDateTime().toLocalDate());
             }
-            return  transactionItemRepository.save(t);
+            return transactionItemRepository.save(t);
         }
         return t;
     }

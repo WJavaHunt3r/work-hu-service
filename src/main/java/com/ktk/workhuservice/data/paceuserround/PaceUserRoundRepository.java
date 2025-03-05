@@ -15,7 +15,7 @@ public interface PaceUserRoundRepository extends JpaRepository<PaceUserRound, Lo
     Optional<PaceUserRound> findByUserAndRound(User u, Round r);
 
     @Query("SELECT sum(ur.roundCoins) FROM PaceUserRound ur WHERE ur.round.activeRound = true and ur.user = ?1 AND ur.round.season.seasonYear = ?2 ")
-    double sumByUserAndSeason(User u, Integer seasonYear);
+    Double sumByUserAndSeason(User u, Integer seasonYear);
 
     @Query(value = "SELECT COUNT(ur.id) FROM user_status us "
             + "RIGHT JOIN public.pace_user_rounds ur ON ur.id = us.users "
