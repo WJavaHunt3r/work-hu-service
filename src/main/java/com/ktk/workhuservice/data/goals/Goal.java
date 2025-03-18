@@ -4,6 +4,7 @@ import com.ktk.workhuservice.data.BaseEntity;
 import com.ktk.workhuservice.data.seasons.Season;
 import com.ktk.workhuservice.data.users.User;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
@@ -16,6 +17,7 @@ import javax.validation.constraints.NotNull;
 @Table(name = "GOALS", uniqueConstraints =
         { @UniqueConstraint(name = "UniqueSeasonAndUser", columnNames = { "SEASON", "USERS" })})
 @FieldNameConstants
+@RequiredArgsConstructor
 public class Goal extends BaseEntity<Goal, Long> {
 
     @NotNull
