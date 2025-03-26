@@ -19,6 +19,10 @@ public class PaymentsService extends BaseService<Payment, Long> {
         return repository.fetchByQuery(status, userId, donationId);
     }
 
+    public Integer sumByDonation(Long donationId) {
+        return repository.sumByDonation(donationId);
+    }
+
     @Override
     protected JpaRepository<Payment, Long> getRepository() {
         return repository;

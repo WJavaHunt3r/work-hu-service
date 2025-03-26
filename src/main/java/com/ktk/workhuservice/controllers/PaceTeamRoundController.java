@@ -26,4 +26,10 @@ public class PaceTeamRoundController {
         return ResponseEntity.status(200).body("Recalculation successful");
     }
 
+    @PostMapping("/recalculateAll")
+    public ResponseEntity recalculateAllTeamRoundsScore() {
+        service.calculateAllTeamAllRoundPoints();
+        return ResponseEntity.status(200).body("Recalculation successful");
+    }
+
 }

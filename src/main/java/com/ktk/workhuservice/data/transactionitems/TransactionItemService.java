@@ -49,6 +49,10 @@ public class TransactionItemService {
         return transactionItemRepository.sumPointsByUserAndRound(user, s);
     }
 
+    public Double sumPointsByUserAndSeasonYear(User user, Integer seasonYear) {
+        return transactionItemRepository.sumPointsByUserAndSeasonYear(user, seasonYear);
+    }
+
     public Integer sumCreditByUserAndSeasonYear(User user, Integer year, Account account) {
         return transactionItemRepository.sumCreditByUserAndSeasonYear(user, year, account);
     }
@@ -97,7 +101,12 @@ public class TransactionItemService {
 //                }
 
             } else if (t.getAccount().equals(Account.OTHER)) {
-                t.setPoints(t.getHours() * 6.0);
+                if (t.getTransactionType().equals(TransactionType.POINT)) {
+                    if(t.getHours() != 0) {
+                        t.setPoints(t.getHours() * 6.0);
+                    }
+                }
+
                 t.setCredit(0);
             }
 
