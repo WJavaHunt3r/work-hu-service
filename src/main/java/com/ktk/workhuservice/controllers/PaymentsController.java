@@ -48,18 +48,24 @@ public class PaymentsController {
             if (createUser.isEmpty()) {
                 return ResponseEntity.status(400).body("No user with id:" + payment.getUser().getId());
             }
+            Optional<User> recipientUser = userService.findById(payment.getRecipient().getId());
+            if (recipientUser.isEmpty()) {
+                return ResponseEntity.status(400).body("No user with id:" + payment.getUser().getId());
+            }
             entity.setUser(createUser.get());
+            entity.setRecipient(recipientUser.get());
         }
 
-        return ResponseEntity.status(200).body(paymentService.save(paymentMapper.dtoToEntity(payment, entity)));
+        return ResponseEntity.status(200).body(paymentMapper.entityToDto(paymentService.save(paymentMapper.dtoToEntity(payment, entity))));
     }
 
     @PutMapping("/{paymentId}")
-    public ResponseEntity<?> putPayment(@Valid @RequestBody Payment payment, @PathVariable Long paymentId) {
-        if (paymentService.findById(paymentId).isEmpty() || !payment.getId().equals(paymentId)) {
+    public ResponseEntity<?> putPayment(@Valid @RequestBody PaymentDto paymentDto, @PathVariable Long paymentId) {
+        Optional<Payment> payment = paymentService.findById(paymentId);
+        if (payment.isEmpty() || !paymentDto.getId().equals(paymentId)) {
             return ResponseEntity.status(400).body("Invalid paymentId");
         }
-        return ResponseEntity.status(200).body(paymentService.save(payment));
+        return ResponseEntity.status(200).body(paymentMapper.entityToDto(paymentService.save(paymentMapper.dtoToEntity(paymentDto, payment.get()))));
     }
 
     @DeleteMapping("/{paymentId}")

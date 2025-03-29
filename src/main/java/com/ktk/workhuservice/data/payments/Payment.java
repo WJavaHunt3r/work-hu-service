@@ -64,6 +64,10 @@ public class Payment extends BaseEntity<Payment, Long> {
     @ManyToOne
     private User user;
 
+    @JoinColumn(name = "RECIPIENT")
+    @ManyToOne
+    private User recipient;
+
     @JoinColumn(name = "DONATION")
     @ManyToOne
     private Donation donation;

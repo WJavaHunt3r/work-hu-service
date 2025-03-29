@@ -1,5 +1,6 @@
 package com.ktk.workhuservice.data.payments;
 
+import com.ktk.workhuservice.data.userstatus.UserStatusService;
 import com.ktk.workhuservice.enums.PaymentStatus;
 import com.ktk.workhuservice.service.BaseService;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +12,7 @@ import java.util.List;
 public class PaymentsService extends BaseService<Payment, Long> {
     private final PaymentRepository repository;
 
-    public PaymentsService(PaymentRepository repository) {
+    public PaymentsService(PaymentRepository repository, UserStatusService userStatusService) {
         this.repository = repository;
     }
 
@@ -20,7 +21,7 @@ public class PaymentsService extends BaseService<Payment, Long> {
     }
 
     public Integer sumByDonation(Long donationId) {
-        return repository.sumByDonation(donationId);
+        return repository.sumByDonation(donationId, PaymentStatus.PAID);
     }
 
     @Override

@@ -79,6 +79,9 @@ public class UserStatusService extends BaseService<UserStatus, Long> {
         } else {
             transactions += us.getUser().getBaseMyShareCredit();
         }
+        Optional<Goal> userGoal = goalService.findByUserAndSeasonYear(us.getUser(), us.getSeason().getSeasonYear());
+        if (userGoal.isEmpty()) return;
+        us.setGoal(userGoal.get().getGoal());
         us.setStatus((double) transactions / us.getGoal());
         us.setTransactions(transactions);
         us.setTransition(Math.max(us.getTransactions() - us.getGoal(), 0));

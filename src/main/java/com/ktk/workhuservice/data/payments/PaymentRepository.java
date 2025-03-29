@@ -15,6 +15,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
             " AND (p.donation.id = ?3 or ?3 is null) ")
     List<Payment> fetchByQuery(PaymentStatus status, Long userId, Long donationId);
 
-    @Query(" SELECT sum(p.amount) FROM Payment p WHERE p.donation.id = ?1 or ?1 is null" )
-    Integer sumByDonation(Long donationId);
+    @Query(" SELECT sum(p.amount) FROM Payment p WHERE p.status = ?2 and ( p.donation.id = ?1 or ?1 is null) ")
+    Integer sumByDonation(Long donationId, PaymentStatus status);
 }

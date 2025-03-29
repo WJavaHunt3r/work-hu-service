@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class PaymentDto {
+    private Long id;
 
     private Integer amount;
 
@@ -29,6 +30,8 @@ public class PaymentDto {
     private PaymentGoal paymentGoal;
 
     private UserDto user;
+
+    private UserDto recipient;
 
     private Donation donation;
 

@@ -18,6 +18,10 @@ public class PaymentMapper extends BaseMapper<Payment, PaymentDto> {
         propertyMapper.addMappings(
                 mapper -> mapper.using(userToDto).map(Payment::getUser, PaymentDto::setUser)
         );
+
+        propertyMapper.addMappings(
+                mapper -> mapper.using(userToDto).map(Payment::getRecipient, PaymentDto::setRecipient)
+        );
     }
 
     @Override
@@ -29,6 +33,7 @@ public class PaymentMapper extends BaseMapper<Payment, PaymentDto> {
     public Payment dtoToEntity(PaymentDto dto, Payment entity) {
         Payment payment = modelMapper.map(dto, Payment.class);
         payment.setUser(entity.getUser());
+        payment.setRecipient(entity.getRecipient());
         return payment;
     }
 }
